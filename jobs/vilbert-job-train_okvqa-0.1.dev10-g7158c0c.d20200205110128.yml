@@ -1,0 +1,70 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vilbert-job-0.1.dev10-g7158c0c.d20200205110128
+  namespace: human-ai-dialog
+  annotations:
+    job-type: gpu
+    author-name: "Maryam Ziaeefard"
+    author-email: "maryam.ziaeefard.e@thalesdigital.io"
+spec:
+  ttlSecondsAfterFinished: 172800
+  backoffLimit: 1
+  template:
+    spec:
+      imagePullSecrets:
+      - name: human-ai-dialog-collaborative-docker-registry-secret
+      initContainers:
+      - name: init-output-folder
+        image: busybox
+        command: ["mkdir","-p","/nas-data/outputs/vilbert-job-0.1.dev10-g7158c0c.d20200205110128"]
+        volumeMounts:
+        - name: nas-data-volume
+          mountPath: /nas-data
+      containers:
+      - name: vilbert-pod
+        image: "collaborative-docker-registry.collaborative.local:5100/ca.thalesgroup.trt/human-ai-dialog/vilbert:0.1.dev10-g7158c0c.d20200205110128"
+        resources:
+          limits:
+            nvidia.com/gpu: 11
+        command: ["/bin/sh","-c"]
+        args: ["cd vilbert && python3 -u train_tasks.py --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/VQA_bert_base_6layer_6conect-pretrained/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/data2/save --learning_rate 4e-5 --num_workers 16 --tasks 42 --save_name test_wl --lr_scheduler=automatic"]
+        volumeMounts:
+          - name: nas-data-volume
+            mountPath: /nas-data
+          - name: dshm
+            mountPath: /dev/shm
+        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0,1,2,3,4,5,6,7,8,9,10"
+      restartPolicy: Never    
+      volumes:
+      # DSHM to raise Shared memory
+      - name: dshm
+        emptyDir: 
+          medium: Memory 
+      # Mount SAMBA volume from common-nas-server.common.local
+      - name: nas-data-volume
+        flexVolume:
+          driver: "fstab/cifs"
+          fsType: "cifs"
+          secretRef:
+            name: "human-ai-dialog-cifs-service-user-secret"
+          options:
+            networkPath: "//common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED"
+            mountOptions: "dir_mode=0755,file_mode=0644,noperm,vers=3.0,iocharset=utf8"
+      affinity:
+        # Schedule this job on a GPU worker node
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: worker-type
+                operator: In
+                values:
+                - gpu
+      tolerations:
+      # Allow this job to be executed on a dedicated GPU worker node
+      - key: "dedicated-processing"
+        operator: Equal
+        value: "gpu"
