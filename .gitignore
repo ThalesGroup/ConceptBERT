@@ -1,7 +1,4 @@
 # Removes venv folder
-vilbert/venv/bin
-vilbert/venv/lib
-vilbert/venv/lib64
-vilbert/venv/share
+kilbert/venv
 # Removes jobs folder
 jobs
