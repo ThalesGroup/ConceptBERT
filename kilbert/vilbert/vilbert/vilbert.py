@@ -52,10 +52,11 @@ from copy import deepcopy
 #####     METHOD USED     #####
 ###############################
 # Possible values:
+# 0 -> Classic ViLBERT
 # 1 -> BERT embedding + ConceptNet embedding (changes in `BertEmbeddings`)
 # 2 -> BERT attention + ConceptNet attention (changes in `BertSelfAttention`)
 # 3 -> VILBert attention + ConceptNet attention on question (improves question's attention)
-global_method = 3
+global_method = 0
 
 
 def load_tf_weights_in_bert(model, tf_checkpoint_path):
