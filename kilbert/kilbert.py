@@ -11,6 +11,15 @@ from vilbert.vilbert import VILBertForVLTasks
 from q_kg_transformer.transformer import QuestionGraphTransformer
 from graph_refinement.graph_refinement import GraphRefinement
 
+from fusion_modules.question_fusion import (
+    SimpleQuestionAddition,
+    SimpleQuestionMultiplication,
+    SimpleQuestionConcatenation,
+)
+from fusion_modules.aggregator import SimpleConcatenation
+
+from classifier.classifier import SimpleClassifier
+
 ### CLASS DEFINITION ###
 class Kilbert(nn.Module):
     """
@@ -37,6 +46,9 @@ class Kilbert(nn.Module):
         self.graph_refinement = GraphRefinement()
 
         # Fusion modules
+        self.fusion_question = SimpleQuestionAddition(config)
+
+        self.aggregator = SimpleConcatenation(config)
 
         # Prediction modules
         # self.vil_prediction = SimpleClassifier(in_dim, hid_dim, out_dim, dropout)
@@ -130,14 +142,42 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
-        # TODO: Get the results from the G1 module
+        # Refine the given ConceptNet graph with the help of `G_1` model
+        list_questions = []
+        input_questions = input_txt.tolist()
 
-        # TODO: Send the question results from ViLBERT and Transformer to the
+        for list_indexes in input_questions:
+            list_words = []
+            for index in list_indexes:
+                try:
+                    list_words.append(conceptnet_graph.get_word(index))
+                except Exception as e:
+                    print("ERROR: ", e)
+            list_questions.append(list_words)
+
+        self.graph_refinement(list_questions, attention_mask_bis, conceptnet_graph)
+        conceptnet_graph.normalize_weights()
+
+        # Send the question results from ViLBERT and Transformer to the
         # F1 fusion module
+        fused_question_emb, fused_question_att = self.fusion_question(
+            sequence_output_t[-1],
+            all_attention_mask[0],
+            sequence_output_t_bis[-1],
+            attention_mask_bis,
+        )
 
-        # TODO: Send the image, question and ConceptNet to the Aggregator module
+        # Send the image, question and ConceptNet to the Aggregator module
+        # TODO: Reduce the size of the ConceptNet graph by pruning low-weighted edges
+        # Keep only the k highest ones
 
         # TODO: Get the resulting vector from the Aggregator module
+        result_vector = self.aggregator(
+            fused_question_emb,
+            fused_question_att,
+            sequence_output_v[-1],
+            all_attention_mask[1],
+        )
 
         # TODO: Send the vector to the SimpleClassifier to get the answer
-
+        # self.vil_prediction()
