@@ -89,3 +89,25 @@ class BertEmbeddings(nn.Module):
 
         return embeddings, kg_embeddings
 
+
+class BertImageEmbeddings(nn.Module):
+    """
+        Constructs the embeddings from image, spatial location (omit now) and 
+        token_type embeddings.
+    """
+
+    def __init__(self, config):
+        super(BertImageEmbeddings, self).__init__()
+
+        self.image_embeddings = nn.Linear(config.v_feature_size, config.v_hidden_size)
+        self.image_location_embeddings = nn.Linear(5, config.v_hidden_size)
+        self.LayerNorm = BertLayerNorm(config.v_hidden_size, eps=1e-12)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+
+    def forward(self, input_ids, input_loc):
+        img_embeddings = self.image_embeddings(input_ids)
+        loc_embeddings = self.image_location_embeddings(input_loc)
+        embeddings = self.LayerNorm(img_embeddings + loc_embeddings)
+        embeddings = self.dropout(embeddings)
+
+        return embeddings
