@@ -305,83 +305,6 @@ except ImportError:
             x = (x - u) / torch.sqrt(s + self.variance_epsilon)
             return self.weight * x + self.bias
 
-class BertEmbeddings(nn.Module):
-    """Construct the embeddings from word, position and token_type embeddings.
-    """
-
-    def __init__(self, config, split):
-        super(BertEmbeddings, self).__init__()
-        self.word_embeddings = nn.Embedding(
-            config.vocab_size, config.hidden_size, padding_idx=0
-        )
-        self.position_embeddings = nn.Embedding(
-            config.max_position_embeddings, config.hidden_size
-        )
-        self.token_type_embeddings = nn.Embedding(
-            config.type_vocab_size, config.hidden_size
-        )
-
-        # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
-        # any TensorFlow checkpoint file
-        self.LayerNorm = BertLayerNorm(config.hidden_size, eps=1e-12)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        
-        if global_method == 1:
-            # Initiate the ConceptNet graph
-            from vilbert.knowledge_graph.conceptnet_graph import ConceptNet
-            self.conceptnet_graph = ConceptNet(split)
-        
-        elif global_method == 2 or global_method == 3:
-            # Initiate the ConceptNet graph
-            from vilbert.knowledge_graph.conceptnet_graph import ConceptNet
-            self.conceptnet_graph = ConceptNet(split)
-            
-            self.LayerNorm_kb = deepcopy(self.LayerNorm)
-            self.dropout_kb = deepcopy(self.dropout)
-
-    def forward(self, input_ids, token_type_ids=None):
-        seq_length = input_ids.size(1)
-        position_ids = torch.arange(
-            seq_length, dtype=torch.long, device=input_ids.device
-        )
-        position_ids = position_ids.unsqueeze(0).expand_as(input_ids)
-        if token_type_ids is None:
-            token_type_ids = torch.zeros_like(input_ids)
-
-        words_embeddings = self.word_embeddings(input_ids)
-        position_embeddings = self.position_embeddings(position_ids)
-        token_type_embeddings = self.token_type_embeddings(token_type_ids)
-        
-        embeddings = words_embeddings + position_embeddings + token_type_embeddings
-        
-        if global_method == 1:
-            kg_embeddings = self.conceptnet_graph.get_kg_embedding_tokens(input_ids, words_embeddings.size(1), words_embeddings.size(2))
-            # Send tensor to correct device
-            kg_embeddings = kg_embeddings.cuda(words_embeddings.get_device()) if words_embeddings.is_cuda else kg_embeddings
-            embeddings += kg_embeddings
-            
-        txt_embedding_kb = None
-        if global_method == 2 or global_method == 3:
-            kg_embeddings = self.conceptnet_graph.get_kg_embedding_tokens(input_ids, words_embeddings.size(1), words_embeddings.size(2))
-            # Send tensor to correct device
-            kg_embeddings = kg_embeddings.cuda(words_embeddings.get_device()) if words_embeddings.is_cuda else kg_embeddings
-        
-            txt_embedding_kb = kg_embeddings
-            txt_embedding_kb = self.LayerNorm_kb(txt_embedding_kb)
-            txt_embedding_kb = self.dropout_kb(txt_embedding_kb)
-        
-        embeddings = self.LayerNorm(embeddings)
-        embeddings = self.dropout(embeddings)
-        
-        # Define ranges of the embeddings
-        """
-        print("Range `words_embeddings`: [", torch.min(words_embeddings), " ; ", torch.max(words_embeddings), "]")
-        print("Range `position_embeddings`: [", torch.min(position_embeddings), " ; ", torch.max(position_embeddings), "]")
-        print("Range `token_type_embeddings`: [", torch.min(token_type_embeddings), " ; ", torch.max(token_type_embeddings), "]")
-        print("Range `wl_embeddings`: [", torch.min(wl_embeddings), " ; ", torch.max(wl_embeddings), "]") 
-        """
-        
-        return embeddings, txt_embedding_kb
 
 class BertSelfAttention(nn.Module):
     def __init__(self, config):
@@ -1544,13 +1467,6 @@ class BertModel(BertPreTrainedModel):
 
     def __init__(self, config, split):
         super(BertModel, self).__init__(config)
-
-        # initialize word embedding
-        self.embeddings = BertEmbeddings(config, split)
-
-        # initialize the vision embedding
-        self.v_embeddings = BertImageEmbeddings(config)
-
         self.encoder = BertEncoder(config)
         self.t_pooler = BertTextPooler(config)
         self.v_pooler = BertImagePooler(config)
@@ -1562,67 +1478,24 @@ class BertModel(BertPreTrainedModel):
 
     def forward(
         self,
-        input_txt,
-        input_imgs,
-        image_loc,
-        token_type_ids=None,
-        attention_mask=None,
-        image_attention_mask=None,
-        co_attention_mask=None,
-        output_all_encoded_layers=False,
+        txt_embedding,
+        img_embedding,
+        kg_embedding,
+        extended_attention_mask,
+        extended_image_attention_mask,
+        extended_co_attention_mask,
+        output_all_encoded_layers,
         output_all_attention_masks=False,
     ):
-            
-        if attention_mask is None:
-            attention_mask = torch.ones_like(input_txt)
-        if token_type_ids is None:
-            token_type_ids = torch.zeros_like(input_txt)
-        if image_attention_mask is None:
-            image_attention_mask = torch.ones(
-                input_imgs.size(0), input_imgs.size(1)
-            ).type_as(input_txt)
-
-        # We create a 3D attention mask from a 2D tensor mask.
-        # Sizes are [batch_size, 1, 1, to_seq_length]
-        # So we can broadcast to [batch_size, num_heads, from_seq_length, to_seq_length]
-        # this attention mask is more simple than the triangular masking of causal attention
-        # used in OpenAI GPT, we just need to prepare the broadcast dimension here.
-        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
-        extended_image_attention_mask = image_attention_mask.unsqueeze(1).unsqueeze(2)
-
-        # Since attention_mask is 1.0 for positions we want to attend and 0.0 for
-        # masked positions, this operation will create a tensor which is 0.0 for
-        # positions we want to attend and -10000.0 for masked positions.
-        # Since we are adding it to the raw scores before the softmax, this is
-        # effectively the same as removing these entirely.
-        extended_attention_mask = extended_attention_mask.to(
-            dtype=next(self.parameters()).dtype
-        )  # fp16 compatibility
-        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
-
-        extended_image_attention_mask = extended_image_attention_mask.to(
-            dtype=next(self.parameters()).dtype
-        )  # fp16 compatibility
-        extended_image_attention_mask = (1.0 - extended_image_attention_mask) * -10000.0
-
-        if co_attention_mask is None:
-            co_attention_mask = torch.zeros(input_txt.size(0), input_imgs.size(1), input_txt.size(1)).type_as(extended_image_attention_mask)         
-
-        extended_co_attention_mask = co_attention_mask.unsqueeze(1)
-
-        # extended_co_attention_mask = co_attention_mask.unsqueeze(-1)
-        extended_co_attention_mask = extended_co_attention_mask * 5.0
-        extended_co_attention_mask = extended_co_attention_mask.to(
-            dtype=next(self.parameters()).dtype
-        )  # fp16 compatibility
-
+        """
         embedding_output, txt_embedding_kb = self.embeddings(input_txt, token_type_ids)
         v_embedding_output = self.v_embeddings(input_imgs, image_loc)
+        """
         
         if global_method == 3:
             encoded_layers_t, encoded_layers_v, all_attention_mask = self.encoder(
-                embedding_output,
-                v_embedding_output,
+                txt_embedding,
+                img_embedding,
                 extended_attention_mask,
                 extended_image_attention_mask,
                 extended_co_attention_mask,
@@ -1633,14 +1506,14 @@ class BertModel(BertPreTrainedModel):
         
         else:
             encoded_layers_t, encoded_layers_v, all_attention_mask = self.encoder(
-                embedding_output,
-                v_embedding_output,
+                txt_embedding,
+                img_embedding,
                 extended_attention_mask,
                 extended_image_attention_mask,
                 extended_co_attention_mask,
                 output_all_encoded_layers=output_all_encoded_layers,
                 output_all_attention_masks=output_all_attention_masks,
-                txt_embedding_kb=txt_embedding_kb
+                txt_embedding_kb=kg_embedding
             )
         
         #### BEGIN ADDED ####
@@ -1648,11 +1521,10 @@ class BertModel(BertPreTrainedModel):
             encoded_layers_t, text_attention_mask = self.custom_encoder(
                 encoded_layers_t[-1],
                 extended_attention_mask,
-                txt_embedding_kb,
+                kg_embedding,
             )
             # Update the attention_mask
-            # all_attention_mask[0] = text_attention_mask 
-            # Note: Useless because `all_attention_mask` dropped in VilbertForVLTasks
+            all_attention_mask[0] = text_attention_mask 
         #### END ADDED ####
 
         sequence_output_t = encoded_layers_t[-1]
@@ -1666,27 +1538,6 @@ class BertModel(BertPreTrainedModel):
             encoded_layers_v = encoded_layers_v[-1]
 
         return encoded_layers_t, encoded_layers_v, pooled_output_t, pooled_output_v, all_attention_mask
-
-
-class BertImageEmbeddings(nn.Module):
-    """Construct the embeddings from image, spatial location (omit now) and token_type embeddings.
-    """
-    def __init__(self, config):
-        super(BertImageEmbeddings, self).__init__()
-
-        self.image_embeddings = nn.Linear(config.v_feature_size, config.v_hidden_size)
-        self.image_location_embeddings = nn.Linear(5, config.v_hidden_size)
-        self.LayerNorm = BertLayerNorm(config.v_hidden_size, eps=1e-12)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-
-    def forward(self, input_ids, input_loc):
-
-        img_embeddings = self.image_embeddings(input_ids)
-        loc_embeddings = self.image_location_embeddings(input_loc)        
-        embeddings = self.LayerNorm(img_embeddings+loc_embeddings)
-        embeddings = self.dropout(embeddings)
-        
-        return embeddings
 
 
 class BertForMultiModalPreTraining(BertPreTrainedModel):
@@ -1791,25 +1642,23 @@ class VILBertForVLTasks(BertPreTrainedModel):
 
     def forward(
         self,
-        input_txt,
-        input_imgs,
-        image_loc,
-        token_type_ids=None,
-        attention_mask=None,
-        image_attention_mask=None,
-        co_attention_mask=None,
+        txt_embedding,
+        img_embedding,
+        kg_embedding,
+        extended_attention_mask,
+        extended_image_attention_mask,
+        extended_co_attention_mask,
         output_all_encoded_layers=False,
     ):
     
         sequence_output_t, sequence_output_v, pooled_output_t, pooled_output_v, all_attention_mask = self.bert(
-            input_txt,
-            input_imgs,
-            image_loc,
-            token_type_ids,
-            attention_mask,
-            image_attention_mask,
-            co_attention_mask,
-            output_all_encoded_layers=False,
+            txt_embedding,
+            img_embedding,
+            kg_embedding,
+            extended_attention_mask,
+            extended_image_attention_mask,
+            extended_co_attention_mask,
+            output_all_encoded_layers=output_all_encoded_layers,
         )
         """
         vil_prediction = 0
