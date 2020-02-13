@@ -299,70 +299,6 @@ except ImportError:
             return self.weight * x + self.bias
 
 
-class BertEmbeddings(nn.Module):
-    """Construct the embeddings from word, position and token_type embeddings.
-    """
-
-    def __init__(self, config, split):
-        super(BertEmbeddings, self).__init__()
-        self.word_embeddings = nn.Embedding(
-            config.vocab_size, config.hidden_size, padding_idx=0
-        )
-        self.position_embeddings = nn.Embedding(
-            config.max_position_embeddings, config.hidden_size
-        )
-        self.token_type_embeddings = nn.Embedding(
-            config.type_vocab_size, config.hidden_size
-        )
-
-        # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
-        # any TensorFlow checkpoint file
-        self.LayerNorm = BertLayerNorm(config.hidden_size, eps=1e-12)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-
-        # Initiate the ConceptNet graph
-        from conceptnet_embedding import ConceptNetEmbedding
-
-        self.kg_embedding = ConceptNetEmbedding(split)
-
-        self.LayerNorm_kb = deepcopy(self.LayerNorm)
-        self.dropout_kb = deepcopy(self.dropout)
-
-    def forward(self, input_ids, token_type_ids=None):
-        seq_length = input_ids.size(1)
-        position_ids = torch.arange(
-            seq_length, dtype=torch.long, device=input_ids.device
-        )
-        position_ids = position_ids.unsqueeze(0).expand_as(input_ids)
-        if token_type_ids is None:
-            token_type_ids = torch.zeros_like(input_ids)
-
-        words_embeddings = self.word_embeddings(input_ids)
-        position_embeddings = self.position_embeddings(position_ids)
-        token_type_embeddings = self.token_type_embeddings(token_type_ids)
-
-        embeddings = words_embeddings + position_embeddings + token_type_embeddings
-
-        kg_embeddings = self.kg_embedding.get_kg_embedding_tokens(
-            input_ids, words_embeddings.size(1), words_embeddings.size(2)
-        )
-        # Send tensor to correct device
-        kg_embeddings = (
-            kg_embeddings.cuda(words_embeddings.get_device())
-            if words_embeddings.is_cuda
-            else kg_embeddings
-        )
-
-        txt_embedding_kb = kg_embeddings
-        txt_embedding_kb = self.LayerNorm_kb(txt_embedding_kb)
-        txt_embedding_kb = self.dropout_kb(txt_embedding_kb)
-
-        embeddings = self.LayerNorm(embeddings)
-        embeddings = self.dropout(embeddings)
-
-        return embeddings, txt_embedding_kb
-
-
 class CustomBertSelfAttention(nn.Module):
     def __init__(self, config):
         super(CustomBertSelfAttention, self).__init__()
@@ -902,49 +838,21 @@ class BertModel(BertPreTrainedModel):
     def __init__(self, config, split):
         super(BertModel, self).__init__(config)
 
-        # initialize word embedding
-        self.embeddings = BertEmbeddings(config, split)
-
-        self.t_pooler = BertTextPooler(config)
+        # self.t_pooler = BertTextPooler(config)
         self.custom_encoder = CustomBertEncoder(config)
 
         self.apply(self.init_bert_weights)
 
     def forward(
         self,
-        input_txt,
-        token_type_ids=None,
-        attention_mask=None,
-        output_all_encoded_layers=False,
+        txt_embedding,
+        kg_embedding,
+        extended_attention_mask,
+        output_all_encoded_layers,
         output_all_attention_masks=False,
     ):
-
-        if attention_mask is None:
-            attention_mask = torch.ones_like(input_txt)
-        if token_type_ids is None:
-            token_type_ids = torch.zeros_like(input_txt)
-
-        # We create a 3D attention mask from a 2D tensor mask.
-        # Sizes are [batch_size, 1, 1, to_seq_length]
-        # So we can broadcast to [batch_size, num_heads, from_seq_length, to_seq_length]
-        # this attention mask is more simple than the triangular masking of causal attention
-        # used in OpenAI GPT, we just need to prepare the broadcast dimension here.
-        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
-
-        # Since attention_mask is 1.0 for positions we want to attend and 0.0 for
-        # masked positions, this operation will create a tensor which is 0.0 for
-        # positions we want to attend and -10000.0 for masked positions.
-        # Since we are adding it to the raw scores before the softmax, this is
-        # effectively the same as removing these entirely.
-        extended_attention_mask = extended_attention_mask.to(
-            dtype=next(self.parameters()).dtype
-        )  # fp16 compatibility
-        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
-
-        embedding_output, txt_embedding_kb = self.embeddings(input_txt, token_type_ids)
-
         encoded_layers_t, text_attention_mask = self.custom_encoder(
-            embedding_output, extended_attention_mask, txt_embedding_kb
+            txt_embedding, extended_attention_mask, kg_embedding
         )
 
         sequence_output_t = encoded_layers_t[-1]
@@ -966,13 +874,16 @@ class QuestionGraphTransformer(nn.Module):
 
     def forward(
         self,
-        input_txt,
-        token_type_ids=None,
-        attention_mask=None,
+        txt_embedding,
+        kg_embedding,
+        extended_attention_mask,
         output_all_encoded_layers=False,
     ):
         sequence_output_t, attention_mask = self.bert(
-            input_txt, token_type_ids, attention_mask, output_all_encoded_layers=False
+            txt_embedding,
+            kg_embedding,
+            extended_attention_mask,
+            output_all_encoded_layers=False,
         )
 
         return sequence_output_t, attention_mask
