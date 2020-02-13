@@ -24,6 +24,11 @@ class ConceptNet:
         ) as json_file:
             self.index_nodes_dict = json.load(json_file)
 
+        list_nodes = ["" for _ in range(len(self.index_nodes_dict))]
+        for word, index in self.index_nodes_dict.items():
+            list_nodes[self.index_nodes_dict[word]] = index
+        self.list_nodes = list_nodes
+
         # Load the list of list of neighbors
         if not os.path.exists(
             "/nas-data/vilbert/data2/conceptnet/processed/cn_list_neighbors.json"
@@ -56,6 +61,15 @@ class ConceptNet:
         """
         try:
             return self.index_nodes_dict[word]
+        except Exception as e:
+            print("ERROR: ", e)
+
+    def get_word(self, index):
+        """
+            Given an index, finds the corresponding word
+        """
+        try:
+            return self.list_nodes[index]
         except Exception as e:
             print("ERROR: ", e)
 
@@ -104,4 +118,3 @@ class ConceptNet:
             self.weight_edges[edge]["weight"] = float(
                 self.weight_edges[edge]["weight"] / maximum_weight
             )
-
