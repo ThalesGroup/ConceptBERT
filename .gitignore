@@ -1,0 +1,4 @@
+# Removes venv folder
+vilbert/venv
+# Removes jobs folder
+jobs
