@@ -22,13 +22,13 @@ spec:
         - name: nas-data-volume
           mountPath: /nas-data
       containers:
-      - name: vilbert-pod
+      - name: kilbert-pod
         image: "collaborative-docker-registry.collaborative.local:5100/IMAGE_NAME_PLACEHOLDER"
         resources:
           limits:
             nvidia.com/gpu: 8
         command: ["/bin/sh","-c"]
-        args: ["cd vilbert && python3 -u train_tasks.py --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/VQA_bert_base_6layer_6conect-pretrained/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/data2/save --learning_rate 4e-5 --num_workers 16 --tasks 42 --save_name test_cn --lr_scheduler=automatic"]
+        args: ["cd kilbert && python3 -u train_tasks.py --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/VQA_bert_base_6layer_6conect-pretrained/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/data2/save --learning_rate 4e-5 --num_workers 16 --tasks 42 --save_name test_cn --lr_scheduler=automatic"]
         volumeMounts:
           - name: nas-data-volume
             mountPath: /nas-data
