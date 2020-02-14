@@ -16,7 +16,9 @@ class SimpleConcatenation(nn.Module):
         print("TBD")
 
     def forward(
-        self, question_emb, question_att, image_emb, image_att, conceptnet_graph
+        self, question_emb, question_att, image_emb, image_att, knowledge_graph_emb
     ):
         # TODO: Convert the conceptnet_graph to a vector that can be concatenated
-        print("TBD")
+        return torch.cat(
+            [question_emb, question_att, image_emb, image_att, knowledge_graph_emb]
+        )
