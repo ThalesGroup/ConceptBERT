@@ -143,9 +143,15 @@ class Kilbert(nn.Module):
         sequence_output_t = sequence_output_t[bert_layer_used]
         sequence_output_v = sequence_output_v[bert_layer_used]
 
+        print("Initial size sequence_output_t: ", sequence_output_t.shape)
+        print("Initial size sequence_output_v: ", sequence_output_v.shape)
+
         if use_pooled_output:
             sequence_output_t = self.bert_text_pooler(sequence_output_t)
             sequence_output_v = self.bert_image_pooler(sequence_output_v)
+
+        print("Size sequence_output_t: ", sequence_output_t.shape)
+        print("Size sequence_output_v: ", sequence_output_v.shape)
 
         # Get the results from the Transformer module
         sequence_output_t_bis, attention_mask_bis = self.q_kg_transformer(
@@ -157,6 +163,9 @@ class Kilbert(nn.Module):
 
         # Choose the layer used
         sequence_output_t_bis = sequence_output_t_bis[bert_layer_used]
+
+        print("Size sequence_output_t_bis: ", sequence_output_t_bis.shape)
+        print("Size attention_mask_bis: ", attention_mask_bis.shape)
 
         # Normalize the graph weights, so that high weights don't override
         # the added weights
@@ -185,16 +194,22 @@ class Kilbert(nn.Module):
             attention_mask_bis,
         )
 
+        print("Size fused_question_emb: ", fused_question_emb.shape)
+        print("Size fused_question_att: ", fused_question_att.shape)
+
         # Reduce the size of the ConceptNet graph by pruning low-weighted edges
         # Keep only the k highest ones
         list_main_entities = conceptnet_graph.select_top_edges(k)
-        knowledge_graph_emb = []
+        kg_emb = []
         for entity in list_main_entities:
-            knowledge_graph_emb.append(
+            kg_emb.append(
                 self.txt_embedding.conceptnet_embedding.get_node_embedding_tensor(
                     str(entity)
                 )
             )
+        knowledge_graph_emb = torch.stack(kg_emb)
+
+        print("Size knowledge_graph_emb: ", knowledge_graph_emb.shape)
 
         # Send the image, question and ConceptNet to the Aggregator module
         result_vector = self.aggregator(
@@ -204,6 +219,8 @@ class Kilbert(nn.Module):
             all_attention_mask[1],
             knowledge_graph_emb,
         )
+
+        print("Size result_vector: ", result_vector.shape)
 
         # TODO: Send the vector to the SimpleClassifier to get the answer
         return self.vil_prediction(result_vector)
