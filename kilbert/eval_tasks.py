@@ -32,16 +32,18 @@ from task_utils import (
     ForwardModelsVal,
     EvaluatingModel,
 )
-
 import utils as utils
 
+### LOGGER CONFIGURATION ###
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-    datefmt="%m/%d/%Y %H:%M:%S",
+    datefmt="%d/%m/%Y %H:%M:%S",
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+### MAIN FUNCTION ###
 
 
 def main():
@@ -125,9 +127,6 @@ def main():
         type=bool,
         help="whether use chunck for parallel training.",
     )
-    parser.add_argument(
-        "--baseline", action="store_true", help="whether use single stream baseline."
-    )
     parser.add_argument("--split", default="", type=str, help="which split to use.")
 
     args = parser.parse_args()
@@ -138,12 +137,9 @@ def main():
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    if args.baseline:
-        from pytorch_pretrained_bert.modeling import BertConfig
-        from vilbert.basebert import BaseBertForVLTasks
-    else:
-        from vilbert.vilbert import BertConfig
-        from vilbert.vilbert import VILBertForVLTasks
+    # Load main module
+    from kilbert_config import BertConfig
+    from kilbert import Kilbert
 
     task_names = []
     for i, task_id in enumerate(args.tasks.split("-")):
@@ -210,18 +206,13 @@ def main():
 
     num_labels = max([dataset.num_labels for dataset in task_datasets_val.values()])
 
-    if args.baseline:
-        model = BaseBertForVLTasks.from_pretrained(
-            args.from_pretrained, config, num_labels=num_labels, default_gpu=default_gpu
-        )
-    else:
-        model = VILBertForVLTasks.from_pretrained(
-            args.from_pretrained,
-            config,
-            split="val",
-            num_labels=num_labels,
-            default_gpu=default_gpu,
-        )
+    model = Kilbert.from_pretrained(
+        args.from_pretrained,
+        config,
+        split="val",
+        num_labels=num_labels,
+        default_gpu=default_gpu,
+    )
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
