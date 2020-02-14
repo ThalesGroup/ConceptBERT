@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
-from importance_index import ImportanceIndex
+from graph_refinement.importance_index import ImportanceIndex
 
 ### CLASS DEFINITION ###
 class GraphRefinement(nn.Module):

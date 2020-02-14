@@ -5,7 +5,7 @@ from termcolor import colored
 import torch
 
 # Custom libraries
-from utils import load_embeddings, get_txt_questions
+from q_kg_transformer.utils import load_embeddings, get_txt_questions
 
 ### CLASS DEFINITION ###
 class ConceptNetEmbedding:

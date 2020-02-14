@@ -32,8 +32,10 @@ from torch.nn import CrossEntropyLoss
 import torch.nn.functional as F
 from torch.nn.utils.weight_norm import weight_norm
 
-from .utils import cached_path
 import pdb
+
+from q_kg_transformer.utils import cached_path
+
 
 logger = logging.getLogger(__name__)
 
