@@ -16,6 +16,8 @@ import zipfile
 import gzip
 import shutil
 
+import numpy as np
+
 import torch
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 
@@ -131,7 +133,7 @@ def initiate_embeddings():
         for entry in tqdm(raw_file, desc="Saving the node embeddings"):
             entry.strip()
             if entry:
-                embedding_split = entry.split(" ")
+                embedding_split = entry.split(" ").replace("\n", "")
                 word = embedding_split[0]
                 embedding = np.asarray(embedding_split[1:])
                 dict_embedding[word] = embedding
