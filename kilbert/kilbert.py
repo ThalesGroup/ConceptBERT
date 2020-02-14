@@ -17,12 +17,17 @@ from fusion_modules.question_fusion import (
     SimpleQuestionConcatenation,
 )
 from fusion_modules.aggregator import SimpleConcatenation
+from fusion_modules.bertpooler import BertTextPooler, BertImagePooler
 
 from classifier.classifier import SimpleClassifier
 
 ### VARIABLES ###
 # Maximum number of nodes extracted from the knowledge graph (heaviest edges)
 k = 20
+# Which layer to use (-1 = last, -2 = second last, ...)
+bert_layer_used = -2
+# Whether to use the first token or all of them
+use_pooled_output = True
 
 ### CLASS DEFINITION ###
 class Kilbert(nn.Module):
@@ -51,11 +56,13 @@ class Kilbert(nn.Module):
 
         # Fusion modules
         self.fusion_question = SimpleQuestionAddition(config)
+        self.bert_text_pooler = BertTextPooler(config)
+        self.bert_image_pooler = BertImagePooler(config)
 
         self.aggregator = SimpleConcatenation(config)
 
         # Prediction modules
-        # self.vil_prediction = SimpleClassifier(in_dim, hid_dim, out_dim, dropout)
+        # self.vil_prediction = SimpleClassifier(in_dim, hid_dim, num_labels, 0.5)
 
     def forward(
         self,
@@ -122,13 +129,7 @@ class Kilbert(nn.Module):
         img_embedding = self.img_embedding(input_imgs, image_loc)
 
         # Get the results from the ViLBERT module
-        (
-            sequence_output_t,
-            sequence_output_v,
-            pooled_output_t,
-            pooled_output_v,
-            all_attention_mask,
-        ) = self.vilbert(
+        (sequence_output_t, sequence_output_v, all_attention_mask,) = self.vilbert(
             txt_embedding,
             img_embedding,
             kg_embedding,
@@ -138,6 +139,14 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
+        # Choose the layer used
+        sequence_output_t = sequence_output_t[bert_layer_used]
+        sequence_output_v = sequence_output_v[bert_layer_used]
+
+        if use_pooled_output:
+            sequence_output_t = self.bert_text_pooler(sequence_output_t)
+            sequence_output_v = self.bert_image_pooler(sequence_output_v)
+
         # Get the results from the Transformer module
         sequence_output_t_bis, attention_mask_bis = self.q_kg_transformer(
             txt_embedding,
@@ -145,6 +154,9 @@ class Kilbert(nn.Module):
             extended_attention_mask,
             output_all_encoded_layers,
         )
+
+        # Choose the layer used
+        sequence_output_t_bis = sequence_output_t_bis[bert_layer_used]
 
         # Normalize the graph weights, so that high weights don't override
         # the added weights
@@ -167,9 +179,9 @@ class Kilbert(nn.Module):
         # Send the question results from ViLBERT and Transformer to the
         # F1 fusion module
         fused_question_emb, fused_question_att = self.fusion_question(
-            sequence_output_t[-1],
+            sequence_output_t,
             all_attention_mask[0],
-            sequence_output_t_bis[-1],
+            sequence_output_t_bis,
             attention_mask_bis,
         )
 
@@ -194,4 +206,4 @@ class Kilbert(nn.Module):
         )
 
         # TODO: Send the vector to the SimpleClassifier to get the answer
-        # self.vil_prediction()
+        return self.vil_prediction(result_vector)
