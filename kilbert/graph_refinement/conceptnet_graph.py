@@ -118,3 +118,38 @@ class ConceptNet:
             self.weight_edges[edge]["weight"] = float(
                 self.weight_edges[edge]["weight"] / maximum_weight
             )
+
+    def select_top_edges(self, max_nodes):
+        """
+            Returns a vector with the indexes of the heaviest edges
+        """
+        set_nodes = set()
+
+        # Sort weight edges in decreasing order
+        self.weight_edges = {
+            k: v
+            for k, v in sorted(
+                self.weight_edges.items(), key=lambda item: item[1], reverse=True
+            )
+        }
+
+        # Add the nodes seen in `weight_edges`, until the limit `max_nodes` is reached
+        for edge in self.weight_edges:
+            str_edge = edge.replace("[", "").replace("]", "")
+            list_nodes = str_edge.split(";")
+            start_node = list_nodes[0]
+            end_node = list_nodes[1]
+
+            set_nodes.add(start_node)
+            if len(set_nodes) >= max_nodes:
+                break
+            set_nodes.add(end_node)
+            if len(set_nodes) >= max_nodes:
+                break
+
+        # Convert the node indexes to words
+        list_main_entities = []
+        for node in list(set_nodes):
+            list_main_entities.append(self.get_word(int(node)))
+
+        return list_main_entities

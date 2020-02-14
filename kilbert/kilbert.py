@@ -20,6 +20,10 @@ from fusion_modules.aggregator import SimpleConcatenation
 
 from classifier.classifier import SimpleClassifier
 
+### VARIABLES ###
+# Maximum number of nodes extracted from the knowledge graph (heaviest edges)
+k = 20
+
 ### CLASS DEFINITION ###
 class Kilbert(nn.Module):
     """
@@ -142,6 +146,9 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
+        # Normalize the graph weights, so that high weights don't override
+        # the added weights
+        conceptnet_graph.normalize_weights()
         # Refine the given ConceptNet graph with the help of `G_1` model
         list_questions = []
         input_questions = input_txt.tolist()
@@ -156,7 +163,6 @@ class Kilbert(nn.Module):
             list_questions.append(list_words)
 
         self.graph_refinement(list_questions, attention_mask_bis, conceptnet_graph)
-        conceptnet_graph.normalize_weights()
 
         # Send the question results from ViLBERT and Transformer to the
         # F1 fusion module
@@ -167,16 +173,24 @@ class Kilbert(nn.Module):
             attention_mask_bis,
         )
 
-        # Send the image, question and ConceptNet to the Aggregator module
-        # TODO: Reduce the size of the ConceptNet graph by pruning low-weighted edges
+        # Reduce the size of the ConceptNet graph by pruning low-weighted edges
         # Keep only the k highest ones
+        list_main_entities = conceptnet_graph.select_top_edges(k)
+        knowledge_graph_emb = []
+        for entity in list_main_entities:
+            knowledge_graph_emb.append(
+                self.txt_embedding.conceptnet_embedding.get_node_embedding_tensor(
+                    str(entity)
+                )
+            )
 
-        # TODO: Get the resulting vector from the Aggregator module
+        # Send the image, question and ConceptNet to the Aggregator module
         result_vector = self.aggregator(
             fused_question_emb,
             fused_question_att,
             sequence_output_v[-1],
             all_attention_mask[1],
+            knowledge_graph_emb,
         )
 
         # TODO: Send the vector to the SimpleClassifier to get the answer
