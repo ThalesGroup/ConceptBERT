@@ -1,31 +1,38 @@
-import argparse
-import json
-import logging
+### LIBRARIES ###
+# Global libraries
 import os
-import random
-from io import open
-import math
 import sys
+import argparse
+import logging
+import pdb
+from tqdm import tqdm, trange
+
+import json
+from io import open
+
+import math
+import random
 
 from time import gmtime, strftime
 from timeit import default_timer as timer
 
 import numpy as np
-from tqdm import tqdm, trange
 
+from tensorboardX import SummaryWriter
 import torch
 from torch.utils.data import DataLoader, Dataset, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
-from tensorboardX import SummaryWriter
+import torch.distributed as dist
 
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 from pytorch_pretrained_bert.optimization import BertAdam, WarmupLinearSchedule
 
+# Custom libraries
 from vilbert.datasets import ConceptCapLoaderTrain, ConceptCapLoaderVal
-from vilbert.vilbert import BertForMultiModalPreTraining, BertConfig
-import torch.distributed as dist
+from multimodal_pretraining import BertForMultiModalPreTraining
+from bert_config import BertConfig
 
-import pdb
+### LOGGER CONFIGURATION ###
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
@@ -33,6 +40,8 @@ logging.basicConfig(
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+### MAIN FUNCTION ###
 
 
 def main():
@@ -177,26 +186,32 @@ def main():
     )
 
     parser.add_argument(
-        "--save_name",
-        default='',
-        type=str,
-        help="save name for training.",
+        "--save_name", default="", type=str, help="save name for training.",
     )
     parser.add_argument(
-        "--baseline", action="store_true", help="Wheter to use the baseline model (single bert)."
+        "--baseline",
+        action="store_true",
+        help="Wheter to use the baseline model (single bert).",
     )
     parser.add_argument(
-        "--freeze", default = -1, type=int, 
-        help="till which layer of textual stream of vilbert need to fixed."
+        "--freeze",
+        default=-1,
+        type=int,
+        help="till which layer of textual stream of vilbert need to fixed.",
     )
     parser.add_argument(
-        "--use_chuncks", default=0, type=float, help="whether use chunck for parallel training."
+        "--use_chuncks",
+        default=0,
+        type=float,
+        help="whether use chunck for parallel training.",
     )
     parser.add_argument(
-        "--distributed", action="store_true" , help="whether use chunck for parallel training."
+        "--distributed",
+        action="store_true",
+        help="whether use chunck for parallel training.",
     )
     parser.add_argument(
-        "--without_coattention", action="store_true" , help="whether pair loss."
+        "--without_coattention", action="store_true", help="whether pair loss."
     )
     args = parser.parse_args()
     if args.baseline:
@@ -206,7 +221,7 @@ def main():
         from vilbert.vilbert import BertForMultiModalPreTraining, BertConfig
 
     print(args)
-    if args.save_name is not '':
+    if args.save_name is not "":
         timeStamp = args.save_name
     else:
         timeStamp = strftime("%d-%b-%y-%X-%a", gmtime())
@@ -216,21 +231,23 @@ def main():
 
     if not os.path.exists(savePath):
         os.makedirs(savePath)
-    
+
     config = BertConfig.from_json_file(args.config_file)
-    
+
     if args.freeze > config.t_biattention_id[0]:
         config.fixed_t_layer = config.t_biattention_id[0]
 
     if args.without_coattention:
         config.with_coattention = False
-    # save all the hidden parameters. 
-    with open(os.path.join(savePath, 'command.txt'), 'w') as f:
+    # save all the hidden parameters.
+    with open(os.path.join(savePath, "command.txt"), "w") as f:
         print(args, file=f)  # Python 3.x
-        print('\n', file=f)
+        print("\n", file=f)
         print(config, file=f)
 
-    bert_weight_name = json.load(open("config/" + args.from_pretrained + "_weight_name.json", "r"))
+    bert_weight_name = json.load(
+        open("config/" + args.from_pretrained + "_weight_name.json", "r")
+    )
     if args.local_rank == -1 or args.no_cuda:
         device = torch.device(
             "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu"
@@ -294,14 +311,11 @@ def main():
         distributed=args.distributed,
     )
 
-    num_train_optimization_steps = (
-        int(
-            train_dataset.num_dataset
-            / args.train_batch_size
-            / args.gradient_accumulation_steps
-        )
-        * (args.num_train_epochs - args.start_epoch)
-    )
+    num_train_optimization_steps = int(
+        train_dataset.num_dataset
+        / args.train_batch_size
+        / args.gradient_accumulation_steps
+    ) * (args.num_train_epochs - args.start_epoch)
     # if args.local_rank != -1:
     #     num_train_optimization_steps = (
     #         num_train_optimization_steps // torch.distributed.get_world_size()
@@ -324,7 +338,9 @@ def main():
         config.predict_feature = False
 
     if args.from_pretrained:
-        model = BertForMultiModalPreTraining.from_pretrained(args.from_pretrained, config)
+        model = BertForMultiModalPreTraining.from_pretrained(
+            args.from_pretrained, config
+        )
     else:
         model = BertForMultiModalPreTraining(config)
 
@@ -348,10 +364,10 @@ def main():
     if args.freeze != -1:
         bert_weight_name_filtered = []
         for name in bert_weight_name:
-            if 'embeddings' in name:
+            if "embeddings" in name:
                 bert_weight_name_filtered.append(name)
-            elif 'encoder' in name:
-                layer_num = name.split('.')[2]
+            elif "encoder" in name:
+                layer_num = name.split(".")[2]
                 if int(layer_num) <= args.freeze:
                     bert_weight_name_filtered.append(name)
 
@@ -359,7 +375,7 @@ def main():
         for key, value in dict(model.named_parameters()).items():
             if key[12:] in bert_weight_name_filtered:
                 value.requires_grad = False
-        
+
         if default_gpu:
             print("filtered weight")
             print(bert_weight_name_filtered)
@@ -399,7 +415,9 @@ def main():
                         {"params": [value], "lr": lr, "weight_decay": 0.0}
                     ]
         if default_gpu:
-            print(len(list(model.named_parameters())), len(optimizer_grouped_parameters))
+            print(
+                len(list(model.named_parameters())), len(optimizer_grouped_parameters)
+            )
 
     # set different parameters for vision branch and lanugage branch.
     if args.fp16:
@@ -428,7 +446,6 @@ def main():
                 optimizer_grouped_parameters,
                 warmup=args.warmup_proportion,
                 t_total=num_train_optimization_steps,
-                
             )
 
         else:
@@ -464,9 +481,19 @@ def main():
             # batch = iter_dataloader.next()
             batch = tuple(t.cuda(device=device, non_blocking=True) for t in batch)
 
-            input_ids, input_mask, segment_ids, lm_label_ids, is_next, image_feat, image_loc, image_target, image_label, image_mask, image_ids = (
-                batch
-            )
+            (
+                input_ids,
+                input_mask,
+                segment_ids,
+                lm_label_ids,
+                is_next,
+                image_feat,
+                image_loc,
+                image_target,
+                image_label,
+                image_mask,
+                image_ids,
+            ) = batch
 
             masked_loss_t, masked_loss_v, next_sentence_loss = model(
                 input_ids,
@@ -510,12 +537,19 @@ def main():
                 rank = dist.get_rank()
             else:
                 rank = 0
-                
-            viz.linePlot(iterId, loss.item(), "loss_"+str(rank), "train")
-            viz.linePlot(iterId, masked_loss_t.item(), "masked_loss_t_"+str(rank), "train")
-            viz.linePlot(iterId, masked_loss_v.item(), "masked_loss_v_"+str(rank), "train")
+
+            viz.linePlot(iterId, loss.item(), "loss_" + str(rank), "train")
             viz.linePlot(
-                iterId, next_sentence_loss.item(), "next_sentence_loss_"+str(rank), "train"
+                iterId, masked_loss_t.item(), "masked_loss_t_" + str(rank), "train"
+            )
+            viz.linePlot(
+                iterId, masked_loss_v.item(), "masked_loss_v_" + str(rank), "train"
+            )
+            viz.linePlot(
+                iterId,
+                next_sentence_loss.item(),
+                "next_sentence_loss_" + str(rank),
+                "train",
             )
             # viz.linePlot(iterId, optimizer.get_lr()[0], 'learning_rate', 'train')
 
@@ -564,7 +598,7 @@ def main():
                     next_sentence_loss_tmp,
                     optimizer.get_lr()[0],
                 ]
-                
+
                 start_t = end_t
                 print(printFormat % tuple(printInfo))
 
@@ -573,8 +607,8 @@ def main():
                 next_sentence_loss_tmp = 0
                 loss_tmp = 0
 
-        # Do the evaluation 
-        torch.set_grad_enabled(False)    
+        # Do the evaluation
+        torch.set_grad_enabled(False)
         start_t = timer()
         numBatches = len(validation_dataset)
         eval_masked_loss_t = 0
@@ -586,9 +620,19 @@ def main():
         for step, batch in enumerate(validation_dataset):
             batch = tuple(t.cuda(device=device, non_blocking=True) for t in batch)
 
-            input_ids, input_mask, segment_ids, lm_label_ids, is_next, image_feat, image_loc, image_target, image_label, image_mask, image_ids = (
-                batch
-            )
+            (
+                input_ids,
+                input_mask,
+                segment_ids,
+                lm_label_ids,
+                is_next,
+                image_feat,
+                image_loc,
+                image_target,
+                image_label,
+                image_mask,
+                image_ids,
+            ) = batch
 
             masked_loss_t, masked_loss_v, next_sentence_loss = model(
                 input_ids,
@@ -602,7 +646,7 @@ def main():
                 image_target,
                 is_next,
             )
-            
+
             masked_loss_v = masked_loss_v * args.img_weight
             loss = masked_loss_t + masked_loss_v + next_sentence_loss
 
@@ -612,7 +656,6 @@ def main():
                 masked_loss_v = masked_loss_v.mean()
                 next_sentence_loss = next_sentence_loss.mean()
 
-            
             eval_masked_loss_t += masked_loss_t.item()
             eval_masked_loss_v += masked_loss_v.item()
             eval_next_sentence_loss += next_sentence_loss.item()
@@ -622,7 +665,7 @@ def main():
             delta_t = " Time: %5.2fs" % (end_t - start_t)
             start_t = end_t
             progressString = "\r Evaluating split '%s' [%d/%d]\t" + delta_t
-            sys.stdout.write(progressString % ('val', step + 1, numBatches))
+            sys.stdout.write(progressString % ("val", step + 1, numBatches))
             sys.stdout.flush()
 
         eval_masked_loss_t = eval_masked_loss_t / float(numBatches)
@@ -630,20 +673,25 @@ def main():
         eval_next_sentence_loss = eval_next_sentence_loss / float(numBatches)
         eval_total_loss = eval_total_loss / float(numBatches)
 
-        printFormat = "Evaluation: [Loss: %.5g][Loss_v: %.5g][Loss_t: %.5g][Loss_n: %.5g]"
+        printFormat = (
+            "Evaluation: [Loss: %.5g][Loss_v: %.5g][Loss_t: %.5g][Loss_n: %.5g]"
+        )
         printInfo = [
             eval_total_loss,
             eval_masked_loss_v,
             eval_masked_loss_t,
-            eval_next_sentence_loss]
+            eval_next_sentence_loss,
+        ]
 
         print(printFormat % tuple(printInfo))
-        torch.set_grad_enabled(True)   
+        torch.set_grad_enabled(True)
 
         viz.linePlot(epochId, eval_total_loss, "loss_" + str(rank), "val")
         viz.linePlot(epochId, eval_masked_loss_t, "masked_loss_t_" + str(rank), "val")
         viz.linePlot(epochId, eval_masked_loss_v, "masked_loss_v_" + str(rank), "val")
-        viz.linePlot(epochId, eval_next_sentence_loss, "next_sentence_loss_" + str(rank), "val")
+        viz.linePlot(
+            epochId, eval_next_sentence_loss, "next_sentence_loss_" + str(rank), "val"
+        )
 
         if default_gpu:
             # Save a trained model
@@ -657,6 +705,7 @@ def main():
 
             torch.save(model_to_save.state_dict(), output_model_file)
 
+
 class TBlogger:
     def __init__(self, log_dir, exp_name):
         log_dir = log_dir + "/" + exp_name
@@ -665,6 +714,7 @@ class TBlogger:
 
     def linePlot(self, step, val, split, key, xlabel="None"):
         self.logger.add_scalar(split + "/" + key, val, step)
+
 
 if __name__ == "__main__":
 
