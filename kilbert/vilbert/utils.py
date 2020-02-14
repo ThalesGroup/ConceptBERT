@@ -29,7 +29,8 @@ PYTORCH_PRETRAINED_BERT_CACHE = Path(
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
-def lr_warmup(step, ):
+
+def lr_warmup(step,):
     if (
         cfg["training_parameters"]["use_warmup"] is True
         and i_iter <= cfg["training_parameters"]["warmup_iterations"]
@@ -40,32 +41,45 @@ def lr_warmup(step, ):
         idx = bisect(cfg["training_parameters"]["lr_steps"], i_iter)
         return pow(cfg["training_parameters"]["lr_ratio"], idx)
 
+
 class tbLogger(object):
-    def __init__(self, log_dir, txt_dir, task_names, task_ids, task_num_iters, gradient_accumulation_steps, save_logger=True, txt_name='out.txt'):
+    def __init__(
+        self,
+        log_dir,
+        txt_dir,
+        task_names,
+        task_ids,
+        task_num_iters,
+        gradient_accumulation_steps,
+        save_logger=True,
+        txt_name="out.txt",
+    ):
         logger.info("logging file at: " + log_dir)
 
-        self.save_logger=save_logger
+        self.save_logger = save_logger
         if self.save_logger:
             self.logger = SummaryWriter(log_dir=log_dir)
 
-        self.txt_f = open(txt_dir + '/' + txt_name, 'w')
-        self.task_id2name = {ids:name.replace('+', 'plus') for ids, name in zip(task_ids, task_names)}
+        self.txt_f = open(txt_dir + "/" + txt_name, "w")
+        self.task_id2name = {
+            ids: name.replace("+", "plus") for ids, name in zip(task_ids, task_names)
+        }
         self.task_ids = task_ids
-        self.task_loss = {task_id:0 for task_id in task_ids}
-        self.task_loss_tmp = {task_id:0 for task_id in task_ids}
+        self.task_loss = {task_id: 0 for task_id in task_ids}
+        self.task_loss_tmp = {task_id: 0 for task_id in task_ids}
         self.task_score = {task_id: 0 for task_id in task_ids}
-        self.task_score_tmp = {task_id:0 for task_id in task_ids}
-        self.task_norm_tmp = {task_id:0 for task_id in task_ids}
-        self.task_step = {task_id:0 for task_id in task_ids}
-        self.task_step_tmp = {task_id:0 for task_id in task_ids}
+        self.task_score_tmp = {task_id: 0 for task_id in task_ids}
+        self.task_norm_tmp = {task_id: 0 for task_id in task_ids}
+        self.task_step = {task_id: 0 for task_id in task_ids}
+        self.task_step_tmp = {task_id: 0 for task_id in task_ids}
         self.task_num_iters = task_num_iters
         self.epochId = 0
         self.gradient_accumulation_steps = gradient_accumulation_steps
-        self.task_loss_val = {task_id:0 for task_id in task_ids}
-        self.task_score_val = {task_id:0 for task_id in task_ids}
-        self.task_step_val = {task_id:0 for task_id in task_ids}
+        self.task_loss_val = {task_id: 0 for task_id in task_ids}
+        self.task_score_val = {task_id: 0 for task_id in task_ids}
+        self.task_step_val = {task_id: 0 for task_id in task_ids}
         self.task_datasize_train = {task_id: 0 for task_id in task_ids}
-        self.task_datasize_val = {task_id:0 for task_id in task_ids}
+        self.task_datasize_val = {task_id: 0 for task_id in task_ids}
 
     def txt_close(self):
         self.txt_f.close()
@@ -74,7 +88,9 @@ class tbLogger(object):
         if self.save_logger:
             self.logger.add_scalar(split + "/" + key, val, step)
 
-    def step_train(self, epochId, stepId, loss, score, norm, task_id, batch_size, split):
+    def step_train(
+        self, epochId, stepId, loss, score, norm, task_id, batch_size, split
+    ):
         self.task_loss[task_id] += loss
         self.task_loss_tmp[task_id] += loss
         self.task_score[task_id] += score
@@ -83,12 +99,12 @@ class tbLogger(object):
         self.task_step[task_id] += self.gradient_accumulation_steps
         self.task_step_tmp[task_id] += self.gradient_accumulation_steps
         self.epochId = epochId
-        
+
         self.task_datasize_train[task_id] += batch_size
 
         # plot on tensorboard.
-        self.linePlot(stepId, loss, split, self.task_id2name[task_id] + '_loss')
-        self.linePlot(stepId, score, split, self.task_id2name[task_id] + '_score')
+        self.linePlot(stepId, loss, split, self.task_id2name[task_id] + "_loss")
+        self.linePlot(stepId, score, split, self.task_id2name[task_id] + "_score")
 
     def step_val(self, epochId, loss, score, task_id, batch_size, split):
         self.task_loss_val[task_id] += loss
@@ -97,62 +113,88 @@ class tbLogger(object):
         self.task_datasize_val[task_id] += batch_size
 
     def showLossVal(self):
-        progressInfo = "Eval Ep: %d " %self.epochId
-        lossInfo = 'Validation '
+        progressInfo = "Eval Ep: %d " % self.epochId
+        lossInfo = "Validation "
         ave_score = 0
         ave_loss = 0
         for task_id in self.task_ids:
             loss = self.task_loss_val[task_id] / float(self.task_step_val[task_id])
-            score = self.task_score_val[task_id] / float(self.task_datasize_val[task_id])
+            score = self.task_score_val[task_id] / float(
+                self.task_datasize_val[task_id]
+            )
             ave_score += score
             ave_loss += loss
-            lossInfo += '[%s]: loss %.3f score %.3f ' %(self.task_id2name[task_id], loss, score * 100.0)
+            lossInfo += "[%s]: loss %.3f score %.3f " % (
+                self.task_id2name[task_id],
+                loss,
+                score * 100.0,
+            )
 
-            self.linePlot(self.epochId, loss, 'val', self.task_id2name[task_id] + '_loss')
-            self.linePlot(self.epochId, score, 'val', self.task_id2name[task_id] + '_score')
+            self.linePlot(
+                self.epochId, loss, "val", self.task_id2name[task_id] + "_loss"
+            )
+            self.linePlot(
+                self.epochId, score, "val", self.task_id2name[task_id] + "_score"
+            )
 
         ave_score = ave_score / len(self.task_ids)
-        self.task_loss_val = {task_id:0 for task_id in self.task_loss_val}
-        self.task_score_val = {task_id:0 for task_id in self.task_score_val}
-        self.task_datasize_val = {task_id:0 for task_id in self.task_datasize_val}
-        self.task_step_val = {task_id:0 for task_id in self.task_ids}
+        self.task_loss_val = {task_id: 0 for task_id in self.task_loss_val}
+        self.task_score_val = {task_id: 0 for task_id in self.task_score_val}
+        self.task_datasize_val = {task_id: 0 for task_id in self.task_datasize_val}
+        self.task_step_val = {task_id: 0 for task_id in self.task_ids}
         logger.info(lossInfo)
         print(lossInfo, file=self.txt_f)
         return ave_score
 
     def showLossTrain(self):
-        # show the current loss, once showed, reset the loss. 
-        lossInfo = ''
+        # show the current loss, once showed, reset the loss.
+        lossInfo = ""
         for task_id in self.task_ids:
             if self.task_num_iters[task_id] > 0:
                 if self.task_step_tmp[task_id]:
-                    lossInfo += '[%s]: iter %d Ep: %.2f loss %.3f score %.3f lr %.6g ' %(self.task_id2name[task_id], \
-                        self.task_step[task_id], self.task_step[task_id] / float(self.task_num_iters[task_id]), \
-                                            self.task_loss_tmp[task_id] / float(self.task_step_tmp[task_id]), \
-                                            self.task_score_tmp[task_id] / float(self.task_step_tmp[task_id]), \
-                                            self.task_norm_tmp[task_id] / float(self.task_step_tmp[task_id]))
-        
+                    lossInfo += (
+                        "[%s]: iter %d Ep: %.2f loss %.3f score %.3f lr %.6g "
+                        % (
+                            self.task_id2name[task_id],
+                            self.task_step[task_id],
+                            self.task_step[task_id]
+                            / float(self.task_num_iters[task_id]),
+                            self.task_loss_tmp[task_id]
+                            / float(self.task_step_tmp[task_id]),
+                            self.task_score_tmp[task_id]
+                            / float(self.task_step_tmp[task_id]),
+                            self.task_norm_tmp[task_id]
+                            / float(self.task_step_tmp[task_id]),
+                        )
+                    )
+
         logger.info(lossInfo)
         print(lossInfo, file=self.txt_f)
 
-        self.task_step_tmp = {task_id:0 for task_id in self.task_ids}
-        self.task_loss_tmp = {task_id:0 for task_id in self.task_ids}
-        self.task_score_tmp =  {task_id:0 for task_id in self.task_ids}
-        self.task_norm_tmp = {task_id:0 for task_id in self.task_ids}
-        
+        # Save this info in TensorBoard
+        self.logger.add_scalar()
+
+        self.task_step_tmp = {task_id: 0 for task_id in self.task_ids}
+        self.task_loss_tmp = {task_id: 0 for task_id in self.task_ids}
+        self.task_score_tmp = {task_id: 0 for task_id in self.task_ids}
+        self.task_norm_tmp = {task_id: 0 for task_id in self.task_ids}
+
     def customShowLossTrain(self):
         # Shows the current loss, once showed, reset the loss
         ave_score = 0
         for task_id in self.task_ids:
-            ave_score += self.task_score[task_id] / float(self.task_datasize_train[task_id])
-        
+            ave_score += self.task_score[task_id] / float(
+                self.task_datasize_train[task_id]
+            )
+
         ave_score = ave_score / len(self.task_ids)
-        
+
         self.task_score = {task_id: 0 for task_id in self.task_ids}
         self.task_step = {task_id: 0 for task_id in self.task_ids}
         self.task_datasize_train = {task_id: 0 for task_id in self.task_datasize_train}
-        
-        return ave_score 
+
+        return ave_score
+
 
 def url_to_filename(url, etag=None):
     """
@@ -225,7 +267,10 @@ def cached_path(url_or_filename, cache_dir=None):
         raise EnvironmentError("file {} not found".format(url_or_filename))
     else:
         # Something unknown
-        raise ValueError("unable to parse {} as a URL or as a local path".format(url_or_filename))
+        raise ValueError(
+            "unable to parse {} as a URL or as a local path".format(url_or_filename)
+        )
+
 
 def split_s3_path(url):
     """Split a full s3 path into the bucket name and path."""
@@ -255,7 +300,9 @@ def s3_request(func):
                 raise EnvironmentError("file {} not found".format(url))
             else:
                 raise
+
     return wrapper
+
 
 @s3_request
 def s3_etag(url):
@@ -265,12 +312,14 @@ def s3_etag(url):
     s3_object = s3_resource.Object(bucket_name, s3_path)
     return s3_object.e_tag
 
+
 @s3_request
 def s3_get(url, temp_file):
     """Pull a file directly from S3."""
     s3_resource = boto3.resource("s3")
     bucket_name, s3_path = split_s3_path(url)
     s3_resource.Bucket(bucket_name).download_fileobj(s3_path, temp_file)
+
 
 def http_get(url, temp_file):
     req = requests.get(url, stream=True)
@@ -357,6 +406,7 @@ def read_set_from_file(filename):
         for line in file_:
             collection.add(line.rstrip())
     return collection
+
 
 def get_file_extension(path, dot=True, lower=True):
     ext = os.path.splitext(path)[1]
