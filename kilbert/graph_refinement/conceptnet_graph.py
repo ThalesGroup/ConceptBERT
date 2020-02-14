@@ -4,7 +4,11 @@ import os
 import json
 
 # Custom libraries
-from utils import write_node_dictionary, write_neighbors_list, write_weight_edges
+from graph_refinement.utils import (
+    write_node_dictionary,
+    write_neighbors_list,
+    write_weight_edges,
+)
 
 ### CLASS DEFINITION ###
 class ConceptNet:
