@@ -21,26 +21,33 @@ def initiate_embedding():
         for entry in tqdm(raw_file, desc="Saving the node embeddings"):
             entry.strip()
             if entry:
-                embedding_split = entry.split(" ")
+                embedding_split = entry.replace(" \n", "").split(" ")
                 word = embedding_split[0]
                 embedding = np.asarray(embedding_split[1:])
                 dict_embedding[word] = embedding
     # Save in JSON file
-    with open("/nas-data/vilbert/data2/conceptnet/processed/embeddings.pkl", "wb") as pkl_file:
+    with open(
+        "/nas-data/vilbert/data2/conceptnet/processed/embeddings.pkl", "wb"
+    ) as pkl_file:
         _pickle.dump(dict_embedding, pkl_file)
-        
+
+
 def load_embeddings():
     """
         Loads the embeddings from ConceptNet
     """
-    if not os.path.exists("/nas-data/vilbert/data2/conceptnet/processed/embeddings.pkl"):
+    if not os.path.exists(
+        "/nas-data/vilbert/data2/conceptnet/processed/embeddings.pkl"
+    ):
         initiate_embedding()
-        
-    with open("/nas-data/vilbert/data2/conceptnet/processed/embeddings.pkl", "rb") as pkl_file:
+
+    with open(
+        "/nas-data/vilbert/data2/conceptnet/processed/embeddings.pkl", "rb"
+    ) as pkl_file:
         dict_embedding = _pickle.load(pkl_file)
-        
+
     return dict_embedding
-            
+
 
 ### CLASS DEFINITION ###
 class ConceptNet:
@@ -89,14 +96,13 @@ class ConceptNet:
             return torch.from_numpy(self.dict_embedding[word])
         except Exception as e:
             return torch.zeros(self.dim_word).double()
-            
-        
+
     def get_kg_embedding_tokens(self, input_ids, dim1, dim2):
         """
             Given a list of tokens, returns the node embedding of each word
         """
         kg_embedding = []
-        
+
         input_ids = input_ids.tolist()
 
         for question in input_ids:
@@ -108,13 +114,15 @@ class ConceptNet:
                 except:
                     word_kg_emb = torch.zeros(self.dim_word).double()
                 target_emb = torch.zeros((dim2))
-                target_emb[:word_kg_emb.size(0)] = word_kg_emb
+                target_emb[: word_kg_emb.size(0)] = word_kg_emb
                 question_embedding.append(word_kg_emb)
-        
+
             question_kg_emb = torch.stack(question_embedding)
             target_kg = torch.zeros((dim1, dim2))
-            target_kg[:question_kg_emb.size(0), :question_kg_emb.size(1)] = question_kg_emb
+            target_kg[
+                : question_kg_emb.size(0), : question_kg_emb.size(1)
+            ] = question_kg_emb
             kg_embedding.append(target_kg)
-        
+
         return torch.stack(kg_embedding)
 
