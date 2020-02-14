@@ -15,6 +15,8 @@ from vilbert.datasets import DatasetMapTrain, DatasetMapEval
 from vilbert.datasets._image_features_reader import ImageFeaturesH5Reader
 import pdb
 
+from graph_refinement.conceptnet_graph import ConceptNet
+
 logger = logging.getLogger(__name__)
 
 LossMap = {
@@ -34,64 +36,17 @@ def ForwardModelsVal(args, task_cfg, device, task_id, batch, model, task_losses)
         input_mask,
         segment_ids,
         co_attention_mask,
-        question_id,
+        _,
     ) = batch
     batch_size = features.size(0)
 
-    if task_id in ["TASK2", "TASK3", "TASK5", "TASK6", "TASK7"]:
-        max_num_bbox = features.size(1)
-        num_options = question.size(1)
-        features = (
-            features.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox, 2048)
-            .contiguous()
-            .view(-1, max_num_bbox, 2048)
-        )
-        spatials = (
-            spatials.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox, 5)
-            .contiguous()
-            .view(-1, max_num_bbox, 5)
-        )
-        image_mask = (
-            image_mask.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox)
-            .contiguous()
-            .view(-1, max_num_bbox)
-        )
-        question = question.view(-1, question.size(2))
-        input_mask = input_mask.view(-1, input_mask.size(2))
-        segment_ids = segment_ids.view(-1, segment_ids.size(2))
-        co_attention_mask = co_attention_mask.view(
-            -1, co_attention_mask.size(2), co_attention_mask.size(3)
-        )
+    conceptnet_graph = ConceptNet()
 
-    elif task_id in ["TASK8", "TASK9"]:
-        batch_size = features.size(0)
-        max_num_bbox = features.size(1)
-        num_options = question.size(1)
-        features = features.view(-1, features.size(2), features.size(3))
-        spatials = spatials.view(-1, spatials.size(2), spatials.size(3))
-        image_mask = image_mask.view(-1, image_mask.size(2))
-        question = question.view(-1, question.size(2))
-        input_mask = input_mask.view(-1, input_mask.size(2))
-        segment_ids = segment_ids.view(-1, segment_ids.size(2))
-        co_attention_mask = co_attention_mask.view(
-            -1, co_attention_mask.size(2), co_attention_mask.size(3)
-        )
-
-    (
-        vil_prediction,
-        vil_logit,
-        vil_binary_prediction,
-        vision_prediction,
-        vision_logit,
-        linguisic_prediction,
-        linguisic_logit,
-    ) = model(
+    vil_prediction = model(
         question,
         features,
         spatials,
+        conceptnet_graph,
         segment_ids,
         input_mask,
         image_mask,
@@ -102,19 +57,6 @@ def ForwardModelsVal(args, task_cfg, device, task_id, batch, model, task_losses)
         loss = task_losses[task_id](vil_prediction, target)
         loss = loss.mean() * target.size(1)
         batch_score = compute_score_with_logits(vil_prediction, target).sum()
-
-    elif task_cfg[task_id]["type"] == "VL-logit":
-        vil_logit = vil_logit.view(batch_size, num_options)
-        loss = task_losses[task_id](vil_logit, target)
-        _, preds = torch.max(vil_logit, 1)
-        batch_score = (preds == target).sum()
-
-    elif task_cfg[task_id]["type"] == "V-logit":
-        loss = task_losses[task_id](vision_logit, target)
-        loss = loss.mean() * target.size(1)
-        _, select_idx = torch.max(vision_logit, dim=1)
-        select_target = target.squeeze(2).gather(1, select_idx.view(-1, 1))
-        batch_score = torch.sum(select_target > 0.5).item()
 
     return float(loss), float(batch_score), batch_size
 
@@ -150,65 +92,19 @@ def ForwardModelsTrain(
         input_mask,
         segment_ids,
         co_attention_mask,
-        question_id,
+        _,
     ) = batch
+
+    conceptnet_graph = ConceptNet()
 
     batch_size = features.size(0)
 
-    if task_id in ["TASK2", "TASK3", "TASK5", "TASK6", "TASK7"]:
-        max_num_bbox = features.size(1)
-        num_options = question.size(1)
-        features = (
-            features.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox, 2048)
-            .contiguous()
-            .view(-1, max_num_bbox, 2048)
-        )
-        spatials = (
-            spatials.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox, 5)
-            .contiguous()
-            .view(-1, max_num_bbox, 5)
-        )
-        image_mask = (
-            image_mask.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox)
-            .contiguous()
-            .view(-1, max_num_bbox)
-        )
-        question = question.view(-1, question.size(2))
-        input_mask = input_mask.view(-1, input_mask.size(2))
-        segment_ids = segment_ids.view(-1, segment_ids.size(2))
-        co_attention_mask = co_attention_mask.view(
-            -1, co_attention_mask.size(2), co_attention_mask.size(3)
-        )
-
-    elif task_id in ["TASK8", "TASK9"]:
-        max_num_bbox = features.size(1)
-        num_options = question.size(1)
-        features = features.view(-1, features.size(2), features.size(3))
-        spatials = spatials.view(-1, spatials.size(2), spatials.size(3))
-        image_mask = image_mask.view(-1, image_mask.size(2))
-        question = question.view(-1, question.size(2))
-        input_mask = input_mask.view(-1, input_mask.size(2))
-        segment_ids = segment_ids.view(-1, segment_ids.size(2))
-        co_attention_mask = co_attention_mask.view(
-            -1, co_attention_mask.size(2), co_attention_mask.size(3)
-        )
-
     # Get the model output
-    (
-        vil_prediction,
-        vil_logit,
-        vil_binary_prediction,
-        vision_prediction,
-        vision_logit,
-        linguisic_prediction,
-        linguisic_logit,
-    ) = model(
+    vil_prediction = model(
         question,
         features,
         spatials,
+        conceptnet_graph,
         segment_ids,
         input_mask,
         image_mask,
@@ -222,20 +118,6 @@ def ForwardModelsTrain(
         batch_score = compute_score_with_logits(vil_prediction, target).sum() / float(
             batch_size
         )
-
-    elif task_cfg[task_id]["type"] == "VL-logit":
-        vil_logit = vil_logit.view(batch_size, num_options)
-        loss = task_losses[task_id](vil_logit, target)
-        _, preds = torch.max(vil_logit, 1)
-        batch_score = float((preds == target).sum()) / float(batch_size)
-        loss = task_losses[task_id](vil_logit, target)
-
-    elif task_cfg[task_id]["type"] == "V-logit":
-        loss = task_losses[task_id](vision_logit, target)
-        loss = loss.mean() * target.size(1)
-        _, select_idx = torch.max(vision_logit, dim=1)
-        select_target = target.squeeze(2).gather(1, select_idx.view(-1, 1))
-        batch_score = float(torch.sum(select_target > 0.5)) / batch_size
 
     return loss, batch_score
 
@@ -505,61 +387,14 @@ def EvaluatingModel(
     ) = batch
     batch_size = features.size(0)
 
-    if task_id in ["TASK1", "TASK2"]:
-        max_num_bbox = features.size(1)
-        num_options = question.size(1)
-        features = (
-            features.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox, 2048)
-            .contiguous()
-            .view(-1, max_num_bbox, 2048)
-        )
-        spatials = (
-            spatials.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox, 5)
-            .contiguous()
-            .view(-1, max_num_bbox, 5)
-        )
-        image_mask = (
-            image_mask.unsqueeze(1)
-            .expand(batch_size, num_options, max_num_bbox)
-            .contiguous()
-            .view(-1, max_num_bbox)
-        )
-        question = question.view(-1, question.size(2))
-        input_mask = input_mask.view(-1, input_mask.size(2))
-        segment_ids = segment_ids.view(-1, segment_ids.size(2))
-        co_attention_mask = co_attention_mask.view(
-            -1, co_attention_mask.size(2), co_attention_mask.size(3)
-        )
-
-    elif task_id in ["TASK3"]:
-        batch_size = features.size(0)
-        max_num_bbox = features.size(1)
-        num_options = question.size(1)
-        features = features.view(-1, features.size(2), features.size(3))
-        spatials = spatials.view(-1, spatials.size(2), spatials.size(3))
-        image_mask = image_mask.view(-1, image_mask.size(2))
-        question = question.view(-1, question.size(2))
-        input_mask = input_mask.view(-1, input_mask.size(2))
-        segment_ids = segment_ids.view(-1, segment_ids.size(2))
-        co_attention_mask = co_attention_mask.view(
-            -1, co_attention_mask.size(2), co_attention_mask.size(3)
-        )
+    conceptnet_graph = ConceptNet()
 
     with torch.no_grad():
-        (
-            vil_prediction,
-            vil_logit,
-            vil_binary_prediction,
-            vision_prediction,
-            vision_logit,
-            linguisic_prediction,
-            linguisic_logit,
-        ) = model(
+        vil_prediction = model(
             question,
             features,
             spatials,
+            conceptnet_graph,
             segment_ids,
             input_mask,
             image_mask,
@@ -573,7 +408,7 @@ def EvaluatingModel(
         batch_score = compute_score_with_logits(vil_prediction, target).sum()
 
         logits = torch.max(vil_prediction, 1)[1].data  # argmax
-        sorted_score, sorted_idx = torch.sort(-vil_prediction)
+        _, sorted_idx = torch.sort(-vil_prediction)
         topk = 8  # top candidate.
         topkInd = sorted_idx[:, :topk]
         # loss = 0
@@ -598,36 +433,4 @@ def EvaluatingModel(
                     ],
                 }
             )
-
-    elif task_cfg[task_id]["type"] == "VL-logit":
-        vil_logit = vil_logit.view(batch_size, num_options)
-        loss = task_losses[task_id](vil_logit, target)
-        _, preds = torch.max(vil_logit, 1)
-        batch_score = (preds == target).sum()
-
-        probs = torch.softmax(vil_logit, dim=1)
-        for i in range(vil_logit.size(0)):
-            results.append(
-                {
-                    "question_id": question_id[i].item(),
-                    "answer": [prob.item() for prob in probs[i]],
-                }
-            )
-
-    elif task_cfg[task_id]["type"] == "V-logit":
-        loss = task_losses[task_id](vision_logit, target)
-        loss = loss.mean() * target.size(1)
-        _, select_idx = torch.max(vision_logit, dim=1)
-        select_target = target.squeeze(2).gather(1, select_idx.view(-1, 1))
-        batch_score = torch.sum(select_target > 0.5).item()
-
-        for i in range(select_idx.size(0)):
-            results.append(
-                {
-                    "id": question_id[i].item(),
-                    "target": select_idx[i].item(),
-                    "IOU": select_target[i].item(),
-                }
-            )
-
     return float(loss), float(batch_score), batch_size, results, others

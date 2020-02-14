@@ -1,50 +1,47 @@
-### LIBRARIES ###
-# Global libraries
-import os
-import sys
 import argparse
-import pdb
-import logging
-from tqdm import tqdm
-from io import open
-from bisect import bisect
-from easydict import EasyDict as edict
-
 import json
-import yaml
-
+import logging
+import os
 import random
-
+from io import open
 import numpy as np
 
 from tensorboardX import SummaryWriter
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from pytorch_pretrained_bert.optimization import WarmupLinearSchedule
-from torch.optim.lr_scheduler import LambdaLR, ReduceLROnPlateau
-import torch.distributed as dist
+from tqdm import tqdm
+from bisect import bisect
+import yaml
+from easydict import EasyDict as edict
 
-# Custom libraries
+import pdb
+import sys
+import torch
+import torch.nn.functional as F
+import torch.nn as nn
+
+from pytorch_pretrained_bert.optimization import WarmupLinearSchedule
+
+# from parallel.parallel import DataParallelModel, DataParallelCriterion
+
 from task_utils import (
     LoadDatasets,
     LoadLosses,
     ForwardModelsTrain,
     ForwardModelsVal,
 )
-from optimization import BertAdam, Adam, Adamax
+from vilbert.optimization import BertAdam, Adam, Adamax
+from torch.optim.lr_scheduler import LambdaLR, ReduceLROnPlateau
 
-import utils as utils
+import vilbert.utils as utils
+import torch.distributed as dist
 
-### LOGGER CONFIGURATION ###
 logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(name)s -    %(message)s",
-    datefmt="%d/%m/%Y %H:%M:%S",
+    format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
 
-### MAIN FUNCTION ###
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -180,13 +177,38 @@ def main():
         type=str,
         help="whether use learning rate scheduler.",
     )
+    parser.add_argument(
+        "--baseline", action="store_true", help="whether use single stream baseline."
+    )
+    parser.add_argument(
+        "--compact", action="store_true", help="whether use compact vilbert model."
+    )
     args = parser.parse_args()
     with open("vlbert_tasks.yml", "r") as f:
         task_cfg = edict(yaml.safe_load(f))
 
-    # Load the main module
-    from bert_config import BertConfig
-    from kilbert import Kilbert
+    # random.seed(args.seed)
+    # np.random.seed(args.seed)
+    # torch.manual_seed(args.seed)
+
+    if args.baseline:
+        from pytorch_pretrained_bert.modeling import BertConfig
+        from kilbert.kilbert import Kilbert
+    else:
+        from kilbert.kilbert_config import BertConfig
+        from kilbert.kilbert import Kilbert
+
+    """
+    if args.baseline:
+        from pytorch_pretrained_bert.modeling import BertConfig
+        from vilbert.basebert import BaseBertForVLTasks
+    elif args.compact:
+        from vilbert.vilbert_compact import BertConfig
+        from vilbert.vilbert_compact import VILBertForVLTasks
+    else:
+        from vilbert.vilbert import BertConfig
+        from vilbert.vilbert import VILBertForVLTasks
+    """
 
     task_names = []
     task_lr = []
@@ -261,9 +283,9 @@ def main():
         task_num_iters,
         task_ids,
         task_datasets_train,
-        _,
+        task_datasets_val,
         task_dataloader_train,
-        _,
+        task_dataloader_val,
     ) = LoadDatasets(args, task_cfg, args.tasks.split("-"))
 
     tbLogger = utils.tbLogger(
@@ -300,13 +322,18 @@ def main():
 
         num_epoch = task_cfg[task]["num_epoch"]
 
-    model = Kilbert.from_pretrained(
-        args.from_pretrained,
-        config,
-        split="val",
-        num_labels=num_labels,
-        default_gpu=default_gpu,
-    )
+    if args.baseline:
+        model = Kilbert.from_pretrained(
+            args.from_pretrained, config, num_labels=num_labels, default_gpu=default_gpu
+        )
+    else:
+        model = Kilbert.from_pretrained(
+            args.from_pretrained,
+            config,
+            split="val",
+            num_labels=num_labels,
+            default_gpu=default_gpu,
+        )
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
@@ -469,6 +496,19 @@ def main():
             ):
                 tbLogger.showLossTrain()
 
+        """
+        model.eval()
+        # when run evaluate, we run each task sequentially. 
+        for task_id in task_ids:
+            for i, batch in enumerate(task_dataloader_val[task_id]):
+                loss, score, batch_size = ForwardModelsVal(args, task_cfg, device, task_id, batch, model, task_losses)
+                tbLogger.step_val(epochId, float(loss), float(score), task_id, batch_size, 'val')
+                if default_gpu:
+                    sys.stdout.write('%d/%d\r' % (i, len(task_dataloader_val[task_id])))
+                    sys.stdout.flush()
+        
+        ave_score = tbLogger.showLossVal()
+        """
         ave_score = tbLogger.customShowLossTrain()
 
         if args.lr_scheduler == "automatic":
