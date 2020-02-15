@@ -310,7 +310,7 @@ def main():
         default_gpu=default_gpu,
     )
     """
-    model = Kilbert(config, split="train", num_labels, default_gpu=default_gpu)
+    model = Kilbert(config, num_labels, split="train", default_gpu=default_gpu)
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
