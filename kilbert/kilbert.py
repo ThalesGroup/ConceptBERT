@@ -32,7 +32,7 @@ bert_layer_used = -2
 use_pooled_output = True
 
 ### CLASS DEFINITION ###
-class Kilbert(BertPreTrainedModel):
+class Kilbert(nn.Module):
     """
 
     """
@@ -40,7 +40,7 @@ class Kilbert(BertPreTrainedModel):
     def __init__(
         self, config, num_labels, split="", dropout_prob=0.1, default_gpu=True,
     ):
-        super(Kilbert, self).__init__(config)
+        super(Kilbert, self).__init__()
         # Variables
         self.num_labels = num_labels
         self.dropout = nn.Dropout(dropout_prob)
