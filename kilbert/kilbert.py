@@ -38,7 +38,7 @@ class Kilbert(BertPreTrainedModel):
     """
 
     def __init__(
-        self, config, num_labels, split="", dropout_prob=0.1, default_gpu=True
+        self, config, num_labels, split="", dropout_prob=0.1, default_gpu=True,
     ):
         super(Kilbert, self).__init__(config)
         # Variables
@@ -50,8 +50,9 @@ class Kilbert(BertPreTrainedModel):
         self.img_embedding = BertImageEmbeddings(config)
 
         # Main modules
+        # TODO: Replace the pretrained model with VQA by pretrained model with OK-VQA
         self.vilbert = VILBertForVLTasks.from_pretrained(
-            "config/bert_base_6layer_6conect.json",
+            "/nas-data/vilbert/data2/VQA_bert_base_6layer_6conect-pretrained/pytorch_model_19.bin",
             config,
             num_labels,
             split,
