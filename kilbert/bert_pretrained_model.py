@@ -19,6 +19,9 @@ from torch.nn.utils.weight_norm import weight_norm
 
 import pdb
 
+# Custom libraries
+from utils import cached_path
+
 ### LOGGER CONFIGURATION ###
 
 logger = logging.getLogger(__name__)
@@ -36,39 +39,6 @@ PRETRAINED_MODEL_ARCHIVE_MAP = {
 }
 
 ### UTILS FUNCTIONS ###
-def cached_path(url_or_filename, cache_dir=None):
-    """
-    Given something that might be a URL (or might be a local path),
-    determine which. If it's a URL, download the file and cache it, and
-    return the path to the cached file. If it's already a local path,
-    make sure the file exists and then return the path.
-    """
-    if cache_dir is None:
-        cache_dir = PYTORCH_PRETRAINED_BERT_CACHE
-    if sys.version_info[0] == 3 and isinstance(url_or_filename, Path):
-        url_or_filename = str(url_or_filename)
-    if sys.version_info[0] == 3 and isinstance(cache_dir, Path):
-        cache_dir = str(cache_dir)
-
-    parsed = urlparse(url_or_filename)
-
-    if parsed.scheme in ("http", "https", "s3"):
-        # URL, so get it from the cache (downloading if necessary)
-        return get_from_cache(url_or_filename, cache_dir)
-    elif os.path.exists(url_or_filename):
-        # File, and it exists.
-        return url_or_filename
-    elif parsed.scheme == "":
-        # File, but it doesn't exist.
-        raise EnvironmentError("file {} not found".format(url_or_filename))
-    else:
-        # Something unknown
-        raise ValueError(
-            "unable to parse {} as a URL or as a local path".format(url_or_filename)
-        )
-
-
-
 def load_tf_weights_in_bert(model, tf_checkpoint_path):
     """ Load tf checkpoints in a pytorch model
     """
@@ -220,7 +190,7 @@ class BertConfig(object):
 
         if isinstance(vocab_size_or_config_json_file, str) or (
             sys.version_info[0] == 2
-            and isinstance(vocab_size_or_config_json_file, unicode)
+            and isinstance(vocab_size_or_config_json_file, str)
         ):
             with open(vocab_size_or_config_json_file, "r", encoding="utf-8") as reader:
                 json_config = json.loads(reader.read())
@@ -442,7 +412,7 @@ class BertIntermediate(nn.Module):
         super(BertIntermediate, self).__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str) or (
-            sys.version_info[0] == 2 and isinstance(config.hidden_act, unicode)
+            sys.version_info[0] == 2 and isinstance(config.hidden_act, str)
         ):
             self.intermediate_act_fn = ACT2FN[config.hidden_act]
         else:
@@ -569,7 +539,7 @@ class BertImageIntermediate(nn.Module):
         super(BertImageIntermediate, self).__init__()
         self.dense = nn.Linear(config.v_hidden_size, config.v_intermediate_size)
         if isinstance(config.v_hidden_act, str) or (
-            sys.version_info[0] == 2 and isinstance(config.v_hidden_act, unicode)
+            sys.version_info[0] == 2 and isinstance(config.v_hidden_act, str)
         ):
             self.intermediate_act_fn = ACT2FN[config.v_hidden_act]
         else:
@@ -953,7 +923,7 @@ class BertPredictionHeadTransform(nn.Module):
         super(BertPredictionHeadTransform, self).__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str) or (
-            sys.version_info[0] == 2 and isinstance(config.hidden_act, unicode)
+            sys.version_info[0] == 2 and isinstance(config.hidden_act, str)
         ):
             self.transform_act_fn = ACT2FN[config.hidden_act]
         else:
@@ -972,7 +942,7 @@ class BertImgPredictionHeadTransform(nn.Module):
         super(BertImgPredictionHeadTransform, self).__init__()
         self.dense = nn.Linear(config.v_hidden_size, config.v_hidden_size)
         if isinstance(config.hidden_act, str) or (
-            sys.version_info[0] == 2 and isinstance(config.hidden_act, unicode)
+            sys.version_info[0] == 2 and isinstance(config.hidden_act, str)
         ):
             self.transform_act_fn = ACT2FN[config.hidden_act]
         else:
