@@ -37,7 +37,9 @@ class Kilbert(BertPreTrainedModel):
 
     """
 
-    def __init__(self, config, num_labels, split, dropout_prob=0.1, default_gpu=True):
+    def __init__(
+        self, config, num_labels, split="", dropout_prob=0.1, default_gpu=True
+    ):
         super(Kilbert, self).__init__(config)
         # Variables
         self.num_labels = num_labels
