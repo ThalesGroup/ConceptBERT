@@ -32,7 +32,7 @@ bert_layer_used = -2
 use_pooled_output = True
 
 ### CLASS DEFINITION ###
-class Kilbert(BertPretrainedModel):
+class Kilbert(BertPreTrainedModel):
     """
 
     """
