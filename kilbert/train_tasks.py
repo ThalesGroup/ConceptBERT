@@ -301,6 +301,7 @@ def main():
 
         num_epoch = task_cfg[task]["num_epoch"]
 
+    """
     model = Kilbert.from_pretrained(
         args.from_pretrained,
         config,
@@ -308,6 +309,8 @@ def main():
         num_labels=num_labels,
         default_gpu=default_gpu,
     )
+    """
+    model = Kilbert(config, split="train", num_labels, default_gpu=default_gpu)
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
