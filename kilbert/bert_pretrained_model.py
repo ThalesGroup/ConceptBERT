@@ -1076,6 +1076,8 @@ class BertPreTrainedModel(nn.Module):
         cls,
         pretrained_model_name_or_path,
         config,
+        num_labels,
+        split,
         default_gpu=True,
         state_dict=None,
         cache_dir=None,
@@ -1164,7 +1166,7 @@ class BertPreTrainedModel(nn.Module):
         if default_gpu:
             logger.info("Model config {}".format(config))
         # Instantiate model.
-        model = cls(config, *inputs, **kwargs)
+        model = cls(config, num_labels, split, *inputs, **kwargs)
         if state_dict is None and not from_tf:
             weights_path = os.path.join(serialization_dir, WEIGHTS_NAME)
             state_dict = torch.load(
