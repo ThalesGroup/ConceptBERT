@@ -185,7 +185,8 @@ def main():
         task_cfg = edict(yaml.safe_load(f))
 
     # Load the main module
-    from bert_config import BertConfig
+    # from bert_config import BertConfig
+    from bert_pretrained_model import BertConfig
     from kilbert import Kilbert
 
     task_names = []
