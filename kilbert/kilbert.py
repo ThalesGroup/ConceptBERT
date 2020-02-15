@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
-from bert_pretrained_model import BertPreTrainedModel
+from bert_pretrained_model import BertPreTrainedModel, BertConfig
 
 from embeddings import BertEmbeddings, BertImageEmbeddings
 from graph_refinement.conceptnet_graph import ConceptNet
@@ -40,7 +40,6 @@ class Kilbert(BertPreTrainedModel):
     def __init__(
         self, config, num_labels, split="", dropout_prob=0.1, default_gpu=True
     ):
-        print("CONFIG: ", config)
         super(Kilbert, self).__init__(config)
         # Variables
         self.num_labels = num_labels
@@ -51,6 +50,7 @@ class Kilbert(BertPreTrainedModel):
         self.img_embedding = BertImageEmbeddings(config)
 
         # Main modules
+        config = BertConfig.from_json_file("config/bert_base_6layer_6conect.json")
         self.vilbert = VILBertForVLTasks(
             config, num_labels, split, dropout_prob, default_gpu
         )
