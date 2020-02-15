@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
+from kilbert.bert_pretrained_model import BertPretrainedModel
+
 from embeddings import BertEmbeddings, BertImageEmbeddings
 from graph_refinement.conceptnet_graph import ConceptNet
 
@@ -30,7 +32,7 @@ bert_layer_used = -2
 use_pooled_output = True
 
 ### CLASS DEFINITION ###
-class Kilbert(nn.Module):
+class Kilbert(BertPretrainedModel):
     """
 
     """
