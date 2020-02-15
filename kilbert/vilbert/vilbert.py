@@ -1184,6 +1184,8 @@ class BertPreTrainedModel(nn.Module):
         cls,
         pretrained_model_name_or_path,
         config,
+        num_labels, 
+        split,
         default_gpu=True,
         state_dict=None,
         cache_dir=None,
