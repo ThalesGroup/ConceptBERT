@@ -50,9 +50,13 @@ class Kilbert(BertPreTrainedModel):
         self.img_embedding = BertImageEmbeddings(config)
 
         # Main modules
-        config = BertConfig.from_json_file("config/bert_base_6layer_6conect.json")
-        self.vilbert = VILBertForVLTasks(
-            config, num_labels, split, dropout_prob, default_gpu
+        self.vilbert = VILBertForVLTasks.from_pretrained(
+            "config/bert_base_6layer_6conect.json",
+            config,
+            num_labels,
+            split,
+            dropout_prob,
+            default_gpu,
         )
         self.q_kg_transformer = QuestionGraphTransformer(
             config, split, dropout_prob, default_gpu
