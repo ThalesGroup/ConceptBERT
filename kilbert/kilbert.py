@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
-from kilbert.bert_pretrained_model import BertPretrainedModel
+from bert_pretrained_model import BertPretrainedModel
 
 from embeddings import BertEmbeddings, BertImageEmbeddings
 from graph_refinement.conceptnet_graph import ConceptNet
