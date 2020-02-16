@@ -42,5 +42,6 @@
     11
   ],
   "pooling_method": "mul",
-  "fast_mode": false
+  "fast_mode": false,
+  "with_coattention": true,
 }
