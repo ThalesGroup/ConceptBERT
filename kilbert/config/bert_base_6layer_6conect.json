@@ -41,5 +41,5 @@
     10,
     11
   ],
-  "pooling_method": "mul",
+  "pooling_method": "mul"
 }
