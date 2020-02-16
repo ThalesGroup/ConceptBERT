@@ -207,7 +207,7 @@ class BertConfig(object):
         assert max(v_biattention_id) < v_num_hidden_layers
         assert max(t_biattention_id) < num_hidden_layers
 
-        if isinstance(vocab_size_or_config_json_file, unicode) or (
+        if isinstance(vocab_size_or_config_json_file, str) or (
             sys.version_info[0] == 2
             and isinstance(vocab_size_or_config_json_file, unicode)
         ):

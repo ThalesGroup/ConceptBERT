@@ -41,5 +41,10 @@
     10,
     11
   ],
-  "pooling_method": "mul"
+  "pooling_method": "mul",
+  "fast_mode": false,
+  "with_coattention": true,
+  "in_batch_pairs": false,
+  "fusion_method": "mul",
+  "intra_gate": false
 }
