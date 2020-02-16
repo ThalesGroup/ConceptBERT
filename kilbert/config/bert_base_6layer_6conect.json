@@ -46,5 +46,8 @@
   "with_coattention": true,
   "in_batch_pairs": false,
   "fusion_method": "mul",
-  "intra_gate": false
+  "intra_gate": false,
+  "fixed_t_layer": 0,
+  "fixed_v_layer": 0,
+  "predict_feature": false
 }
