@@ -52,7 +52,6 @@ class Kilbert(nn.Module):
         # Main modules
         config = BertConfig("config/bert_base_6layer_6conect.json")
         # TODO: Replace the pretrained model with VQA by pretrained model with OK-VQA
-        """
         self.vilbert = VILBertForVLTasks.from_pretrained(
             "/nas-data/vilbert/data2/VQA_bert_base_6layer_6conect-pretrained/pytorch_model_19.bin",
             config,
@@ -61,10 +60,7 @@ class Kilbert(nn.Module):
             dropout_prob,
             default_gpu,
         )
-        """
-        self.vilbert = VILBertForVLTasks(
-            config, num_labels, split, dropout_prob, default_gpu
-        )
+
         self.q_kg_transformer = QuestionGraphTransformer(
             config, split, dropout_prob, default_gpu
         )
