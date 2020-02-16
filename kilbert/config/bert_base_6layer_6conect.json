@@ -43,5 +43,5 @@
   ],
   "pooling_method": "mul",
   "fast_mode": false,
-  "with_coattention": true,
+  "with_coattention": true
 }
