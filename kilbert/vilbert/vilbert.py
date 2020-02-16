@@ -1470,8 +1470,8 @@ class BertModel(BertPreTrainedModel):
     def __init__(self, config, split):
         super(BertModel, self).__init__(config)
         self.encoder = BertEncoder(config)
-        self.t_pooler = BertTextPooler(config)
-        self.v_pooler = BertImagePooler(config)
+        # self.t_pooler = BertTextPooler(config)
+        # self.v_pooler = BertImagePooler(config)
         
         if global_method == 3:
             self.custom_encoder = CustomBertEncoder(config)
