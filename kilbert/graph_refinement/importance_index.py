@@ -12,7 +12,7 @@ class ImportanceIndex(nn.Module):
     def __init__(self):
         super(ImportanceIndex, self).__init__()
 
-        self.dense = nn.Linear(1, 1)
+        self.dense = nn.Linear(16, 1)
         self.activation = nn.LeakyReLU(-0.1)
 
     def forward(self, word, attention_word):
