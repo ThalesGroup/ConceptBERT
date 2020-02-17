@@ -58,6 +58,10 @@ class Kilbert(nn.Module):
             default_gpu=default_gpu,
         )
 
+        # Embedding for the ViLBert model
+        self.vilbert_txt_embedding = self.vilbert.bert.embeddings
+        self.vilbert_img_embedding = self.vilbert.bert.v_embeddings
+
         self.q_kg_transformer = QuestionGraphTransformer(
             config, split, dropout_prob, default_gpu
         )
@@ -137,6 +141,10 @@ class Kilbert(nn.Module):
         # Get the image embedding
         img_embedding = self.img_embedding(input_imgs, image_loc)
 
+        # Get the embeddings for ViLBert
+        vilbert_txt_embedding = self.vilbert_txt_embedding(input_txt, token_type_ids)
+        vilbert_img_embedding = self.vilbert_img_embedding(input_imgs, image_loc)
+
         # Get the results from the ViLBERT module
         (
             sequence_output_t,
@@ -145,8 +153,8 @@ class Kilbert(nn.Module):
             pooled_output_v,
             all_attention_mask,
         ) = self.vilbert(
-            txt_embedding,
-            img_embedding,
+            vilbert_txt_embedding,
+            vilbert_img_embedding,
             kg_embedding,
             extended_attention_mask,
             extended_image_attention_mask,
