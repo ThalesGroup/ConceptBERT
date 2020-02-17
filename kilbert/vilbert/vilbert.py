@@ -50,7 +50,7 @@ PRETRAINED_MODEL_ARCHIVE_MAP = {
 }
 
 # Which layer to use (-1 = last, -2 = second last, ...)
-bert_layer_used = -2
+bert_layer_used = -1
 
 from copy import deepcopy
 ###############################
