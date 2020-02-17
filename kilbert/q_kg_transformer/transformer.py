@@ -39,6 +39,9 @@ from q_kg_transformer.utils import cached_path
 
 logger = logging.getLogger(__name__)
 
+
+### VARIABLES ###
+
 PRETRAINED_MODEL_ARCHIVE_MAP = {
     "bert-base-uncased": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased.tar.gz",
     "bert-large-uncased": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased.tar.gz",
@@ -48,6 +51,9 @@ PRETRAINED_MODEL_ARCHIVE_MAP = {
     "bert-base-multilingual-cased": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-multilingual-cased.tar.gz",
     "bert-base-chinese": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-chinese.tar.gz",
 }
+
+# Which layer to use (-1 = last, -2 = second last, ...)
+bert_layer_used = -2
 
 from copy import deepcopy
 
@@ -461,6 +467,21 @@ class CustomBertEncoder(nn.Module):
         return all_encoder_layers_t, all_attention_mask_t
 
 
+class BertTextPooler(nn.Module):
+    def __init__(self, config):
+        super(BertTextPooler, self).__init__()
+        self.dense = nn.Linear(config.hidden_size, config.bi_hidden_size)
+        self.activation = nn.ReLU()
+
+    def forward(self, hidden_states):
+        # We "pool" the model by simply taking the hidden state
+        # corresponding to the first token
+        first_token_tensor = hidden_states[:, 0]
+        pooled_output = self.dense(first_token_tensor)
+        pooled_output = self.activation(pooled_output)
+        return pooled_output
+
+
 class BertPredictionHeadTransform(nn.Module):
     def __init__(self, config):
         super(BertPredictionHeadTransform, self).__init__()
@@ -840,7 +861,7 @@ class BertModel(BertPreTrainedModel):
     def __init__(self, config, split):
         super(BertModel, self).__init__(config)
 
-        # self.t_pooler = BertTextPooler(config)
+        self.t_pooler = BertTextPooler(config)
         self.custom_encoder = CustomBertEncoder(config)
 
         self.apply(self.init_bert_weights)
@@ -857,15 +878,15 @@ class BertModel(BertPreTrainedModel):
             txt_embedding, extended_attention_mask, kg_embedding
         )
 
-        sequence_output_t = encoded_layers_t[-1]
+        sequence_output_t = encoded_layers_t[bert_layer_used]
 
-        # pooled_output_t = self.t_pooler(sequence_output_t)
+        pooled_output_t = self.t_pooler(sequence_output_t)
 
         if not output_all_encoded_layers:
-            encoded_layers_t = encoded_layers_t[-1]
+            encoded_layers_t = encoded_layers_t[bert_layer_used]
 
         # return encoded_layers_t, encoded_layers_v, pooled_output_t, pooled_output_v, all_attention_mask
-        return encoded_layers_t, text_attention_mask
+        return encoded_layers_t, pooled_output_t, text_attention_mask
 
 
 class QuestionGraphTransformer(nn.Module):
