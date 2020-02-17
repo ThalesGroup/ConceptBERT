@@ -77,7 +77,7 @@ class ConceptNetEmbedding:
             question_kg_emb = torch.stack(question_embedding)
             target_kg = torch.zeros((dim1, dim2))
             target_kg[
-                : question_kg_emb.size(0), : question_kg_emb.size[1]
+                : question_kg_emb.size(0), : question_kg_emb.size(1)
             ] = question_kg_emb
             kg_embedding.append(target_kg)
 
