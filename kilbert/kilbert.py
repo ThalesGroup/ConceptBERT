@@ -75,10 +75,14 @@ class Kilbert(nn.Module):
         self.aggregator = SimpleConcatenation(config)
 
         # Prediction modules
-        classifier_in_dim = self.aggregator.output_dim
-        classifier_hid_dim = self.aggregator.hidden_dim
+        # classifier_in_dim = self.aggregator.output_dim
+        # classifier_hid_dim = self.aggregator.hidden_dim
         self.vil_prediction = SimpleClassifier(
-            classifier_in_dim, classifier_hid_dim, num_labels, 0.5
+            #             classifier_in_dim, classifier_hid_dim, num_labels, 0.5
+            1024,
+            2048,
+            num_labels,
+            0.5,
         )
 
     def forward(
