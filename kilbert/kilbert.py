@@ -55,8 +55,7 @@ class Kilbert(nn.Module):
             config,
             num_labels,
             split,
-            dropout_prob,
-            default_gpu,
+            default_gpu=default_gpu,
         )
 
         self.q_kg_transformer = QuestionGraphTransformer(
