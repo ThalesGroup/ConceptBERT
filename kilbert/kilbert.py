@@ -225,6 +225,8 @@ class Kilbert(nn.Module):
         # Refine the given ConceptNet graph with the help of `G_1` model
         list_questions = []
         input_questions = input_txt.tolist()
+        print("INPUT_QUESTIONS: ", len(input_questions))
+        print("FIRST: ", input_questions[0])
 
         for list_indexes in input_questions:
             list_words = []
