@@ -1717,9 +1717,9 @@ class VILBertForVLTasks(BertPreTrainedModel):
         self.num_labels = num_labels
         self.bert = BertModel(config, split)
         self.dropout = nn.Dropout(dropout_prob)
-        self.cls = BertPreTrainingHeads(
-            config, self.bert.embeddings.word_embeddings.weight
-        )
+        # self.cls = BertPreTrainingHeads(
+        #     config, self.bert.embeddings.word_embeddings.weight
+        # )
         self.vil_prediction = SimpleClassifier(config.bi_hidden_size, config.bi_hidden_size*2, num_labels, 0.5)
         # self.vil_prediction = nn.Linear(config.bi_hidden_size, num_labels)
         self.vil_logit = nn.Linear(config.bi_hidden_size, 1)
