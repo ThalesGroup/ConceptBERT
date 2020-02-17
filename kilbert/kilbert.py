@@ -153,6 +153,8 @@ class Kilbert(nn.Module):
         vilbert_txt_embedding = self.vilbert_txt_embedding(input_txt, token_type_ids)
         vilbert_img_embedding = self.vilbert_img_embedding(input_imgs, image_loc)
 
+        print("EXTENDED_ATTENTION_MASK: ", extended_attention_mask)
+
         # Get the results from the ViLBERT module
         (
             sequence_output_t,
