@@ -98,8 +98,8 @@ def check_download(row):
     return row
 
 
-def download_image(folder, row):
-    fname = _file_name(os.path.join(folder, row))
+def download_image(row):
+    fname = _file_name(os.path.join("/nas-data/vilbert/data2/conceptual_captions", row))
     # Skip Already downloaded, retry others later
     if os.path.isfile(fname):
         row["status"] = 200
