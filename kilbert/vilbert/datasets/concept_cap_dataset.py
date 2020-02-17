@@ -1,3 +1,5 @@
+### LIBRARIES ###
+# Global libraries
 import copy
 import json
 import logging
@@ -15,12 +17,16 @@ import torch.distributed as dist
 import sys
 import pdb
 
+### LOGGER CONFIGURATION ###
+
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
     datefmt="%m/%d/%Y %H:%M:%S",
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+### CLASS DEFINITIONS ###
 
 
 class InputExample(object):
