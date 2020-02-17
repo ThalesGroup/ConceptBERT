@@ -26,8 +26,6 @@ from classifier.classifier import SimpleClassifier
 ### VARIABLES ###
 # Maximum number of nodes extracted from the knowledge graph (heaviest edges)
 k = 20
-# Which layer to use (-1 = last, -2 = second last, ...)
-bert_layer_used = -2
 # Whether to use the first token or all of them
 use_pooled_output = True
 
@@ -45,10 +43,6 @@ class Kilbert(nn.Module):
         self.num_labels = num_labels
         self.dropout = nn.Dropout(dropout_prob)
 
-        # Embedding modules
-        self.txt_embedding = BertEmbeddings(config, split)
-        self.img_embedding = BertImageEmbeddings(config)
-
         # Main modules
         config = BertConfig("config/bert_base_6layer_6conect.json")
         # TODO: Replace the pretrained model with VQA by pretrained model with OK-VQA
@@ -60,6 +54,10 @@ class Kilbert(nn.Module):
             dropout_prob,
             default_gpu,
         )
+
+        # Load the embedding modules
+        self.txt_embedding = self.vilbert.bert.embeddings
+        self.img_embedding = self.vilbert.bert.v_embeddings
 
         self.q_kg_transformer = QuestionGraphTransformer(
             config, split, dropout_prob, default_gpu
@@ -141,7 +139,13 @@ class Kilbert(nn.Module):
         img_embedding = self.img_embedding(input_imgs, image_loc)
 
         # Get the results from the ViLBERT module
-        (sequence_output_t, sequence_output_v, all_attention_mask,) = self.vilbert(
+        (
+            sequence_output_t,
+            sequence_output_v,
+            pooled_output_t,
+            pooled_output_v,
+            all_attention_mask,
+        ) = self.vilbert(
             txt_embedding,
             img_embedding,
             kg_embedding,
@@ -151,30 +155,42 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
+        """
         # Choose the layer used
         sequence_output_t = sequence_output_t[bert_layer_used]
         sequence_output_v = sequence_output_v[bert_layer_used]
+        """
 
         print("Initial size sequence_output_t: ", sequence_output_t.shape)
         print("Initial size sequence_output_v: ", sequence_output_v.shape)
 
         if use_pooled_output:
-            sequence_output_t = self.bert_text_pooler(sequence_output_t)
-            sequence_output_v = self.bert_image_pooler(sequence_output_v)
+            sequence_output_t = pooled_output_t
+            sequence_output_v = pooled_output_v
+            # sequence_output_t = self.bert_text_pooler(sequence_output_t)
+            # sequence_output_v = self.bert_image_pooler(sequence_output_v)
 
         print("Size sequence_output_t: ", sequence_output_t.shape)
         print("Size sequence_output_v: ", sequence_output_v.shape)
 
         # Get the results from the Transformer module
-        sequence_output_t_bis, attention_mask_bis = self.q_kg_transformer(
+        (
+            sequence_output_t_bis,
+            pooled_output_bis,
+            attention_mask_bis,
+        ) = self.q_kg_transformer(
             txt_embedding,
             kg_embedding,
             extended_attention_mask,
             output_all_encoded_layers,
         )
 
+        """
         # Choose the layer used
         sequence_output_t_bis = sequence_output_t_bis[bert_layer_used]
+        """
+        if use_pooled_output:
+            sequence_output_t_bis = pooled_output_bis
 
         print("Size sequence_output_t_bis: ", sequence_output_t_bis.shape)
         print("Size attention_mask_bis: ", attention_mask_bis.shape)
