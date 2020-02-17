@@ -1621,7 +1621,7 @@ class BertModel(BertPreTrainedModel):
         print("LENGTH ENCODED_LAYERS_V: ", len(encoded_layers_v))
 
         # sequence_output_t = encoded_layers_t[bert_layer_used]
-        sequence_output_t = encoded_layers_t
+        sequence_output_t = encoded_layers_t[bert_layer_used]
         sequence_output_v = encoded_layers_v[bert_layer_used]
 
         pooled_output_t = self.t_pooler(sequence_output_t)
