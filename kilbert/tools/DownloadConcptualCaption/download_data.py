@@ -64,7 +64,7 @@ def df_multiprocess(df, processes, chunk_size, func, dataset_name):
 
 # Unique name based on url
 def _file_name(row):
-    return "%s/%s" % (
+    return "/nas-data/vilbert/data2/conceptual_captions/%s/%s" % (
         row["folder"],
         (zlib.crc32(row["url"].encode("utf-8")) & 0xFFFFFFFF),
     )
@@ -99,7 +99,7 @@ def check_download(row):
 
 
 def download_image(row):
-    fname = _file_name(os.path.join("/nas-data/vilbert/data2/conceptual_captions", row))
+    fname = _file_name(row)
     # Skip Already downloaded, retry others later
     if os.path.isfile(fname):
         row["status"] = 200
