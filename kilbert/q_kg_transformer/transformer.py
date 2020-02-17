@@ -892,6 +892,7 @@ class BertModel(BertPreTrainedModel):
 class QuestionGraphTransformer(nn.Module):
     def __init__(self, config, split, dropout_prob=0.1, default_gpu=True):
         super(QuestionGraphTransformer, self).__init__()
+        config = BertConfig("config/bert_base_6layer_6conect.json")
         self.bert = BertModel(config, split)
         self.dropout = nn.Dropout(dropout_prob)
 
