@@ -13,8 +13,6 @@ class SimpleConcatenation(nn.Module):
 
     def __init__(self, config):
         super(SimpleConcatenation, self).__init__()
-        # self.output_dim =
-        print("TBD")
 
     def forward(
         self, question_emb, question_att, image_emb, image_att, knowledge_graph_emb
