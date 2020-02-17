@@ -351,23 +351,23 @@ class BertEmbeddings(nn.Module):
 
         embeddings = words_embeddings + position_embeddings + token_type_embeddings
 
-        kg_embeddings = self.conceptnet_embedding.get_kg_embedding_tokens(
-            input_ids, words_embeddings.size(1), words_embeddings.size(2)
-        )
+        # kg_embeddings = self.conceptnet_embedding.get_kg_embedding_tokens(
+        #     input_ids, words_embeddings.size(1), words_embeddings.size(2)
+        # )
         # Send tensor to correct device
-        kg_embeddings = (
-            kg_embeddings.cuda(words_embeddings.get_device())
-            if words_embeddings.is_cuda
-            else kg_embeddings
-        )
+        # kg_embeddings = (
+        #     kg_embeddings.cuda(words_embeddings.get_device())
+        #     if words_embeddings.is_cuda
+        #     else kg_embeddings
+        # )
 
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
 
-        kg_embeddings = self.LayerNorm_kb(kg_embeddings)
-        kg_embeddings = self.dropout(embeddings)
+        # kg_embeddings = self.LayerNorm_kb(kg_embeddings)
+        # kg_embeddings = self.dropout(embeddings)
 
-        return embeddings, kg_embeddings
+        return embeddings # , kg_embeddings
 
 
 class BertImageEmbeddings(nn.Module):
