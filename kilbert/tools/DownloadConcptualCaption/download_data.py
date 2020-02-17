@@ -98,8 +98,8 @@ def check_download(row):
     return row
 
 
-def download_image(row):
-    fname = _file_name(row)
+def download_image(folder, row):
+    fname = _file_name(os.path.join(folder, row))
     # Skip Already downloaded, retry others later
     if os.path.isfile(fname):
         row["status"] = 200
@@ -160,9 +160,12 @@ num_processes = 32
 images_per_part = 100
 
 data_name = "validation"
-if not os.path.exists(data_name):
-    os.mkdir(data_name)
-df = open_tsv("Validation_GCC-1.1.0-Validation.tsv", data_name)
+if not os.path.exists("/nas-data/vilbert/data2/conceptual_captions/validation"):
+    os.mkdir("/nas-data/vilbert/data2/conceptual_captions/validation")
+df = open_tsv(
+    "/nas-data/vilbert/data2/conceptual_captions/Validation_GCC-1.1.0-Validation.tsv",
+    data_name,
+)
 df_multiprocess(
     df=df,
     processes=num_processes,
@@ -183,9 +186,11 @@ df.to_csv(
 print("Saved.")
 
 data_name = "training"
-if not os.path.exists(data_name):
-    os.mkdir(data_name)
-df = open_tsv("Train_GCC-training.tsv", data_name)
+if not os.path.exists("/nas-data/vilbert/data2/conceptual_captions/training"):
+    os.mkdir("/nas-data/vilbert/data2/conceptual_captions/training")
+df = open_tsv(
+    "/nas-data/vilbert/data2/conceptual_captions/Train_GCC-training.tsv", data_name
+)
 df_multiprocess(
     df=df,
     processes=num_processes,
