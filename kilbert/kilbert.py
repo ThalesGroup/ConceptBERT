@@ -25,7 +25,7 @@ from classifier.classifier import SimpleClassifier
 
 ### VARIABLES ###
 # Maximum number of nodes extracted from the knowledge graph (heaviest edges)
-k = 20
+k = 1024
 # Whether to use the first token or all of them
 use_pooled_output = True
 
