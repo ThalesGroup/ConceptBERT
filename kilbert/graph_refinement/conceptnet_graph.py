@@ -5,6 +5,7 @@ import json
 
 # Custom libraries
 from graph_refinement.utils import (
+    extract_nodes,
     write_node_dictionary,
     write_neighbors_list,
     write_weight_edges,
@@ -17,6 +18,12 @@ class ConceptNet:
     """
 
     def __init__(self):
+        # Load the list of nodes
+        if not os.path.exists(
+            "/nas-data/vilbert/data2/conceptnet/processed/cn_nodes.json"
+        ):
+            extract_nodes()
+
         # Load the dictionary of the node indexes
         if not os.path.exists(
             "/nas-data/vilbert/data2/conceptnet/processed/cn_nodes_dictionary.json"
