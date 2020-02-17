@@ -16,3 +16,7 @@ python-prctl
 msgpack
 msgpack-numpy
 gensim
+
+pandas
+python-magic
+requests
