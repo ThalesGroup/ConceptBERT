@@ -26,7 +26,7 @@ spec:
         image: "collaborative-docker-registry.collaborative.local:5100/IMAGE_NAME_PLACEHOLDER"
         resources:
           limits:
-            nvidia.com/gpu: 8
+            nvidia.com/gpu: 1
         command: ["/bin/sh","-c"]
         args: ["cd kilbert/tools/DownloadConcptualCaption && python3 -u download_data.py"]
         volumeMounts:
@@ -36,7 +36,7 @@ spec:
             mountPath: /dev/shm
         env:
         - name: CUDA_VISIBLE_DEVICES
-          value: "0,1,2,3,4,5,6,7"
+          value: "0"
       restartPolicy: Never    
       volumes:
       # DSHM to raise Shared memory
