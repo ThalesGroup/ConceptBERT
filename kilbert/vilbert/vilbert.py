@@ -952,7 +952,7 @@ class BertEncoder(nn.Module):
         image_attention_mask,
         co_attention_mask=None,
         output_all_encoded_layers=True,
-        output_all_attention_masks=False,
+        output_all_attention_masks=True,
         txt_embedding_kb=None
     ):
         v_start = 0
@@ -1607,8 +1607,6 @@ class BertModel(BertPreTrainedModel):
                 output_all_attention_masks=output_all_attention_masks,
                 txt_embedding_kb=kg_embedding
             )
-
-        print("ATTENTION_MASK_BEFORE (txt): ", len(all_attention_mask[0]))
         
         #### BEGIN ADDED ####
         if global_method == 3:
