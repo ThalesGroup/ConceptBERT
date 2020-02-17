@@ -13,6 +13,7 @@ class SimpleQuestionAddition(nn.Module):
     """
 
     def __init__(self, config):
+        super(SimpleQuestionAddition, self).__init__()
         # self.output_dim = [
         #     config.batch_size,
         #     config.hidden_size,
@@ -30,6 +31,7 @@ class SimpleQuestionMultiplication(nn.Module):
     """
 
     def __init__(self, config):
+        super(SimpleQuestionMultiplication, self).__init__()
         # self.output_dim = [
         #     config.batch_size,
         #     config.hidden_size,
@@ -47,6 +49,7 @@ class SimpleQuestionConcatenation(nn.Module):
     """
 
     def __init__(self, config):
+        super(SimpleQuestionConcatenation, self).__init__()
         # self.output_dim = [
         #     config.batch_size,
         #     config.hidden_size,
