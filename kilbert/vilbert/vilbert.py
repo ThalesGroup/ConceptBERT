@@ -955,6 +955,7 @@ class BertEncoder(nn.Module):
         output_all_attention_masks=True,
         txt_embedding_kb=None
     ):
+        print("OUTPUT_ALL_ATTENTION_MASKS: ", output_all_attention_masks)
         v_start = 0
         t_start = 0
         count = 0
@@ -970,7 +971,7 @@ class BertEncoder(nn.Module):
         
         use_co_attention_mask = False
         for v_layer_id, t_layer_id in zip(self.v_biattention_id, self.t_biattention_id):
-
+            print("Loop 1")
             v_end = v_layer_id
             t_end = t_layer_id
 
@@ -978,6 +979,7 @@ class BertEncoder(nn.Module):
             assert self.fixed_v_layer <= v_end
 
             for idx in range(v_start, self.fixed_v_layer):
+                print("Loop 1.1")
                 with torch.no_grad():
                     image_embedding, image_attention_probs = self.v_layer[idx](image_embedding, image_attention_mask)
                     v_start = self.fixed_v_layer
@@ -986,12 +988,14 @@ class BertEncoder(nn.Module):
                         all_attnetion_mask_v.append(image_attention_probs)
 
             for idx in range(v_start, v_end):
+                print("Loop 1.2")
                 image_embedding, image_attention_probs = self.v_layer[idx](image_embedding, image_attention_mask)
                 
                 if output_all_attention_masks:
                     all_attnetion_mask_v.append(image_attention_probs)
                     
             for idx in range(t_start, self.fixed_t_layer):
+                print("Loop 1.3")
                 with torch.no_grad():
                     txt_embedding, txt_attention_probs = self.layer[idx](txt_embedding, txt_attention_mask, hidden_states_kb=txt_embedding_kb)
                     t_start = self.fixed_t_layer
@@ -999,6 +1003,7 @@ class BertEncoder(nn.Module):
                         all_attention_mask_t.append(txt_attention_probs)
 
             for idx in range(t_start, t_end):
+                print("Loop 1.4")
                 txt_embedding, txt_attention_probs = self.layer[idx](txt_embedding, txt_attention_mask, hidden_states_kb=txt_embedding_kb)
                 if output_all_attention_masks:
                     all_attention_mask_t.append(txt_attention_probs)
@@ -1034,12 +1039,14 @@ class BertEncoder(nn.Module):
                 all_encoder_layers_v.append(image_embedding)
 
         for idx in range(v_start, len(self.v_layer)):
+            print("Loop 2")
             image_embedding, image_attention_probs = self.v_layer[idx](image_embedding, image_attention_mask)
 
             if output_all_attention_masks:
                 all_attnetion_mask_v.append(image_attention_probs)
         
         for idx in range(t_start, len(self.layer)):
+            print("Loop 3")
             txt_embedding, txt_attention_probs = self.layer[idx](txt_embedding, txt_attention_mask, hidden_states_kb=txt_embedding_kb)
 
             if output_all_attention_masks:
@@ -1049,6 +1056,10 @@ class BertEncoder(nn.Module):
         if not output_all_encoded_layers:
             all_encoder_layers_t.append(txt_embedding)
             all_encoder_layers_v.append(image_embedding)
+
+        print("All_attention_mask_t: ", all_attention_mask_t)
+        print("All_attention_mask_v: ", all_attnetion_mask_v)
+        print("All_attention_mask_c: ", all_attention_mask_c)
 
         return all_encoder_layers_t, all_encoder_layers_v, (all_attention_mask_t, all_attnetion_mask_v, all_attention_mask_c)
 
@@ -1608,6 +1619,8 @@ class BertModel(BertPreTrainedModel):
                 txt_embedding_kb=kg_embedding
             )
         
+        print("ALL ATTENTION MASKS BEFORE (BERTMODEL): ", all_attention_mask)
+
         #### BEGIN ADDED ####
         if global_method == 3:
             encoded_layers_t, text_attention_mask = self.custom_encoder(
