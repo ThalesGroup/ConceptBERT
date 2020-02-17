@@ -12,6 +12,7 @@ class SimpleConcatenation(nn.Module):
     """
 
     def __init__(self, config):
+        super(SimpleConcatenation, self).__init__()
         # self.output_dim =
         print("TBD")
 
