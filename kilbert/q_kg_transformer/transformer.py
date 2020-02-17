@@ -903,11 +903,11 @@ class QuestionGraphTransformer(nn.Module):
         extended_attention_mask,
         output_all_encoded_layers=False,
     ):
-        sequence_output_t, attention_mask = self.bert(
+        sequence_output_t, pooled_output_t, attention_mask = self.bert(
             txt_embedding,
             kg_embedding,
             extended_attention_mask,
             output_all_encoded_layers=False,
         )
 
-        return sequence_output_t, attention_mask
+        return sequence_output_t, pooled_output_t, attention_mask
