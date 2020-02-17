@@ -186,6 +186,7 @@ class Kilbert(nn.Module):
         print("Size sequence_output_v: ", sequence_output_v.shape)
 
         try:
+            print("ALL_ATTENTION_MASK: ", all_attention_mask)
             print("Length attention_mask_text: ", len(all_attention_mask[0]))
         except:
             pass
@@ -225,8 +226,6 @@ class Kilbert(nn.Module):
         # Refine the given ConceptNet graph with the help of `G_1` model
         list_questions = []
         input_questions = input_txt.tolist()
-        print("INPUT_QUESTIONS: ", len(input_questions))
-        print("FIRST: ", input_questions[0])
 
         for list_indexes in input_questions:
             list_words = []
