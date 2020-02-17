@@ -37,6 +37,8 @@ import pdb
 
 logger = logging.getLogger(__name__)
 
+### VARIABLES ###
+
 PRETRAINED_MODEL_ARCHIVE_MAP = {
     "bert-base-uncased": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased.tar.gz",
     "bert-large-uncased": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased.tar.gz",
@@ -46,6 +48,9 @@ PRETRAINED_MODEL_ARCHIVE_MAP = {
     "bert-base-multilingual-cased": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-multilingual-cased.tar.gz",
     "bert-base-chinese": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-chinese.tar.gz",
 }
+
+# Which layer to use (-1 = last, -2 = second last, ...)
+bert_layer_used = -2
 
 from copy import deepcopy
 ###############################
@@ -995,7 +1000,7 @@ class CustomBertEncoder(nn.Module):
             
         return all_encoder_layers_t, all_attention_mask_t
         
-"""
+
 class BertTextPooler(nn.Module):
     def __init__(self, config):
         super(BertTextPooler, self).__init__()
@@ -1024,7 +1029,6 @@ class BertImagePooler(nn.Module):
         pooled_output = self.dense(first_token_tensor)
         pooled_output = self.activation(pooled_output)
         return pooled_output
-"""
 
 class BertPredictionHeadTransform(nn.Module):
     def __init__(self, config):
@@ -1470,8 +1474,8 @@ class BertModel(BertPreTrainedModel):
     def __init__(self, config, split):
         super(BertModel, self).__init__(config)
         self.encoder = BertEncoder(config)
-        # self.t_pooler = BertTextPooler(config)
-        # self.v_pooler = BertImagePooler(config)
+        self.t_pooler = BertTextPooler(config)
+        self.v_pooler = BertImagePooler(config)
         
         if global_method == 3:
             self.custom_encoder = CustomBertEncoder(config)
@@ -1529,18 +1533,17 @@ class BertModel(BertPreTrainedModel):
             all_attention_mask[0] = text_attention_mask 
         #### END ADDED ####
 
-        # sequence_output_t = encoded_layers_t[-1]
-        # sequence_output_v = encoded_layers_v[-1]
+        sequence_output_t = encoded_layers_t[bert_layer_used]
+        sequence_output_v = encoded_layers_v[bert_layer_used]
 
-        # pooled_output_t = self.t_pooler(sequence_output_t)
-        # pooled_output_v = self.v_pooler(sequence_output_v)
+        pooled_output_t = self.t_pooler(sequence_output_t)
+        pooled_output_v = self.v_pooler(sequence_output_v)
 
-        # if not output_all_encoded_layers:
-        #    encoded_layers_t = encoded_layers_t[-1]
-        #    encoded_layers_v = encoded_layers_v[-1]
+        if not output_all_encoded_layers:
+           encoded_layers_t = encoded_layers_t[bert_layer_used]
+           encoded_layers_v = encoded_layers_v[bert_layer_used]
 
-        # return encoded_layers_t, encoded_layers_v, pooled_output_t, pooled_output_v, all_attention_mask
-        return encoded_layers_t, encoded_layers_v, all_attention_mask
+        return encoded_layers_t, encoded_layers_v, pooled_output_t, pooled_output_v, all_attention_mask
 
 class BertForMultiModalPreTraining(BertPreTrainedModel):
     """BERT model with multi modal pre-training heads.
@@ -1653,8 +1656,7 @@ class VILBertForVLTasks(BertPreTrainedModel):
         output_all_encoded_layers=False,
     ):
     
-        # sequence_output_t, sequence_output_v, pooled_output_t, pooled_output_v, all_attention_mask = self.bert(
-        sequence_output_t, sequence_output_v, all_attention_mask = self.bert(
+        sequence_output_t, sequence_output_v, pooled_output_t, pooled_output_v, all_attention_mask = self.bert(
             txt_embedding,
             img_embedding,
             kg_embedding,
@@ -1690,8 +1692,7 @@ class VILBertForVLTasks(BertPreTrainedModel):
 
         return vil_prediction, vil_logit, vil_binary_prediction, vision_prediction, vision_logit, linguisic_prediction, linguisic_logit
         """
-        # return sequence_output_t, sequence_output_v, pooled_output_t, pooled_output_v, all_attention_mask
-        return sequence_output_t, sequence_output_v, all_attention_mask
+        return sequence_output_t, sequence_output_v, pooled_output_t, pooled_output_v, all_attention_mask
 
 class SimpleClassifier(nn.Module):
     def __init__(self, in_dim, hid_dim, out_dim, dropout):
