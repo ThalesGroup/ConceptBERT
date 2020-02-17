@@ -6,7 +6,8 @@ import torch.nn as nn
 # Custom libraries
 from vilbert.vilbert import BertPreTrainedModel, BertConfig
 
-from embeddings import BertEmbeddings, BertImageEmbeddings
+# from embeddings import BertEmbeddings, BertImageEmbeddings
+from q_kg_transformer.conceptnet_embedding import ConceptNetEmbedding
 from graph_refinement.conceptnet_graph import ConceptNet
 
 from vilbert.vilbert import VILBertForVLTasks
@@ -58,6 +59,7 @@ class Kilbert(nn.Module):
         # Load the embedding modules
         self.txt_embedding = self.vilbert.bert.embeddings
         self.img_embedding = self.vilbert.bert.v_embeddings
+        self.conceptnet_embedding = ConceptNetEmbedding(split)
 
         self.q_kg_transformer = QuestionGraphTransformer(
             config, split, dropout_prob, default_gpu
@@ -231,9 +233,7 @@ class Kilbert(nn.Module):
         kg_emb = []
         for entity in list_main_entities:
             kg_emb.append(
-                self.txt_embedding.conceptnet_embedding.get_node_embedding_tensor(
-                    str(entity)
-                )
+                self.conceptnet_embedding.get_node_embedding_tensor(str(entity))
             )
         knowledge_graph_emb = torch.stack(kg_emb)
 
