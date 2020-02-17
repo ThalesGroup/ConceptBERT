@@ -1618,9 +1618,7 @@ class BertModel(BertPreTrainedModel):
             # Update the attention_mask
             all_attention_mask[0] = text_attention_mask 
         #### END ADDED ####
-        print("LENGTH ENCODED_LAYERS_V: ", len(encoded_layers_v))
 
-        # sequence_output_t = encoded_layers_t[bert_layer_used]
         sequence_output_t = encoded_layers_t[bert_layer_used]
         sequence_output_v = encoded_layers_v[bert_layer_used]
 
