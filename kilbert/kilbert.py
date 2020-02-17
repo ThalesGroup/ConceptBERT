@@ -75,7 +75,11 @@ class Kilbert(nn.Module):
         self.aggregator = SimpleConcatenation(config)
 
         # Prediction modules
-        # self.vil_prediction = SimpleClassifier(in_dim, hid_dim, num_labels, 0.5)
+        classifier_in_dim = self.aggregator.output_dim
+        classifier_hid_dim = self.aggregator.hidden_dim
+        self.vil_prediction = SimpleClassifier(
+            classifier_in_dim, classifier_hid_dim, num_labels, 0.5
+        )
 
     def forward(
         self,
@@ -168,9 +172,6 @@ class Kilbert(nn.Module):
         sequence_output_v = sequence_output_v[bert_layer_used]
         """
 
-        print("Initial size sequence_output_t: ", sequence_output_t.shape)
-        print("Initial size sequence_output_v: ", sequence_output_v.shape)
-
         if use_pooled_output:
             sequence_output_t = pooled_output_t
             sequence_output_v = pooled_output_v
@@ -179,6 +180,15 @@ class Kilbert(nn.Module):
 
         print("Size sequence_output_t: ", sequence_output_t.shape)
         print("Size sequence_output_v: ", sequence_output_v.shape)
+
+        try:
+            print("Length attention_mask_text: ", len(all_attention_mask[0]))
+        except:
+            pass
+        try:
+            print("Length attention_mask_image: ", len(all_attention_mask[1]))
+        except:
+            pass
 
         # Get the results from the Transformer module
         (
@@ -200,7 +210,10 @@ class Kilbert(nn.Module):
             sequence_output_t_bis = pooled_output_bis
 
         print("Size sequence_output_t_bis: ", sequence_output_t_bis.shape)
-        print("Size attention_mask_bis: ", attention_mask_bis.shape)
+        try:
+            print("Length attention_mask_bis: ", len(attention_mask_bis))
+        except:
+            pass
 
         # Normalize the graph weights, so that high weights don't override
         # the added weights
@@ -228,9 +241,14 @@ class Kilbert(nn.Module):
             sequence_output_t_bis,
             attention_mask_bis,
         )
-
-        print("Size fused_question_emb: ", fused_question_emb.shape)
-        print("Size fused_question_att: ", fused_question_att.shape)
+        try:
+            print("Size fused_question_emb: ", fused_question_emb.shape)
+        except:
+            pass
+        try:
+            print("Size fused_question_att: ", fused_question_att.shape)
+        except:
+            pass
 
         # Reduce the size of the ConceptNet graph by pruning low-weighted edges
         # Keep only the k highest ones
@@ -244,7 +262,10 @@ class Kilbert(nn.Module):
             )
         knowledge_graph_emb = torch.stack(kg_emb)
 
-        print("Size knowledge_graph_emb: ", knowledge_graph_emb.shape)
+        try:
+            print("Size knowledge_graph_emb: ", knowledge_graph_emb.shape)
+        except:
+            pass
 
         # Send the image, question and ConceptNet to the Aggregator module
         result_vector = self.aggregator(
