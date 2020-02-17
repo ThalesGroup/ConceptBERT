@@ -1073,7 +1073,7 @@ class CustomBertEncoder(nn.Module):
         all_encoder_layers_t = []
         all_attention_mask_t = []
         
-        batch_size, num_words, t_hidden_size = txt_embedding.size()
+        # batch_size, num_words, t_hidden_size = txt_embedding.size()
         
         for idx in range(0, len(self.layer)):
             txt_embedding, txt_attention_probs = self.layer[idx](txt_embedding, txt_attention_mask, txt_embedding_kb)
@@ -1611,15 +1611,17 @@ class BertModel(BertPreTrainedModel):
         #### BEGIN ADDED ####
         if global_method == 3:
             encoded_layers_t, text_attention_mask = self.custom_encoder(
-                encoded_layers_t[-1],
+                encoded_layers_t[bert_layer_used],
                 extended_attention_mask,
                 kg_embedding,
             )
             # Update the attention_mask
             all_attention_mask[0] = text_attention_mask 
         #### END ADDED ####
+        print("LENGTH ENCODED_LAYERS_V: ", len(encoded_layers_v))
 
-        sequence_output_t = encoded_layers_t[bert_layer_used]
+        # sequence_output_t = encoded_layers_t[bert_layer_used]
+        sequence_output_t = encoded_layers_t
         sequence_output_v = encoded_layers_v[bert_layer_used]
 
         pooled_output_t = self.t_pooler(sequence_output_t)
