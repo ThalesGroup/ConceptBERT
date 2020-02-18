@@ -69,7 +69,7 @@ class Kilbert(nn.Module):
         )
 
         # Self-attention for question (used for importance index)
-        self.q_att = QuestionSelfAttention(768, 16, 0.2)
+        self.q_att = QuestionSelfAttention(16, 768, 0.2)
         self.graph_refinement = GraphRefinement()
 
         # Fusion modules
