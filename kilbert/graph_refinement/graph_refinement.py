@@ -52,8 +52,6 @@ class GraphRefinement(nn.Module):
             importance_indexes = self.importance_index(question_attention)
             list_importance_indexes.append(importance_indexes)
 
-        print("LIST_IMPORTANCE_INDEXES: ", list_importance_indexes)
-
         return list_importance_indexes
 
     def forward(self, list_questions, attention_question, conceptnet_graph):
@@ -64,6 +62,7 @@ class GraphRefinement(nn.Module):
 
         # Update the weights in the graph
         # TODO: Try to find a way to compute it faster with less memory
+        print("Starting propagation")
         for i, question in enumerate(list_questions):
             for j, entity in enumerate(question):
                 # Initialize the edges
@@ -75,4 +74,5 @@ class GraphRefinement(nn.Module):
                     self.propagation_threshold,
                     self.attenuation_coef,
                 )
+        print("Propagation done")
 
