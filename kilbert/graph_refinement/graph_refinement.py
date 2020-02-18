@@ -40,11 +40,12 @@ class GraphRefinement(nn.Module):
             question_importance_indexes = []
             for j, word in enumerate(question):
                 attention_word = list_question_attention[i][j]
-                print("ATTENTION WORD: ", attention_word)
                 question_importance_indexes.append(
                     self.importance_index(word, attention_word)
                 )
             list_importance_indexes.append(question_importance_indexes)
+
+        print("LIST_IMPORTANCE_INDEXES: ", list_importance_indexes)
 
         return list_importance_indexes
 
