@@ -28,7 +28,7 @@ spec:
           limits:
             nvidia.com/gpu: 1
         command: ["/bin/sh","-c"]
-        args: ["cd kilbert/diverse/script && python3 -u conceptual_caption_preprocess_sequential_train_segment.py"]
+        args: ["cd kilbert/diverse/script && python3 -u conceptual_caption_preprocess_sequential_train.py"]
         volumeMounts:
           - name: nas-data-volume
             mountPath: /nas-data
