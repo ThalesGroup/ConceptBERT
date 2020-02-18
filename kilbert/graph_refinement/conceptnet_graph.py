@@ -10,6 +10,7 @@ from graph_refinement.utils import (
     write_neighbors_list,
     write_weight_edges,
 )
+from relation_classifier import SimpleClassifier
 
 ### CLASS DEFINITION ###
 class ConceptNet:
