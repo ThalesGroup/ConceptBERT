@@ -78,6 +78,18 @@ class GraphRefinement(nn.Module):
 
         list_kg_embeddings = []
 
+        # Check that the two tensors are in the right GPU
+        list_questions = (
+            list_questions.cuda(attention_question.get_device())
+            if attention_question.is_cuda
+            else list_questions
+        )
+        list_importance_indexes = (
+            list_importance_indexes.cuda(attention_question.get_device())
+            if attention_question.is_cuda
+            else list_importance_indexes
+        )
+
         try:
             print("Shape of list_questions: ", list_questions.shape)
         except:
@@ -94,6 +106,7 @@ class GraphRefinement(nn.Module):
         for i, question in enumerate(list_questions):
             print("New question (device: " + str(attention_question.get_device()) + ")")
             conceptnet_graph = deepcopy(basic_conceptnet_graph)
+            conceptnet_graph.to(attention_question.get_device())
             for j, entity in enumerate(question):
                 # Initialize the edges
                 for edge in conceptnet_graph.weight_edges:
