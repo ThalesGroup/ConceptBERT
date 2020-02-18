@@ -203,6 +203,14 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
+        # Compute the question self-attention
+        try:
+            print("SHAPE SEQUENCE_OUTPUT_T: ", sequence_output_t.shape)
+        except:
+            print("LENGTH SEQUENCE_OUTPUT_T: ", len(sequence_output_t))
+
+        question_self_attention = self.q_att(sequence_output_t)
+
         """
         # Choose the layer used
         sequence_output_t_bis = sequence_output_t_bis[bert_layer_used]
@@ -225,18 +233,6 @@ class Kilbert(nn.Module):
                 except Exception as e:
                     print("ERROR: ", e)
             list_questions.append(list_words)
-
-        # Load the question self-attention
-        try:
-            print("SHAPE SEQUENCE_OUTPUT_T: ", sequence_output_t.shape)
-        except:
-            print("LENGTH SEQUENCE_OUTPUT_T: ", len(sequence_output_t))
-        try:
-            print("SHAPE POOLED_OUTPUT_T: ", pooled_output_t.shape)
-        except:
-            print("LENGTH POOLED_OUTPUT_T: ", len(pooled_output_t))
-
-        question_self_attention = self.q_att(sequence_output_t)
 
         self.graph_refinement(list_questions, attention_mask_bis, conceptnet_graph)
 
