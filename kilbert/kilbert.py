@@ -221,6 +221,7 @@ class Kilbert(nn.Module):
         input_questions = input_txt.tolist()
 
         for list_indexes in input_questions:
+            print("LIST INDEXES: ", list_indexes)
             list_words = []
             for index in list_indexes:
                 try:
