@@ -205,11 +205,11 @@ class Kilbert(nn.Module):
 
         # Compute the question self-attention
         try:
-            print("SHAPE SEQUENCE_OUTPUT_T: ", sequence_output_t.shape)
+            print("SHAPE SEQUENCE_OUTPUT_T: ", sequence_output_t_bis.shape)
         except:
-            print("LENGTH SEQUENCE_OUTPUT_T: ", len(sequence_output_t))
+            print("LENGTH SEQUENCE_OUTPUT_T: ", len(sequence_output_t_bis))
 
-        question_self_attention = self.q_att(sequence_output_t)
+        question_self_attention = self.q_att(sequence_output_t_bis)
 
         """
         # Choose the layer used
