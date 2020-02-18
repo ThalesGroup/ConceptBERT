@@ -69,7 +69,7 @@ class Kilbert(nn.Module):
         )
 
         # Self-attention for question (used for importance index)
-        self.q_att = QuestionSelfAttention(config.hidden_size, 16, 0.2)
+        self.q_att = QuestionSelfAttention(768, 16, 0.2)
         self.graph_refinement = GraphRefinement()
 
         # Fusion modules
@@ -181,16 +181,6 @@ class Kilbert(nn.Module):
             # sequence_output_t = self.bert_text_pooler(sequence_output_t)
             # sequence_output_v = self.bert_image_pooler(sequence_output_v)
 
-        try:
-            print("Length attention_mask_text: ", len(all_attention_mask[0]))
-            # print("First element attention_mask_text: ", all_attention_mask[0][0])
-            print(
-                "Length first element attention_mask_text: ",
-                all_attention_mask[0][0].shape,
-            )
-        except:
-            pass
-
         # Get the results from the Transformer module
         (
             sequence_output_t_bis,
@@ -204,10 +194,7 @@ class Kilbert(nn.Module):
         )
 
         # Compute the question self-attention
-        try:
-            print("SHAPE SEQUENCE_OUTPUT_T: ", sequence_output_t_bis.shape)
-        except:
-            print("LENGTH SEQUENCE_OUTPUT_T: ", len(sequence_output_t_bis))
+        print("SHAPE SEQUENCE_OUTPUT_T: ", sequence_output_t_bis.shape)
 
         question_self_attention = self.q_att(sequence_output_t_bis)
 
@@ -234,7 +221,7 @@ class Kilbert(nn.Module):
                     print("ERROR: ", e)
             list_questions.append(list_words)
 
-        self.graph_refinement(list_questions, attention_mask_bis, conceptnet_graph)
+        self.graph_refinement(list_questions, question_self_attention, conceptnet_graph)
 
         # Send the question results from ViLBERT and Transformer to the
         # F1 fusion module
@@ -339,8 +326,10 @@ class QuestionSelfAttention(nn.Module):
         question_features_reshape = question_features.contiguous().view(
             -1, self.num_hid
         )
+        print("SHAPE QUESTION_FEATURES_RESHAPE: ", question_features_reshape.shape)
         # (batch, size_question)
         atten_1 = self.W1_self_att_q(question_features_reshape)
+        print("SHAPE ATTENTION 1: ", atten_1.shape)
         atten_1 = torch.tanh(atten_1)
         atten = self.W2_self_att_q(atten_1).view(batch_size, q_len)
         # (batch, size_question)
