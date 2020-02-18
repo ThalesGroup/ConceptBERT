@@ -227,7 +227,7 @@ class Kilbert(nn.Module):
                     list_words.append(conceptnet_graph.get_word(index))
                 except Exception as e:
                     print("ERROR: ", e)
-            list_questions.append(list_words)
+            list_questions.append(torch.stack(list_words))
 
         knowledge_graph_emb = self.graph_refinement(
             list_questions, question_self_attention, conceptnet_graph, k
