@@ -1606,8 +1606,6 @@ class BertModel(BertPreTrainedModel):
                 output_all_attention_masks=output_all_attention_masks,
                 txt_embedding_kb=kg_embedding
             )
-        
-        print("ALL ATTENTION MASKS BEFORE (BERTMODEL): ", all_attention_mask)
 
         #### BEGIN ADDED ####
         if global_method == 3:
