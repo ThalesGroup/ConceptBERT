@@ -50,7 +50,7 @@ class GraphRefinement(nn.Module):
         list_importance_indexes = []
         for question_attention in list_question_attention:
             importance_indexes = self.importance_index(question_attention)
-            list_importance_indexes.append(importance_indexes)
+            list_importance_indexes.append(importance_indexes.tolist())
 
         print("LIST_IMPORTANCE_INDEXES: ", list_importance_indexes)
 
@@ -64,14 +64,14 @@ class GraphRefinement(nn.Module):
 
         # Update the weights in the graph
         # TODO: Try to find a way to compute it faster with less memory
-        for question in list_questions:
-            for i, entity in enumerate(question):
+        for i, question in enumerate(list_questions):
+            for j, entity in enumerate(question):
                 # Initialize the edges
                 for edge in conceptnet_graph.weight_edges:
                     conceptnet_graph.weight_edges[edge]["updated"] = False
                 # Propagate the weights for this entity
                 conceptnet_graph.propagate_weights(
-                    [(entity, list_importance_indexes[i])],
+                    [(entity, list_importance_indexes[i][j])],
                     self.propagation_threshold,
                     self.attenuation_coef,
                 )
