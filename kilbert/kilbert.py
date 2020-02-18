@@ -198,6 +198,8 @@ class Kilbert(nn.Module):
 
         question_self_attention = self.q_att(sequence_output_t_bis)
 
+        print("SHAPE QUESTION SELF ATTENTION: ", question_self_attention.shape)
+
         """
         # Choose the layer used
         sequence_output_t_bis = sequence_output_t_bis[bert_layer_used]
@@ -326,10 +328,8 @@ class QuestionSelfAttention(nn.Module):
         question_features_reshape = question_features.contiguous().view(
             -1, self.num_hid
         )
-        print("SHAPE QUESTION_FEATURES_RESHAPE: ", question_features_reshape.shape)
         # (batch, size_question)
         atten_1 = self.W1_self_att_q(question_features_reshape)
-        print("SHAPE ATTENTION 1: ", atten_1.shape)
         atten_1 = torch.tanh(atten_1)
         atten = self.W2_self_att_q(atten_1).view(batch_size, q_len)
         # (batch, size_question)

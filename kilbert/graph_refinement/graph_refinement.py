@@ -33,6 +33,8 @@ class GraphRefinement(nn.Module):
         """
         # Given the word and its attention, computes the importance indexes of each one
 
+        list_question_attention = list_question_attention.tolist()
+
         list_importance_indexes = []
         for i, question in enumerate(list_questions):
             question_importance_indexes = []
