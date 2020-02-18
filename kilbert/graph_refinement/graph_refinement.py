@@ -22,7 +22,7 @@ class GraphRefinement(nn.Module):
         # Coefficient multiplied to the weight at each iteration
         self.attenuation_coef = 0.5
 
-    def compute_importance_index(self, list_questions, list_question_attention):
+    def compute_importance_index(self, list_question_attention):
         """
             Given a sentence, computes the importance index of each word
 
@@ -48,7 +48,7 @@ class GraphRefinement(nn.Module):
         """
 
         list_importance_indexes = []
-        for question_attention in list_questions:
+        for question_attention in list_question_attention:
             try:
                 print("Shape of question_attention: ", question_attention.shape)
             except:
@@ -64,9 +64,7 @@ class GraphRefinement(nn.Module):
         """
             Refines `conceptnet_graph`, using the `question` and its `attention_question`
         """
-        list_importance_indexes = self.compute_importance_index(
-            list_questions, attention_question
-        )
+        list_importance_indexes = self.compute_importance_index(attention_question)
 
         # Update the weights in the graph
         # TODO: Try to find a way to compute it faster with less memory
