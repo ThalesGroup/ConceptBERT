@@ -54,7 +54,7 @@ class GraphRefinement(nn.Module):
             importance_indexes = self.importance_index(question_attention)
             list_importance_indexes.append(importance_indexes)
 
-        return list_importance_indexes
+        return torch.stack(list_importance_indexes)
 
     def compute_graph_representation(self, conceptnet_graph, num_max_nodes):
         list_main_entities = conceptnet_graph.select_top_edges(num_max_nodes)
@@ -74,6 +74,7 @@ class GraphRefinement(nn.Module):
             Refines `conceptnet_graph`, using the `question` and its `attention_question`
         """
         list_importance_indexes = self.compute_importance_index(attention_question)
+        list_questions = torch.stack(list_questions)
 
         list_kg_embeddings = []
 
