@@ -197,6 +197,8 @@ class Kilbert(nn.Module):
         print("SHAPE SEQUENCE_OUTPUT_T: ", sequence_output_t_bis.shape)
 
         question_self_attention = self.q_att(sequence_output_t_bis)
+        # Get device
+        device_attention = sequence_output_t_bis.get_device()
 
         print("SHAPE QUESTION SELF ATTENTION: ", question_self_attention.shape)
 
@@ -223,7 +225,9 @@ class Kilbert(nn.Module):
                     print("ERROR: ", e)
             list_questions.append(list_words)
 
-        self.graph_refinement(list_questions, question_self_attention, conceptnet_graph)
+        self.graph_refinement(
+            list_questions, question_self_attention, device_attention, conceptnet_graph
+        )
 
         # Send the question results from ViLBERT and Transformer to the
         # F1 fusion module

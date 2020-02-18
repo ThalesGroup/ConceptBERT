@@ -22,7 +22,9 @@ class GraphRefinement(nn.Module):
         # Coefficient multiplied to the weight at each iteration
         self.attenuation_coef = 0.5
 
-    def compute_importance_index(self, list_questions, list_question_attention):
+    def compute_importance_index(
+        self, list_questions, list_question_attention, device_attention
+    ):
         """
             Given a sentence, computes the importance index of each word
 
@@ -50,6 +52,12 @@ class GraphRefinement(nn.Module):
         list_importance_indexes = []
         for question_attention in list_questions:
             q_attention = torch.Tensor(question_attention)
+            # Send tensor to correct device
+            q_attention = (
+                q_attention.cuda(device_attention)
+                if device_attention.is_cuda
+                else q_attention
+            )
             try:
                 print("Shape of question_attention: ", q_attention.shape)
             except:
@@ -61,12 +69,14 @@ class GraphRefinement(nn.Module):
 
         return list_importance_indexes
 
-    def forward(self, list_questions, attention_question, conceptnet_graph):
+    def forward(
+        self, list_questions, attention_question, device_attention, conceptnet_graph
+    ):
         """
             Refines `conceptnet_graph`, using the `question` and its `attention_question`
         """
         list_importance_indexes = self.compute_importance_index(
-            list_questions, attention_question
+            list_questions, attention_question, device_attention
         )
 
         # Update the weights in the graph
