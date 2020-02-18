@@ -75,7 +75,7 @@ class GraphRefinement(nn.Module):
         # Write initialization tensor representing the graph
         list_weights = []
         for _, weight in self.initial_weight_edges.items():
-            list_weights.append(weight)
+            list_weights.append(weight["weight"])
         self.init_graph_tensor = torch.Tensor(list_weights)
 
         # Write initialization tensor to keep track of visited edges
