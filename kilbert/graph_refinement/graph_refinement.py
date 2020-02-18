@@ -33,6 +33,7 @@ class GraphRefinement(nn.Module):
         """
         # Given the word and its attention, computes the importance indexes of each one
 
+        """
         list_question_attention = list_question_attention.tolist()
 
         list_importance_indexes = []
@@ -41,9 +42,19 @@ class GraphRefinement(nn.Module):
             for j, word in enumerate(question):
                 attention_word = list_question_attention[i][j]
                 question_importance_indexes.append(
-                    self.importance_index(word, attention_word)
+                    self.importance_index(attention_word)
                 )
             list_importance_indexes.append(question_importance_indexes)
+        """
+
+        list_importance_indexes = []
+        for question_attention in list_questions:
+            try:
+                print("Shape of question_attention: ", question_attention.shape)
+            except:
+                print("Length of question_attention: ", len(question_attention))
+            importance_indexes = self.importance_index(question_attention)
+            list_importance_indexes.append(importance_indexes)
 
         print("LIST_IMPORTANCE_INDEXES: ", list_importance_indexes)
 
