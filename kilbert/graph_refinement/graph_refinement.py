@@ -49,12 +49,11 @@ class GraphRefinement(nn.Module):
 
         list_importance_indexes = []
         for question_attention in list_questions:
-            q_attention = torch.Tensor(question_attention)
             try:
-                print("Shape of question_attention: ", q_attention.shape)
+                print("Shape of question_attention: ", question_attention.shape)
             except:
-                print("Length of question_attention: ", len(q_attention))
-            importance_indexes = self.importance_index(q_attention)
+                print("Length of question_attention: ", len(question_attention))
+            importance_indexes = self.importance_index(question_attention)
             list_importance_indexes.append(importance_indexes)
 
         print("LIST_IMPORTANCE_INDEXES: ", list_importance_indexes)
