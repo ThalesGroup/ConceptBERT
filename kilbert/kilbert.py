@@ -217,7 +217,9 @@ class Kilbert(nn.Module):
         # the added weights
         conceptnet_graph.normalize_weights()
         # Refine the given ConceptNet graph with the help of `G_1` model
+        """
         list_questions = []
+
         input_questions = input_txt.tolist()
 
         for list_indexes in input_questions:
@@ -228,10 +230,10 @@ class Kilbert(nn.Module):
                     list_words.append(conceptnet_graph.get_word(index))
                 except Exception as e:
                     print("ERROR: ", e)
-            list_questions.append(torch.stack(list_words))
-
+            list_questions.append(list_words)
+        """
         knowledge_graph_emb = self.graph_refinement(
-            list_questions, question_self_attention, conceptnet_graph, k
+            input_txt, question_self_attention, conceptnet_graph, k
         )
 
         # Send the question results from ViLBERT and Transformer to the
