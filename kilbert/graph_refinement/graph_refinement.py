@@ -49,10 +49,6 @@ class GraphRefinement(nn.Module):
 
         list_importance_indexes = []
         for question_attention in list_question_attention:
-            try:
-                print("Shape of question_attention: ", question_attention.shape)
-            except:
-                print("Length of question_attention: ", len(question_attention))
             importance_indexes = self.importance_index(question_attention)
             list_importance_indexes.append(importance_indexes)
 
@@ -71,7 +67,7 @@ class GraphRefinement(nn.Module):
         for question in list_questions:
             for i, entity in enumerate(question):
                 # Initialize the edges
-                for edge in self.weight_edges:
+                for edge in conceptnet_graph.weight_edges:
                     conceptnet_graph.weight_edges[edge]["updated"] = False
                 # Propagate the weights for this entity
                 conceptnet_graph.propagate_weights(
