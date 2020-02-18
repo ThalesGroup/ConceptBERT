@@ -108,11 +108,12 @@ class ConceptNet:
                         self.weight_edges[edge]["weight"] += importance_index
                         self.weight_edges[edge]["updated"] = True
 
-                        new_list_neighbors = self.list_neighbors[neighbor]
-                        for new_neighbor in new_list_neighbors:
-                            waiting_list.append(
-                                (new_neighbor, importance_index * attenuation_coef)
-                            )
+                        if importance_index * attenuation_coef >= propagation_threshold:
+                            new_list_neighbors = self.list_neighbors[neighbor]
+                            for new_neighbor in new_list_neighbors:
+                                waiting_list.append(
+                                    (new_neighbor, importance_index * attenuation_coef)
+                                )
 
     def normalize_weights(self):
         """
