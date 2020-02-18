@@ -170,28 +170,19 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
-        """
-        # Choose the layer used
-        sequence_output_t = sequence_output_t[bert_layer_used]
-        sequence_output_v = sequence_output_v[bert_layer_used]
-        """
-
         if use_pooled_output:
             sequence_output_t = pooled_output_t
             sequence_output_v = pooled_output_v
             # sequence_output_t = self.bert_text_pooler(sequence_output_t)
             # sequence_output_v = self.bert_image_pooler(sequence_output_v)
 
-        print("Size sequence_output_t: ", sequence_output_t.shape)
-        print("Size sequence_output_v: ", sequence_output_v.shape)
-
         try:
-            print("ALL_ATTENTION_MASK: ", all_attention_mask)
             print("Length attention_mask_text: ", len(all_attention_mask[0]))
-        except:
-            pass
-        try:
-            print("Length attention_mask_image: ", len(all_attention_mask[1]))
+            print("First element attention_mask_text: ", all_attention_mask[0][0])
+            print(
+                "Length first element attention_mask_text: ",
+                all_attention_mask[0][0].shape,
+            )
         except:
             pass
 
@@ -213,12 +204,6 @@ class Kilbert(nn.Module):
         """
         if use_pooled_output:
             sequence_output_t_bis = pooled_output_bis
-
-        print("Size sequence_output_t_bis: ", sequence_output_t_bis.shape)
-        try:
-            print("Length attention_mask_bis: ", len(attention_mask_bis))
-        except:
-            pass
 
         # Normalize the graph weights, so that high weights don't override
         # the added weights
