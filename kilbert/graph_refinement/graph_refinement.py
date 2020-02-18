@@ -153,6 +153,7 @@ class GraphRefinement(nn.Module):
         for i, question in enumerate(list_questions):
             print("New question (device: " + str(attention_question.get_device()) + ")")
             graph_tensor = deepcopy(self.init_graph_tensor)
+            print("GRAPH TENSOR SHAPE: ", graph_tensor.shape)
             for j, entity_index in enumerate(question):
                 # Initialize the edges
                 visited_edges_tensor = deepcopy(self.init_visited_edges_tensor)
@@ -162,7 +163,7 @@ class GraphRefinement(nn.Module):
                     visited_edges_tensor,
                     [(entity_index, importance_indexes[i][j])],
                 )
-
+            print("GRAPH TENSOR OUTPUT SHAPE: ", graph_tensor.shape)
             ## Step 4: Build the graph embedding
             question_graph_embedding = self.compute_graph_representation(
                 graph_tensor, num_max_nodes
