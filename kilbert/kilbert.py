@@ -70,7 +70,7 @@ class Kilbert(nn.Module):
 
         # Self-attention for question (used for importance index)
         self.q_att = QuestionSelfAttention(16, 768, 0.2)
-        self.graph_refinement = GraphRefinement()
+        self.graph_refinement = GraphRefinement(self.txt_embedding.conceptnet_embedding)
 
         # Fusion modules
         self.fusion_question = SimpleQuestionAddition(config)
