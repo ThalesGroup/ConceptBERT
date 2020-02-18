@@ -137,6 +137,8 @@ class ConceptNet:
         """
         set_nodes = set()
 
+        print("WEIGHT_EDGES: ", self.weight_edges)
+
         # Sort weight edges in decreasing order
         self.weight_edges = {
             k: v
