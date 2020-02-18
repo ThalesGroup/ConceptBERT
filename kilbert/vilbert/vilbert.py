@@ -1576,7 +1576,7 @@ class BertModel(BertPreTrainedModel):
         extended_image_attention_mask,
         extended_co_attention_mask,
         output_all_encoded_layers,
-        output_all_attention_masks=True,
+        output_all_attention_masks=False,
     ):
         """
         embedding_output, txt_embedding_kb = self.embeddings(input_txt, token_type_ids)
