@@ -229,7 +229,9 @@ class Kilbert(nn.Module):
                     print("ERROR: ", e)
             list_questions.append(list_words)
 
-        self.graph_refinement(list_questions, question_self_attention, conceptnet_graph)
+        knowledge_graph_emb = self.graph_refinement(
+            list_questions, question_self_attention, conceptnet_graph, k
+        )
 
         # Send the question results from ViLBERT and Transformer to the
         # F1 fusion module
@@ -250,6 +252,7 @@ class Kilbert(nn.Module):
 
         # Reduce the size of the ConceptNet graph by pruning low-weighted edges
         # Keep only the k highest ones
+        """
         list_main_entities = conceptnet_graph.select_top_edges(k)
         kg_emb = []
         for entity in list_main_entities:
@@ -259,7 +262,7 @@ class Kilbert(nn.Module):
                 )
             )
         knowledge_graph_emb = torch.stack(kg_emb)
-
+        """
         try:
             print("Size knowledge_graph_emb: ", knowledge_graph_emb.shape)
         except:

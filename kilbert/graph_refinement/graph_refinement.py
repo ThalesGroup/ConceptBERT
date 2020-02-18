@@ -1,5 +1,7 @@
 ### LIBRARIES ###
 # Global libraries
+from copy import deepcopy
+
 import torch
 import torch.nn as nn
 
@@ -20,7 +22,7 @@ class GraphRefinement(nn.Module):
         # Won't propagate if the weight is smaller than this value
         self.propagation_threshold = 0.5
         # Coefficient multiplied to the weight at each iteration
-        self.attenuation_coef = 0.5
+        self.attenuation_coef = 0.25
 
     def compute_importance_index(self, list_question_attention):
         """
@@ -54,17 +56,43 @@ class GraphRefinement(nn.Module):
 
         return list_importance_indexes
 
-    def forward(self, list_questions, attention_question, conceptnet_graph):
+    def compute_graph_representation(self, conceptnet_graph, num_max_nodes):
+        list_main_entities = conceptnet_graph.select_top_edges(num_max_nodes)
+        kg_emb = []
+        for entity in list_main_entities:
+            kg_emb.append(
+                self.txt_embedding.conceptnet_embedding.get_node_embedding_tensor(
+                    str(entity)
+                )
+            )
+        return torch.stack(kg_emb)
+
+    def forward(
+        self, list_questions, attention_question, basic_conceptnet_graph, num_max_nodes
+    ):
         """
             Refines `conceptnet_graph`, using the `question` and its `attention_question`
         """
         list_importance_indexes = self.compute_importance_index(attention_question)
+
+        list_kg_embeddings = []
+
+        try:
+            print("Shape of list_questions: ", list_questions.shape)
+        except:
+            print("List question is a list, not a tensor")
+
+        try:
+            print("Shape of list_importance_indexes: ", list_importance_indexes.shape)
+        except:
+            print("list_importance_indexes is a list, not a tensor")
 
         # Update the weights in the graph
         # TODO: Try to find a way to compute it faster with less memory
         print("Starting propagation")
         for i, question in enumerate(list_questions):
             print("New question (device: " + str(attention_question.get_device()) + ")")
+            conceptnet_graph = deepcopy(basic_conceptnet_graph)
             for j, entity in enumerate(question):
                 # Initialize the edges
                 for edge in conceptnet_graph.weight_edges:
@@ -75,5 +103,9 @@ class GraphRefinement(nn.Module):
                     self.propagation_threshold,
                     self.attenuation_coef,
                 )
-        print("Propagation done")
+            question_graph_embedding = self.compute_graph_representation(
+                conceptnet_graph, num_max_nodes
+            )
+            list_kg_embeddings.append(question_graph_embedding)
 
+        return torch.stack(list_kg_embeddings)
