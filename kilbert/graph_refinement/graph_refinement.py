@@ -64,6 +64,7 @@ class GraphRefinement(nn.Module):
         # TODO: Try to find a way to compute it faster with less memory
         print("Starting propagation")
         for i, question in enumerate(list_questions):
+            print("New question")
             for j, entity in enumerate(question):
                 # Initialize the edges
                 for edge in conceptnet_graph.weight_edges:
