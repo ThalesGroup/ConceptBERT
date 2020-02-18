@@ -52,12 +52,6 @@ class GraphRefinement(nn.Module):
         list_importance_indexes = []
         for question_attention in list_questions:
             q_attention = torch.Tensor(question_attention)
-            # Send tensor to correct device
-            q_attention = (
-                q_attention.cuda(device_attention)
-                if device_attention.is_cuda
-                else q_attention
-            )
             try:
                 print("Shape of question_attention: ", q_attention.shape)
             except:
