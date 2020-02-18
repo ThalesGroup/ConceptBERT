@@ -178,7 +178,7 @@ class Kilbert(nn.Module):
 
         try:
             print("Length attention_mask_text: ", len(all_attention_mask[0]))
-            print("First element attention_mask_text: ", all_attention_mask[0][0])
+            # print("First element attention_mask_text: ", all_attention_mask[0][0])
             print(
                 "Length first element attention_mask_text: ",
                 all_attention_mask[0][0].shape,
