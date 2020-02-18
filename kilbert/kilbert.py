@@ -3,7 +3,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model.fc import FCNet
+from torch.nn.utils.weight_norm import weight_norm
 
 # Custom libraries
 from vilbert.vilbert import BertPreTrainedModel, BertConfig
@@ -287,6 +287,36 @@ class Kilbert(nn.Module):
 
         # TODO: Send the vector to the SimpleClassifier to get the answer
         return self.vil_prediction(result_vector)
+
+
+class FCNet(nn.Module):
+    """
+        Simple class for non-linear fully-connected network
+    """
+
+    def __init__(self, dims, act="ReLU", dropout=0, bias=True):
+        super(FCNet, self).__init__()
+
+        layers = []
+        for i in range(len(dims) - 2):
+            in_dim = dims[i]
+            out_dim = dims[i + 1]
+            if 0 < dropout:
+                layers.append(nn.Dropout(dropout))
+            layers.append(weight_norm(nn.Linear(in_dim, out_dim, bias=bias), dim=None))
+            if "" != act and act is not None:
+                layers.append(getattr(nn, act)())
+        if 0 < dropout:
+            layers.append(nn.Dropout(dropout))
+        layers.append(weight_norm(nn.Linear(dims[-2], dims[-1], bias=bias), dim=None))
+
+        if "" != act and act is not None:
+            layers.append(getattr(nn, act)())
+
+        self.main = nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.main(x)
 
 
 class QuestionSelfAttention(nn.Module):
