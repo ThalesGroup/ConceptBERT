@@ -9,7 +9,11 @@ import torch.nn as nn
 
 # Custom libraries
 from graph_refinement.importance_index import ImportanceIndex
-from graph_refinement.utils import write_neighbors_list, write_weight_edges
+from graph_refinement.utils import (
+    write_node_dictionary,
+    write_neighbors_list,
+    write_weight_edges,
+)
 
 ### CLASS DEFINITION ###
 class GraphRefinement(nn.Module):
@@ -27,6 +31,17 @@ class GraphRefinement(nn.Module):
         # Coefficient multiplied to the weight at each iteration
         self.attenuation_coef = 0.25
 
+        # Load the dictionary of the node indexes
+        if not os.path.exists(
+            "/nas-data/vilbert/data2/conceptnet/processed/cn_nodes_dictionary.json"
+        ):
+            write_node_dictionary()
+
+        with open(
+            "/nas-data/vilbert/data2/conceptnet/processed/cn_nodes_dictionary.json", "r"
+        ) as json_file:
+            self.index_nodes_dict = json.load(json_file)
+
         # Load the list of neighbors for the graph
         if not os.path.exists(
             "/nas-data/vilbert/data2/conceptnet/processed/cn_list_neighbors.json"
@@ -34,7 +49,7 @@ class GraphRefinement(nn.Module):
             write_neighbors_list()
 
         with open(
-            "/nas-data/vilbert/data2/conceptnet/processed/cn_lsit_neighbors.json", "r"
+            "/nas-data/vilbert/data2/conceptnet/processed/cn_list_neighbors.json", "r"
         ) as json_file:
             self.list_neighbors = json.load(json_file)
 
