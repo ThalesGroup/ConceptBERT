@@ -50,7 +50,7 @@ class GraphRefinement(nn.Module):
         list_importance_indexes = []
         for question_attention in list_question_attention:
             importance_indexes = self.importance_index(question_attention)
-            list_importance_indexes.append(importance_indexes.tolist())
+            list_importance_indexes.append(importance_indexes)
 
         print("LIST_IMPORTANCE_INDEXES: ", list_importance_indexes)
 
