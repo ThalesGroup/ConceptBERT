@@ -270,11 +270,21 @@ class GraphRefinement(nn.Module):
                         # Check if the new weight is bigger than the smallest weight
                         # in `list_max_weights`
                         if graph_tensor[edge_index] > list_max_weights:
-                            # Update `list_max_weights`
-                            list_max_weights.pop()
-                            list_max_weights.append(
-                                [edge_index, graph_tensor[edge_index]]
-                            )
+                            is_in_max_list = False
+                            # If the weight was already in the list_max_weights, just update its weight
+                            for i, entity in enumerate(list_max_weights):
+                                if entity[0] == edge_index:
+                                    list_max_weights[i][1] += importance_index
+                                    is_in_max_list = True
+                                    break
+
+                            if not is_in_max_list:
+                                # Update `list_max_weights`
+                                list_max_weights.pop()
+                                list_max_weights.append(
+                                    [edge_index, graph_tensor[edge_index]]
+                                )
+
                             # Sort the list
                             list_max_weights.sort(key=lambda x: x[1], reverse=True)
 
