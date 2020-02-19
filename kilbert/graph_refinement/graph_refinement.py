@@ -85,6 +85,7 @@ class GraphRefinement(nn.Module):
             Thus, if we want to have at least k nodes, we need to consider at least 1 + (k-1)(k-2)/2 edges
         """
         num_edges = 1 + (num_max_nodes - 1) * (num_max_nodes - 2) / 2
+        print("Num edges: ", num_edges)
         self.ordered_edge_weights_list = ordered_edge_weights_list[:num_edges]
 
         # Write dictionary to have the equivalence "edge -> index"
