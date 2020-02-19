@@ -314,10 +314,13 @@ def sort_initial_weight_edges_list():
         range(len(list_idx_weights)), key=lambda i: list_idx_weights[i], reverse=True
     )
 
-    # Add the weights in the file
+    # Add the weights in the file and normalize them
+    max_weight = list_idx_weights[sorted_list_idx[0]]
     sorted_list_idx_weight = []
     for index in sorted_list_idx:
-        sorted_list_idx_weight.append([index, list_idx_weights[index]])
+        sorted_list_idx_weight.append(
+            [index, float(list_idx_weights[index]) / max_weight]
+        )
 
     # Save in the file
     with open(
