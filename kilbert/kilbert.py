@@ -177,9 +177,6 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
-        print("Shape sequence_output_t: ", sequence_output_t.shape)
-        print("Shape sequence_output_v: ", sequence_output_v.shape)
-
         if use_pooled_output:
             sequence_output_t = pooled_output_t
             sequence_output_v = pooled_output_v
@@ -199,7 +196,6 @@ class Kilbert(nn.Module):
         )
 
         # Compute the question self-attention
-        print("Shape sequence_output_t_bis: ", sequence_output_t_bis.shape)
 
         question_self_attention = self.q_att(sequence_output_t_bis)
         # Transfer question self-attention to correct device
@@ -261,6 +257,10 @@ class Kilbert(nn.Module):
             )
         knowledge_graph_emb = torch.stack(kg_emb)
         """
+        # TODO: Remove this temporary fix
+        # Adapt the sizes of `fused_question_emb` and `sequence_output_v`
+        fused_question_emb.unsqueeze_(2)
+        sequence_output_v.unsqueeze_(2)
 
         # Send the image, question and ConceptNet to the Aggregator module
         result_vector = self.aggregator(
