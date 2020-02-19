@@ -229,7 +229,7 @@ class GraphRefinement(nn.Module):
                                     )
                                 )
 
-                return self.propagate_weights(
-                    graph_tensor, visited_edges_tensor, waiting_list
-                )
+            return self.propagate_weights(
+                graph_tensor, visited_edges_tensor, waiting_list
+            )
 
