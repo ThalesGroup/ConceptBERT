@@ -64,6 +64,7 @@ class CTIModel(nn.Module):
                 v_emb, q_emb, kg_emb, att[:, :, :, :, g]
             )
 
+            print("SHAPE WEIGHTS: ", att[:, :, :, :, g].shape)
             temp_variable = b_emb[g].unsqueeze(1)
             print("SHAPE TEMP: ", temp_variable.shape)
 
