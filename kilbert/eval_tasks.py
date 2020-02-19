@@ -138,7 +138,7 @@ def main():
     torch.manual_seed(args.seed)
 
     # Load main module
-    from kilbert_config import BertConfig
+    from bert_pretrained_model import BertConfig
     from kilbert import Kilbert
 
     task_names = []
