@@ -167,12 +167,12 @@ class tbLogger(object):
                             / float(self.task_step_tmp[task_id]),
                         )
                     )
+                # Save this info in TensorBoard
+                self.logger.add_scalar("Train/Loss", self.task_loss_tmp[task_id])
+                self.logger.add_scalar("Train/Score", self.task_score_tmp[task_id])
 
         logger.info(lossInfo)
         print(lossInfo, file=self.txt_f)
-
-        # Save this info in TensorBoard
-        self.logger.add_scalar()
 
         self.task_step_tmp = {task_id: 0 for task_id in self.task_ids}
         self.task_loss_tmp = {task_id: 0 for task_id in self.task_ids}
