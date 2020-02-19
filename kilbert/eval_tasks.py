@@ -206,6 +206,7 @@ def main():
 
     num_labels = max([dataset.num_labels for dataset in task_datasets_val.values()])
 
+    """
     model = Kilbert.from_pretrained(
         args.from_pretrained,
         config,
@@ -213,6 +214,8 @@ def main():
         num_labels=num_labels,
         default_gpu=default_gpu,
     )
+    """
+    model = Kilbert(config, num_labels, split="val", default_gpu=default_gpu)
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
