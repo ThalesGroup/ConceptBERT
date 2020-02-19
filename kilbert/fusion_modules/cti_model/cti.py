@@ -63,7 +63,10 @@ class CTIModel(nn.Module):
             b_emb[g] = self.t_net[g].forward_with_weights(
                 v_emb, q_emb, kg_emb, att[:, :, :, :, g]
             )
-            print("SHAPE B_EMB[G]: ", b_emb[g].shape)
+
+            temp_variable = b_emb[g].unsqueeze(1)
+            print("SHAPE TEMP: ", temp_variable.shape)
+
             q_emb = self.q_prj[g](b_emb[g].unsqueeze(1)) + q_emb
             kg_emb = self.kg_prj[g](b_emb[g].unsqueeze(1)) + kg_emb
 
