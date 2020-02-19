@@ -195,8 +195,8 @@ class GraphRefinement(nn.Module):
         list_kg_embeddings = []
 
         for i, question in enumerate(list_questions):
-            if device == 0:
-                print("New question (device: " + str(device) + ")")
+            # if device == 0:
+            #     print("New question (device: " + str(device) + ")")
             graph_tensor = deepcopy(self.init_graph_tensor)
             list_max_weights = self.ordered_edge_weights_list
 
@@ -210,15 +210,15 @@ class GraphRefinement(nn.Module):
                     list_max_weights,
                     [(entity_index, importance_indexes[i][j])],
                 )
-            if device == 0:
-                print("Building the graph embedding")
+            # if device == 0:
+            #     print("Building the graph embedding")
             ## Step 4: Build the graph embedding
             question_graph_embedding = self.compute_graph_representation(
                 graph_tensor, list_max_weights, num_max_nodes
             )
             list_kg_embeddings.append(question_graph_embedding)
-            if device == 0:
-                print("Question done, onto the next one")
+            # if device == 0:
+            #     print("Question done, onto the next one")
 
         knowledge_graph_embedding = torch.stack(list_kg_embeddings).float()
         # Send `knowledge_graph_embedding` to the correct device
