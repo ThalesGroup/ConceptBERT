@@ -24,6 +24,7 @@ class SimpleConcatenation(nn.Module):
         # TODO: Convert the conceptnet_graph to a vector that can be concatenated
         return torch.cat(
             # [question_emb, question_att, image_emb, image_att, knowledge_graph_emb]
-            [question_emb, image_emb, knowledge_graph_emb]
+            [question_emb, image_emb, knowledge_graph_emb],
+            dim=1,
         )
 
