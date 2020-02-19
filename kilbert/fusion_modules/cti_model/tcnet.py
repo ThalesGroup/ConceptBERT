@@ -188,7 +188,7 @@ class TCNet(nn.Module):
         q_ = self.q_tucker(q).transpose(2, 1).unsqueeze(3)  # b x d x q x 1
         kg_ = self.kg_tucker(kg).transpose(2, 1).unsqueeze(3)  # b x d x a
 
-        logits = torch.einsum("bdv,bvqa,bdqi,bdaj->bdij", ["v_, q, q_, kg_"])
+        logits = torch.einsum("bdv,bvqa,bdqi,bdaj->bdij", [v_, w, q_, kg_])
         logits = logits.squeeze(3).squeeze(2)
 
         return logits
