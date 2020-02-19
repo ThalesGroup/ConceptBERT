@@ -102,7 +102,7 @@ class Kilbert(nn.Module):
         #     num_labels,
         #     0.5,
         # )
-        # self.vil_prediction = SimpleClassifier(512, 1024, num_labels, 0.5)
+        self.vil_prediction = SimpleClassifier(512, 1024, num_labels, 0.5)
 
     def forward(
         self,
@@ -271,7 +271,7 @@ class Kilbert(nn.Module):
         # TODO: Remove this temporary fix
         ### BEGIN TEMPORARY FIX ###
         # Flatten knowledge_graph_emb to fit in the SimpleClassifier
-        knowledge_graph_emb = torch.flatten(knowledge_graph_emb, start_dim=1, end_dim=2)
+        # knowledge_graph_emb = torch.flatten(knowledge_graph_emb, start_dim=1, end_dim=2)
         ### END TEMPORARY FIX ###
 
         print("Shape image: ", sequence_output_v.shape)
