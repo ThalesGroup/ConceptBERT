@@ -69,7 +69,7 @@ class GraphRefinement(nn.Module):
         if not os.path.exists(
             "/nas-data/vilbert/data2/conceptnet/processed/cn_ordered_weights_list.json"
         ):
-            sort_initial_weight_edges_list
+            sort_initial_weight_edges_list()
 
         with open(
             "/nas-data/vilbert/data2/conceptnet/processed/cn_ordered_weights_list.json",
