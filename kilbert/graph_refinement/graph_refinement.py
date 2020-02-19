@@ -279,26 +279,35 @@ class GraphRefinement(nn.Module):
                         # in `list_max_weights`
                         if graph_tensor[edge_index] > list_max_weights[-1][1]:
                             is_in_max_list = False
+                            new_position = 0
                             # If the weight was already in the list_max_weights, just update its weight
                             for i, entity in enumerate(list_max_weights):
+                                if entity[0] < graph_tensor[edge_index]:
+                                    new_position = i
                                 if entity[0] == edge_index:
                                     list_max_weights[i][1] += importance_index
                                     is_in_max_list = True
                                     break
 
                             if not is_in_max_list:
-                                # Update `list_max_weights`
+                                # Check where to add the new weight
+                                for i, entity in enumerate(list_max_weights):
+                                    if entity[0] < graph_tensor[edge_index]:
+                                        new_position = i
+                                        break
+                                # Update `list_max_weights`, so that it is still sorted
                                 list_max_weights.pop()
-                                list_max_weights.append(
-                                    [edge_index, graph_tensor[edge_index]]
+                                list_max_weights.insert(
+                                    i, [edge_index, graph_tensor[edge_index]]
                                 )
 
+                            """
                             # Sort the list
                             # TODO: Instead of a sort, just input the new weight at the correct place
                             # This can be done beforehand when checking if the new weight is already
                             # in the list, or be done again here
                             list_max_weights.sort(key=lambda x: x[1], reverse=True)
-
+                            """
                         if (
                             importance_index * self.attenuation_coef
                             >= self.propagation_threshold
