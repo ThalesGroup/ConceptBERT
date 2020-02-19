@@ -298,7 +298,7 @@ class GraphRefinement(nn.Module):
                                 # Update `list_max_weights`, so that it is still sorted
                                 list_max_weights.pop()
                                 list_max_weights.insert(
-                                    i, [edge_index, graph_tensor[edge_index]]
+                                    new_position, [edge_index, graph_tensor[edge_index]]
                                 )
 
                             """
