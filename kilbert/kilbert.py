@@ -27,7 +27,7 @@ from classifier.classifier import SimpleClassifier
 
 ### VARIABLES ###
 # Maximum number of nodes extracted from the knowledge graph (heaviest edges)
-k = 1024
+k = 50
 # Whether to use the first token or all of them
 use_pooled_output = True
 
@@ -86,7 +86,7 @@ class Kilbert(nn.Module):
         # classifier_hid_dim = self.aggregator.hidden_dim
         self.vil_prediction = SimpleClassifier(
             #             classifier_in_dim, classifier_hid_dim, num_labels, 0.5
-            1024,
+            1024 + 1024 + 200 * k,
             2048,
             num_labels,
             0.5,
@@ -258,11 +258,10 @@ class Kilbert(nn.Module):
         knowledge_graph_emb = torch.stack(kg_emb)
         """
         # TODO: Remove this temporary fix
-        # Adapt the sizes of `fused_question_emb` and `sequence_output_v`
-        fused_question_emb.unsqueeze_(2)
-        fused_question_emb = torch.cat(200 * [fused_question_emb], dim=2)
-        sequence_output_v.unsqueeze_(2)
-        sequence_output_v = torch.cat(200 * [sequence_output_v], dim=2)
+        ### BEGIN TEMPORARY FIX ###
+        # Flatten knowledge_graph_emb to fit in the SimpleClassifier
+        knowledge_graph_emb = torch.flatten(knowledge_graph_emb, start_dim=1, end_dim=2)
+        ### END TEMPORARY FIX ###
 
         # Send the image, question and ConceptNet to the Aggregator module
         result_vector = self.aggregator(
