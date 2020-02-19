@@ -270,11 +270,6 @@ class Kilbert(nn.Module):
         """
 
         try:
-            print("Shape fused_question_emb: ", fused_question_emb.shape)
-        except:
-            print("Fused_question_emb is a list")
-
-        try:
             print("Shape sequence_output_v[-1]: ", sequence_output_v[-1].shape)
         except:
             print("sequence_output_v[-1] is a list")
@@ -288,7 +283,7 @@ class Kilbert(nn.Module):
         result_vector = self.aggregator(
             fused_question_emb,
             # fused_question_att,
-            sequence_output_v[-1],
+            sequence_output_v,
             # all_attention_mask[1],
             knowledge_graph_emb,
         )
