@@ -206,8 +206,6 @@ class Kilbert(nn.Module):
             else question_self_attention
         )
 
-        print("SHAPE QUESTION SELF ATTENTION: ", question_self_attention.shape)
-
         """
         # Choose the layer used
         sequence_output_t_bis = sequence_output_t_bis[bert_layer_used]
@@ -261,15 +259,12 @@ class Kilbert(nn.Module):
         knowledge_graph_emb = torch.stack(kg_emb)
         """
 
-        try:
-            print("Shape sequence_output_v[-1]: ", sequence_output_v[-1].shape)
-        except:
-            print("sequence_output_v[-1] is a list")
+        print("Shape sequence_output_v[-1]: ", sequence_output_v.shape)
 
-        try:
-            print("Shape knowledge_graph_emb: ", knowledge_graph_emb.shape)
-        except:
-            print("Knowledge_graph_emb is a list")
+        # Display devices of the tensors
+        print("Device text: ", fused_question_emb.get_device())
+        print("Device image: ", sequence_output_v.get_device())
+        print("Device knowledge graph: ", knowledge_graph_emb.get_device())
 
         # Send the image, question and ConceptNet to the Aggregator module
         result_vector = self.aggregator(
