@@ -268,10 +268,6 @@ class Kilbert(nn.Module):
             )
         knowledge_graph_emb = torch.stack(kg_emb)
         """
-        try:
-            print("Size knowledge_graph_emb: ", knowledge_graph_emb.shape)
-        except:
-            pass
 
         try:
             print("Shape fused_question_emb: ", fused_question_emb.shape)
