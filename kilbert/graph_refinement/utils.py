@@ -311,7 +311,7 @@ def sort_initial_weight_edges_list():
 
     print("Beginning sorting the list...")
     sorted_list_idx = sorted(
-        range(len(list)), key=lambda i: list_idx_weights[i], reverse=True
+        range(len(list_idx_weights)), key=lambda i: list_idx_weights[i], reverse=True
     )
 
     # Add the weights in the file
