@@ -298,9 +298,9 @@ class Kilbert(nn.Module):
         # Send the image, question and ConceptNet to the Aggregator module
         result_vector = self.aggregator(
             fused_question_emb,
-            fused_question_att,
+            # fused_question_att,
             sequence_output_v[-1],
-            all_attention_mask[1],
+            # all_attention_mask[1],
             knowledge_graph_emb,
         )
 
