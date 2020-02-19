@@ -13,6 +13,7 @@ from graph_refinement.utils import (
     write_node_dictionary,
     write_neighbors_list,
     write_weight_edges,
+    sort_initial_weight_edges_list,
 )
 
 ### CLASS DEFINITION ###
@@ -21,7 +22,7 @@ class GraphRefinement(nn.Module):
         Model "G1" 
     """
 
-    def __init__(self, conceptnet_embedding):
+    def __init__(self, conceptnet_embedding, num_max_nodes):
         super(GraphRefinement, self).__init__()
 
         # Module to compute the importance index
@@ -64,13 +65,33 @@ class GraphRefinement(nn.Module):
         ) as json_file:
             self.initial_weight_edges = json.load(json_file)
 
-        # Write dictionary to have the equivalence "edge <-> index"
+        # Load the ordered list of weights
+        if not os.path.exists(
+            "/nas-data/vilbert/data2/conceptnet/processed/cn_ordered_weights_list.json"
+        ):
+            sort_initial_weight_edges_list
+
+        with open(
+            "/nas-data/vilbert/data2/conceptnet/processed/cn_ordered_weights_list.json",
+            "r",
+        ) as json_file:
+            ordered_edge_weights_list = json.load(json_file)
+
+        self.ordered_edge_weights_list = ordered_edge_weights_list[:num_max_nodes]
+
+        # Write dictionary to have the equivalence "edge -> index"
         index_edge = 0
         edge_to_idx_dict = {}
         for edge in self.initial_weight_edges:
             edge_to_idx_dict[edge] = index_edge
             index_edge += 1
         self.edge_to_idx_dict = edge_to_idx_dict
+
+        # Write list to have the equivalence "index -> edge"
+        idx_to_edge_list = []
+        for edge, index in self.edge_to_idx_dict.items():
+            idx_to_edge_list.append(edge)
+        self.idx_to_edge_list = idx_to_edge_list
 
         # Write initialization tensor representing the graph
         list_weights = []
@@ -103,13 +124,35 @@ class GraphRefinement(nn.Module):
 
         return torch.stack(list_importance_indexes)
 
-    def compute_graph_representation(self, graph_tensor, num_max_nodes):
-        main_entity_indexes = sorted(
-            range(len(graph_tensor)), key=lambda i: graph_tensor[i], reverse=True
-        )[:num_max_nodes]
+    def compute_graph_representation(
+        self, graph_tensor, list_max_weights, num_max_nodes
+    ):
+        """
+            list_max_weights: [[index_edge, weight_edge]]
+        """
+        set_nodes = set()
+        for entity in list_max_weights:
+            index_edge = entity[0]
+            # Convert index edge to the string value
+            str_edge = self.idx_to_edge_list[index_edge]
+            str_edge = str_edge.replace("[", "").replace("]", "")
+            list_nodes = str_edge.split(";")
+            start_node = list_nodes[0]
+            end_node = list_nodes[1]
+
+            set_nodes.add(start_node)
+            if len(set_nodes) >= num_max_nodes:
+                break
+            set_nodes.add(end_node)
+            if len(set_nodes) >= num_max_nodes:
+                break
+
+        list_main_entities = list(set_nodes)
+
+        # Get the embedding of each word
         kg_embedding = []
 
-        for entity_idx in main_entity_indexes:
+        for entity_idx in list_main_entities:
             kg_embedding.append(
                 self.conceptnet_embedding.get_node_embedding_tensor(entity_idx)
             )
@@ -155,20 +198,23 @@ class GraphRefinement(nn.Module):
             if device == 0:
                 print("New question (device: " + str(device) + ")")
             graph_tensor = deepcopy(self.init_graph_tensor)
+            list_max_weights = self.ordered_edge_weights_list
+
             for j, entity_index in enumerate(question):
                 # Initialize the edges
                 visited_edges_tensor = deepcopy(self.init_visited_edges_tensor)
                 # Propagate the weights for this entity
-                graph_tensor = self.propagate_weights(
+                graph_tensor, list_max_weights = self.propagate_weights(
                     graph_tensor,
                     visited_edges_tensor,
+                    list_max_weights,
                     [(entity_index, importance_indexes[i][j])],
                 )
             if device == 0:
                 print("Building the graph embedding")
             ## Step 4: Build the graph embedding
             question_graph_embedding = self.compute_graph_representation(
-                graph_tensor, num_max_nodes
+                graph_tensor, list_max_weights, num_max_nodes
             )
             list_kg_embeddings.append(question_graph_embedding)
             if device == 0:
@@ -191,12 +237,14 @@ class GraphRefinement(nn.Module):
         except Exception as e:
             print("ERROR: ", e)
 
-    def propagate_weights(self, graph_tensor, visited_edges_tensor, waiting_list):
+    def propagate_weights(
+        self, graph_tensor, visited_edges_tensor, list_max_weights, waiting_list
+    ):
         """
             Given the index of an entity, propagates the weights around it
         """
         if len(waiting_list) == 0:
-            return graph_tensor
+            return graph_tensor, list_max_weights
         else:
             entity_in_question, importance_index = waiting_list.pop(0)
 
@@ -219,6 +267,17 @@ class GraphRefinement(nn.Module):
                         graph_tensor[edge_index] += importance_index
                         visited_edges_tensor[edge_index] = True
 
+                        # Check if the new weight is bigger than the smallest weight
+                        # in `list_max_weights`
+                        if graph_tensor[edge_index] > list_max_weights:
+                            # Update `list_max_weights`
+                            list_max_weights.pop()
+                            list_max_weights.append(
+                                [edge_index, graph_tensor[edge_index]]
+                            )
+                            # Sort the list
+                            list_max_weights.sort(key=lambda x: x[1], reverse=True)
+
                         if (
                             importance_index * self.attenuation_coef
                             >= self.propagation_threshold
@@ -234,6 +293,6 @@ class GraphRefinement(nn.Module):
                                 )
 
             return self.propagate_weights(
-                graph_tensor, visited_edges_tensor, waiting_list
+                graph_tensor, visited_edges_tensor, list_max_weights, waiting_list
             )
 
