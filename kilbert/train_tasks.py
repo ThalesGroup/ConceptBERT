@@ -467,6 +467,7 @@ def main():
                             )
 
             if (
+                # step % (20 * args.gradient_accumulation_steps) == 0
                 step % (20 * args.gradient_accumulation_steps) == 0
                 and step != 0
                 and default_gpu
