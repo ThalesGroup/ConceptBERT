@@ -246,14 +246,6 @@ class Kilbert(nn.Module):
             sequence_output_t_bis,
             attention_mask_bis,
         )
-        try:
-            print("Size fused_question_emb: ", fused_question_emb.shape)
-        except:
-            pass
-        try:
-            print("Size fused_question_att: ", fused_question_att.shape)
-        except:
-            pass
 
         # Reduce the size of the ConceptNet graph by pruning low-weighted edges
         # Keep only the k highest ones
