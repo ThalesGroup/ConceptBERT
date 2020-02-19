@@ -30,7 +30,7 @@ from classifier.classifier import SimpleClassifier
 # Maximum number of nodes extracted from the knowledge graph (heaviest edges)
 k = 50
 # Whether to use the first token or all of them
-use_pooled_output = True
+use_pooled_output = False
 
 ### CLASS DEFINITION ###
 class Kilbert(nn.Module):
@@ -165,7 +165,7 @@ class Kilbert(nn.Module):
         # Get the text and knowledge graph embeddings
         txt_embedding, kg_embedding = self.txt_embedding(input_txt, token_type_ids)
         # Get the image embedding
-        img_embedding = self.img_embedding(input_imgs, image_loc)
+        # img_embedding = self.img_embedding(input_imgs, image_loc)
 
         # Get the embeddings for ViLBert
         vilbert_txt_embedding = self.vilbert_txt_embedding(input_txt, token_type_ids)
@@ -225,7 +225,7 @@ class Kilbert(nn.Module):
 
         # Normalize the graph weights, so that high weights don't override
         # the added weights
-        conceptnet_graph.normalize_weights()
+        # conceptnet_graph.normalize_weights()
         # Refine the given ConceptNet graph with the help of `G_1` model
         """
         list_questions = []
