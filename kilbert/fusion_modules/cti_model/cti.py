@@ -59,6 +59,15 @@ class CTIModel(nn.Module):
         b_emb = [0] * self.glimpse
         att, logits = self.t_att(v_emb, q_emb, kg_emb)
 
+        try:
+            print("Shape att: ", att.shape)
+        except:
+            pass
+        try:
+            print("Shape logits: ", logits.shape)
+        except:
+            pass
+
         for g in range(self.glimpse):
             b_emb[g] = self.t_net[g].forward_with_weights(
                 v_emb, q_emb, kg_emb, att[:, :, :, :, g]
