@@ -274,9 +274,15 @@ class Kilbert(nn.Module):
         # knowledge_graph_emb = torch.flatten(knowledge_graph_emb, start_dim=1, end_dim=2)
         ### END TEMPORARY FIX ###
 
-        print("Shape image: ", sequence_output_v.shape)
-        print("Shape text: ", fused_question_emb.shape)
-        print("Shape knowledge graph: ", knowledge_graph_emb.shape)
+        print("DEVICES: ")
+        print("Shape image: ", sequence_output_v.get_device())
+        print("Shape text: ", fused_question_emb.get_device())
+        print("Shape knowledge graph: ", knowledge_graph_emb.get_device())
+
+        try:
+            print("Shape aggregator: ", self.aggregator.get_device())
+        except:
+            pass
 
         # Send the image, question and ConceptNet to the Aggregator module
         # result_vector, result_attention = self.aggregator(
