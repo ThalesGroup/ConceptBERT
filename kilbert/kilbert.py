@@ -104,7 +104,6 @@ class Kilbert(nn.Module):
         co_attention_mask=None,
         output_all_encoded_layers=None,
     ):
-        print("IN PROGRESS")
         ## Step 0: Preprocess the inputs
         if attention_mask is None:
             attention_mask = torch.ones_like(input_txt)
@@ -271,8 +270,6 @@ class Kilbert(nn.Module):
             # all_attention_mask[1],
             knowledge_graph_emb,
         )
-
-        print("Size result_vector: ", result_vector.shape)
 
         # TODO: Send the vector to the SimpleClassifier to get the answer
         return self.vil_prediction(result_vector)
