@@ -21,7 +21,10 @@ class SimpleQuestionAddition(nn.Module):
         print("TBD")
 
     def forward(self, emb_vilbert, att_vilbert, emb_transformer, att_transformer):
-        return emb_vilbert + emb_transformer, att_vilbert + att_transformer
+        return (
+            torch.Tensor(emb_vilbert) + torch.Tensor(emb_transformer),
+            torch.Tensor(att_vilbert) + torch.Tensor(att_transformer),
+        )
 
 
 class SimpleQuestionMultiplication(nn.Module):
