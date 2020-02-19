@@ -22,6 +22,7 @@ from fusion_modules.question_fusion import (
 )
 from fusion_modules.aggregator import SimpleConcatenation
 from fusion_modules.bertpooler import BertTextPooler, BertImagePooler
+from fusion_modules.cti_model.cti import CTIModel
 
 from classifier.classifier import SimpleClassifier
 
@@ -79,18 +80,29 @@ class Kilbert(nn.Module):
         self.bert_text_pooler = BertTextPooler(config)
         self.bert_image_pooler = BertImagePooler(config)
 
-        self.aggregator = SimpleConcatenation(config)
+        # self.aggregator = SimpleConcatenation(config)
+        self.aggregator = CTIModel(
+            v_dim=2048,
+            q_dim=768,
+            kg_dim=200,
+            glimpse=2,
+            h_dim=512,
+            h_out=1,
+            rank=32,
+            k=1,
+        )
 
         # Prediction modules
         # classifier_in_dim = self.aggregator.output_dim
         # classifier_hid_dim = self.aggregator.hidden_dim
-        self.vil_prediction = SimpleClassifier(
-            #             classifier_in_dim, classifier_hid_dim, num_labels, 0.5
-            1024 + 1024 + 200 * k,
-            2048,
-            num_labels,
-            0.5,
-        )
+        # self.vil_prediction = SimpleClassifier(
+        #     #             classifier_in_dim, classifier_hid_dim, num_labels, 0.5
+        #     1024 + 1024 + 200 * k,
+        #     2048,
+        #     num_labels,
+        #     0.5,
+        # )
+        self.vil_prediction = SimpleClassifier(512, 1024, num_labels, 0.5)
 
     def forward(
         self,
@@ -263,13 +275,15 @@ class Kilbert(nn.Module):
         ### END TEMPORARY FIX ###
 
         # Send the image, question and ConceptNet to the Aggregator module
-        result_vector = self.aggregator(
+        result_vector, result_attention = self.aggregator(
             fused_question_emb,
             # fused_question_att,
             sequence_output_v,
             # all_attention_mask[1],
             knowledge_graph_emb,
         )
+
+        print("SIZE RESULT VECTOR: ", result_vector.shape)
 
         # TODO: Send the vector to the SimpleClassifier to get the answer
         return self.vil_prediction(result_vector)
