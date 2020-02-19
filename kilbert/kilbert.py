@@ -274,28 +274,28 @@ class Kilbert(nn.Module):
             pass
 
         try:
-            shape = fused_question_emb.shape
+            print("Shape fused_question_emb: ", fused_question_emb.shape)
         except:
             print("Fused_question_emb is a list")
 
         try:
-            shape = fused_question_att.shape
+            print("Shape fused_question_att: ", fused_question_att.shape)
         except:
             print("Fused_question_att is a list")
 
         try:
-            shape = sequence_output_v[-1].shape
+            print("Shape sequence_output_v[-1]: ", sequence_output_v[-1].shape)
         except:
             print("sequence_output_v[-1] is a list")
 
         try:
-            shape = all_attention_mask[1].shape
+            print("Shape all_attention_mask[1]: ", all_attention_mask[1].shape)
         except:
             print("all_attention_mask[1] is a list")
             print("All_attention_mask[1]: ", all_attention_mask[1])
 
         try:
-            shape = knowledge_graph_emb.shape
+            print("Shape knowledge_graph_emb: ", knowledge_graph_emb.shape)
         except:
             print("Knowledge_graph_emb is a list")
 
