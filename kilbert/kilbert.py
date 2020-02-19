@@ -28,9 +28,9 @@ from classifier.classifier import SimpleClassifier
 
 ### VARIABLES ###
 # Maximum number of nodes extracted from the knowledge graph (heaviest edges)
-k = 50
+k = 20
 # Whether to use the first token or all of them
-use_pooled_output = True
+use_pooled_output = False
 
 ### CLASS DEFINITION ###
 class Kilbert(nn.Module):
@@ -80,28 +80,28 @@ class Kilbert(nn.Module):
         self.bert_text_pooler = BertTextPooler(config)
         self.bert_image_pooler = BertImagePooler(config)
 
-        self.aggregator = SimpleConcatenation(config)
-        # self.aggregator = CTIModel(
-        #     v_dim=1024,
-        #     q_dim=768,
-        #     kg_dim=200,
-        #     glimpse=2,
-        #     h_dim=512,
-        #     h_out=1,
-        #     rank=32,
-        #     k=1,
-        # )
+        # self.aggregator = SimpleConcatenation(config)
+        self.aggregator = CTIModel(
+            v_dim=1024,
+            q_dim=768,
+            kg_dim=200,
+            glimpse=2,
+            h_dim=512,
+            h_out=1,
+            rank=32,
+            k=1,
+        )
 
         # Prediction modules
         # classifier_in_dim = self.aggregator.output_dim
         # classifier_hid_dim = self.aggregator.hidden_dim
-        self.vil_prediction = SimpleClassifier(
-            #             classifier_in_dim, classifier_hid_dim, num_labels, 0.5
-            1024 + 1024 + 200 * k,
-            2048,
-            num_labels,
-            0.5,
-        )
+        # self.vil_prediction = SimpleClassifier(
+        #     #             classifier_in_dim, classifier_hid_dim, num_labels, 0.5
+        #     1024 + 1024 + 200 * k,
+        #     2048,
+        #     num_labels,
+        #     0.5,
+        # )
         # self.vil_prediction = SimpleClassifier(512, 1024, num_labels, 0.5)
 
     def forward(
@@ -274,9 +274,9 @@ class Kilbert(nn.Module):
         knowledge_graph_emb = torch.flatten(knowledge_graph_emb, start_dim=1, end_dim=2)
         ### END TEMPORARY FIX ###
 
-        # print("Shape image: ", sequence_output_v.shape)
-        # print("Shape text: ", fused_question_emb.shape)
-        # print("Shape knowledge graph: ", knowledge_graph_emb.shape)
+        print("Shape image: ", sequence_output_v.shape)
+        print("Shape text: ", fused_question_emb.shape)
+        print("Shape knowledge graph: ", knowledge_graph_emb.shape)
 
         # Send the image, question and ConceptNet to the Aggregator module
         # result_vector, result_attention = self.aggregator(
