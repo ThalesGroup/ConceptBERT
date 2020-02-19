@@ -77,7 +77,15 @@ class GraphRefinement(nn.Module):
         ) as json_file:
             ordered_edge_weights_list = json.load(json_file)
 
-        self.ordered_edge_weights_list = ordered_edge_weights_list[:num_max_nodes]
+        """
+                We want to reach the limit `num_max_nodes`, but having `num_max_nodes` edges doesn't
+            mean we have `num_max_nodes` different nodes.
+            In a graph with k nodes, we can have a maximum of k(k-1)/2 edges (we assume a single edge
+            can link two nodes).
+            Thus, if we want to have at least k nodes, we need to consider at least 1 + (k-1)(k-2)/2 edges
+        """
+        num_edges = 1 + (num_max_nodes - 1) * (num_max_nodes - 2) / 2
+        self.ordered_edge_weights_list = ordered_edge_weights_list[:num_edges]
 
         # Write dictionary to have the equivalence "edge -> index"
         index_edge = 0
@@ -269,7 +277,7 @@ class GraphRefinement(nn.Module):
 
                         # Check if the new weight is bigger than the smallest weight
                         # in `list_max_weights`
-                        if graph_tensor[edge_index] > list_max_weights:
+                        if graph_tensor[edge_index] > list_max_weights[-1][1]:
                             is_in_max_list = False
                             # If the weight was already in the list_max_weights, just update its weight
                             for i, entity in enumerate(list_max_weights):
@@ -286,6 +294,9 @@ class GraphRefinement(nn.Module):
                                 )
 
                             # Sort the list
+                            # TODO: Instead of a sort, just input the new weight at the correct place
+                            # This can be done beforehand when checking if the new weight is already
+                            # in the list, or be done again here
                             list_max_weights.sort(key=lambda x: x[1], reverse=True)
 
                         if (
