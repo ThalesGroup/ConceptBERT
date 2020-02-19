@@ -17,13 +17,16 @@ import random
 
 import numpy as np
 
-from tensorboardX import SummaryWriter
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_pretrained_bert.optimization import WarmupLinearSchedule
 from torch.optim.lr_scheduler import LambdaLR, ReduceLROnPlateau
 import torch.distributed as dist
+
+# Tensorboard configuration
+from datetime import date
+from tensorboardX import SummaryWriter
 
 # Custom libraries
 from task_utils import (
@@ -46,6 +49,10 @@ logger = logging.getLogger(__name__)
 
 ### MAIN FUNCTION ###
 def main():
+    # Tensorboard configuration
+    today = str(date.today())
+    writer = SummaryWriter("/nas-data/vilbert/data2/tensorboards/" + today)
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -449,6 +456,11 @@ def main():
                     if args.gradient_accumulation_steps > 1:
                         loss = loss / args.gradient_accumulation_steps
 
+                    # Update tensorboard
+                    niter = epochId * max_num_iter + step
+                    writer.add_scalar("Train/Loss", loss.item(), niter)
+                    writer.add_scalar("Train/Score", score.item(), niter)
+
                     loss.backward()
                     if (step + 1) % args.gradient_accumulation_steps == 0:
                         optimizer.step()
@@ -498,6 +510,7 @@ def main():
             )
             torch.save(model_to_save.state_dict(), output_model_file)
 
+    writer.close()
     tbLogger.txt_close()
 
 
