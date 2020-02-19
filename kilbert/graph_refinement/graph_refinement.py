@@ -131,15 +131,16 @@ class GraphRefinement(nn.Module):
         # or if everything works as expected
 
         # Send initialization tensor representing the graph to the right GPU
+        device = list_questions.get_device()
         self.init_graph_tensor = (
-            self.init_graph_tensor.cuda(list_questions.get_device())
+            self.init_graph_tensor.cuda(device)
             if list_questions.is_cuda
             else self.init_graph_tensor
         )
 
         # Send initialization tensor to keep track of visited edges to the right GPU
         self.init_visited_edges_tensor = (
-            self.init_visited_edges_tensor.cuda(list_questions.get_device())
+            self.init_visited_edges_tensor.cuda(device)
             if list_questions.is_cuda
             else self.init_visited_edges_tensor
         )
@@ -151,9 +152,9 @@ class GraphRefinement(nn.Module):
         list_kg_embeddings = []
 
         for i, question in enumerate(list_questions):
-            print("New question (device: " + str(attention_question.get_device()) + ")")
+            if device == 0:
+                print("New question (device: " + str(device) + ")")
             graph_tensor = deepcopy(self.init_graph_tensor)
-            print("GRAPH TENSOR SHAPE: ", graph_tensor.shape)
             for j, entity_index in enumerate(question):
                 # Initialize the edges
                 visited_edges_tensor = deepcopy(self.init_visited_edges_tensor)
@@ -163,12 +164,15 @@ class GraphRefinement(nn.Module):
                     visited_edges_tensor,
                     [(entity_index, importance_indexes[i][j])],
                 )
-            print("GRAPH TENSOR OUTPUT SHAPE: ", graph_tensor.shape)
+            if device == 0:
+                print("Building the graph embedding")
             ## Step 4: Build the graph embedding
             question_graph_embedding = self.compute_graph_representation(
                 graph_tensor, num_max_nodes
             )
             list_kg_embeddings.append(question_graph_embedding)
+            if device == 0:
+                print("Question done, onto the next one")
 
         return torch.stack(list_kg_embeddings)
 
