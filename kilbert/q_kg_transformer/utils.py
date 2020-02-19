@@ -133,7 +133,7 @@ def initiate_embeddings():
         for entry in tqdm(raw_file, desc="Saving the node embeddings"):
             entry.strip()
             if entry:
-                embedding_split = entry.split(" ").replace("\n", "")
+                embedding_split = entry.replace("\n", "").split(" ")
                 word = embedding_split[0]
                 embedding = np.asarray(embedding_split[1:])
                 dict_embedding[word] = embedding
