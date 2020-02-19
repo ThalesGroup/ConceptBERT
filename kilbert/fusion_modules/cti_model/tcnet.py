@@ -136,7 +136,7 @@ class TCNet(nn.Module):
         self.kg_tucker = FCNet([kg_dim, self.h_dim], act=act, dropout=dropout[2])
 
         if self.h_dim < 1024:
-            self.kg_tucker = FCNet([kg_dim, self.h_dim], act=act, dropout=dropout[0])
+            self.kg_tucker = FCNet([kg_dim, self.h_dim], act=act, dropout=dropout[2])
             self.q_net = nn.ModuleList(
                 [
                     FCNet([self.h_dim, self.hq_dim], act=act, dropout=dropout[0])
