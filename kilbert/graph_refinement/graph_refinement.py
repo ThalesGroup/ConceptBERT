@@ -220,7 +220,7 @@ class GraphRefinement(nn.Module):
             if device == 0:
                 print("Question done, onto the next one")
 
-        knowledge_graph_embedding = torch.stack(list_kg_embeddings)
+        knowledge_graph_embedding = torch.stack(list_kg_embeddings).float()
         # Send `knowledge_graph_embedding` to the correct device
         knowledge_graph_embedding = knowledge_graph_embedding.cuda(device)
 
