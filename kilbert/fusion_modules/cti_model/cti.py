@@ -25,11 +25,11 @@ class CTIModel(nn.Module):
             v_dim, q_dim, kg_dim, h_dim, 1, rank, glimpse, k, dropout=[0.2, 0.5, 0.2],
         )
 
-        self.t_net = []
-        self.q_prj = []
-        self.kg_prj = []
+        t_net = []
+        q_prj = []
+        kg_prj = []
         for _ in range(glimpse):
-            self.t_net.append(
+            t_net.append(
                 TCNet(
                     v_dim,
                     q_dim,
@@ -42,8 +42,12 @@ class CTIModel(nn.Module):
                     dropout=[0.2, 0.5, 0.2],
                 )
             )
-            self.q_prj.append(FCNet([q_dim, q_dim], "", 0.2))
-            self.kg_prj.append(FCNet([kg_dim, kg_dim], "", 0.2))
+            q_prj.append(FCNet([q_dim, q_dim], "", 0.2))
+            kg_prj.append(FCNet([kg_dim, kg_dim], "", 0.2))
+
+        self.t_net = nn.ModuleList(t_net)
+        self.q_prj = nn.ModuleList(q_prj)
+        self.kg_prj = nn.ModuleList(kg_prj)
 
     # def forward(self, v, q, kg):
     def forward(self, v_emb, q_emb, kg_emb):
