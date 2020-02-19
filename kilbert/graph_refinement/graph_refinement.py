@@ -182,19 +182,11 @@ class GraphRefinement(nn.Module):
         # or if everything works as expected
 
         # Send initialization tensor representing the graph to the right GPU
-        device = list_questions.get_device()
-        self.init_graph_tensor = (
-            self.init_graph_tensor.cuda(device)
-            if list_questions.is_cuda
-            else self.init_graph_tensor
-        )
+        device = list_questions.get_device() if list_questions.is_cuda else -1
+        self.init_graph_tensor = self.init_graph_tensor.cuda(device)
 
         # Send initialization tensor to keep track of visited edges to the right GPU
-        self.init_visited_edges_tensor = (
-            self.init_visited_edges_tensor.cuda(device)
-            if list_questions.is_cuda
-            else self.init_visited_edges_tensor
-        )
+        self.init_visited_edges_tensor = self.init_visited_edges_tensor.cuda(device)
 
         ## Step 2: Compute the importance index
         importance_indexes = self.compute_importance_index(attention_question)
@@ -228,7 +220,11 @@ class GraphRefinement(nn.Module):
             if device == 0:
                 print("Question done, onto the next one")
 
-        return torch.stack(list_kg_embeddings)
+        knowledge_graph_embedding = torch.stack(list_kg_embeddings)
+        # Send `knowledge_graph_embedding` to the correct device
+        knowledge_graph_embedding = knowledge_graph_embedding.cuda(device)
+
+        return knowledge_graph_embedding
 
     def translate_question_to_kg(self, q_index):
         """

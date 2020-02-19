@@ -196,7 +196,6 @@ class Kilbert(nn.Module):
         )
 
         # Compute the question self-attention
-        print("SHAPE SEQUENCE_OUTPUT_T: ", sequence_output_t_bis.shape)
 
         question_self_attention = self.q_att(sequence_output_t_bis)
         # Transfer question self-attention to correct device
