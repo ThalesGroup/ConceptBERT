@@ -258,13 +258,6 @@ class Kilbert(nn.Module):
         knowledge_graph_emb = torch.stack(kg_emb)
         """
 
-        print("Shape sequence_output_v[-1]: ", sequence_output_v.shape)
-
-        # Display devices of the tensors
-        print("Device text: ", fused_question_emb.get_device())
-        print("Device image: ", sequence_output_v.get_device())
-        print("Device knowledge graph: ", knowledge_graph_emb.get_device())
-
         # Send the image, question and ConceptNet to the Aggregator module
         result_vector = self.aggregator(
             fused_question_emb,
