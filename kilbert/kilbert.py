@@ -115,11 +115,15 @@ class Kilbert(nn.Module):
             # Convert the list of BERT tokens to a list of words (but still tokens)
             list_bert_tokens = []
             for token in question:
-                list_bert_tokens.append(
-                    self.txt_embedding.conceptnet_embedding.token_dictionary[
-                        int(token.item())
-                    ]
-                )
+                try:
+                    list_bert_tokens.append(
+                        self.txt_embedding.conceptnet_embedding.token_dictionary[
+                            int(token.item())
+                        ]
+                    )
+                except:
+                    if token not in ["[CLS]", "[SEP]", "'", "?"]:
+                        print("List bert tokens: ", list_bert_tokens)
 
             # Check which tokens need to be fused and create list for the assembled words
             list_words = []
