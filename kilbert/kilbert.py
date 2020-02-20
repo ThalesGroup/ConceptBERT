@@ -280,8 +280,7 @@ class Kilbert(nn.Module):
         ### END TEMPORARY FIX ###
 
         # Send the image, question and ConceptNet to the Aggregator module
-        # result_vector, result_attention = self.aggregator(
-        result_vector = self.aggregator(
+        result_vector, result_attention = self.aggregator(
             sequence_output_v,
             # all_attention_mask[1],
             fused_question_emb,
