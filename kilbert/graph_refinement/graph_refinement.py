@@ -168,11 +168,13 @@ class GraphRefinement(nn.Module):
                 break
 
         list_main_entities = list(set_nodes)
-
-        print(
-            "List main entities from device " + str(graph_tensor.get_device()) + " : ",
-            list_main_entities,
-        )
+        if str(graph_tensor.get_device()) == "0":
+            print(
+                "List main entities from device "
+                + str(graph_tensor.get_device())
+                + " : ",
+                list_main_entities,
+            )
 
         # Get the embedding of each word
         kg_embedding = []
