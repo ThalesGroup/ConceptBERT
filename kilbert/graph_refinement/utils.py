@@ -244,6 +244,10 @@ def write_weight_edges():
                 "updated": bool,
             }
         }
+        # TODO: Switch to this structure instead:
+        weight_edges = {
+            "[0, 1]": weight(float)
+        }
     """
     """
         Given the nodes and the edges, computes the weights of each edge
