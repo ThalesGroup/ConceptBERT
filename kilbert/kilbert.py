@@ -126,6 +126,7 @@ class Kilbert(nn.Module):
                         )
                     except:
                         pass
+
             # Check which tokens need to be fused and create list for the assembled words
             list_words = []
             indexes_to_fuse = []
