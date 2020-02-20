@@ -12,8 +12,8 @@ class ImportanceIndex(nn.Module):
     def __init__(self):
         super(ImportanceIndex, self).__init__()
 
-        self.dense = nn.Linear(16, 16)
-        self.activation = nn.LeakyReLU(-0.1)
+        # self.dense = nn.Linear(16, 16)
+        # self.activation = nn.LeakyReLU(-0.1)
 
     # def forward(self, word, attention_word):
     #     """
@@ -27,6 +27,7 @@ class ImportanceIndex(nn.Module):
         """
             Computes the importance index of the given word
         """
-        importance_idx = self.dense(attention_word)
-        scaled_importance_idx = self.activation(importance_idx)
-        return scaled_importance_idx
+        # importance_idx = self.dense(attention_word)
+        # scaled_importance_idx = self.activation(importance_idx)
+        # return scaled_importance_idx
+        return 10 * attention_word
