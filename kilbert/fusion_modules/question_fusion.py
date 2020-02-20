@@ -20,11 +20,16 @@ class SimpleQuestionAddition(nn.Module):
         # ]
         print("TBD")
 
+    def forward(self, emb_vilbert, emb_transformer):
+        return emb_vilbert + emb_transformer
+
+    """
     def forward(self, emb_vilbert, att_vilbert, emb_transformer, att_transformer):
         return (
             emb_vilbert + emb_transformer,
             att_vilbert + att_transformer,
         )
+    """
 
 
 class SimpleQuestionMultiplication(nn.Module):
