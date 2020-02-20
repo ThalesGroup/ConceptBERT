@@ -10,6 +10,7 @@ import torch.nn as nn
 # Custom libraries
 from graph_refinement.importance_index import ImportanceIndex
 from graph_refinement.utils import (
+    extract_nodes,
     write_node_dictionary,
     write_neighbors_list,
     write_weight_edges,
@@ -32,7 +33,18 @@ class GraphRefinement(nn.Module):
         # Coefficient multiplied to the weight at each iteration
         self.attenuation_coef = 0.25
 
-        # Load the dictionary of the node indexes
+        # Load the list of nodes in ConceptNet
+        if not os.path.exists(
+            "/nas-data/vilbert/data2/conceptnet/processed/cn_nodes.json"
+        ):
+            extract_nodes()
+
+        with open(
+            "/nas-data/vilbert/data2/conceptnet/processed/cn_nodes.json", "r"
+        ) as json_file:
+            self.list_nodes = json.load(json_file)
+
+        # Load the dictionary of the node tokens in ConceptNet
         if not os.path.exists(
             "/nas-data/vilbert/data2/conceptnet/processed/cn_nodes_dictionary.json"
         ):
@@ -43,7 +55,7 @@ class GraphRefinement(nn.Module):
         ) as json_file:
             self.index_nodes_dict = json.load(json_file)
 
-        # Load the list of neighbors for the graph
+        # Load the list of neighbors for the graph (given a ConceptNet token)
         if not os.path.exists(
             "/nas-data/vilbert/data2/conceptnet/processed/cn_list_neighbors.json"
         ):
@@ -87,7 +99,7 @@ class GraphRefinement(nn.Module):
         num_edges = 1 + int((num_max_nodes - 1) * (num_max_nodes - 2) / 2)
         self.ordered_edge_weights_list = ordered_edge_weights_list[:num_edges]
 
-        # Write dictionary to have the equivalence "edge -> index"
+        # Write dictionary to have the equivalence "edge -> edge index"
         index_edge = 0
         edge_to_idx_dict = {}
         for edge in self.initial_weight_edges:
@@ -95,7 +107,7 @@ class GraphRefinement(nn.Module):
             index_edge += 1
         self.edge_to_idx_dict = edge_to_idx_dict
 
-        # Write list to have the equivalence "index -> edge"
+        # Write list to have the equivalence "edge index -> edge"
         idx_to_edge_list = []
         for edge, index in self.edge_to_idx_dict.items():
             idx_to_edge_list.append(edge)
@@ -157,12 +169,18 @@ class GraphRefinement(nn.Module):
 
         list_main_entities = list(set_nodes)
 
+        print(
+            "List main entities from device " + str(graph_tensor.get_device()) + " : ",
+            list_main_entities,
+        )
+
         # Get the embedding of each word
         kg_embedding = []
 
         for entity_idx in list_main_entities:
+            word = self.list_nodes[entity_idx]
             kg_embedding.append(
-                self.conceptnet_embedding.get_node_embedding_tensor(entity_idx)
+                self.conceptnet_embedding.get_node_embedding_tensor(word)
             )
 
         return torch.stack(kg_embedding)
@@ -233,13 +251,19 @@ class GraphRefinement(nn.Module):
             If it doesn't exist, returns an error.
         """
         try:
-            word = self.conceptnet_embedding.token_dictionary[q_index]
+            word = self.conceptnet_embedding.token_dictionary[int(q_index.item())]
             kb_index = self.index_nodes_dict[word]
+            # Convert kb_index to tensor and send it to the correct device
+            kb_index = (
+                torch.Tensor(kb_index).cuda(q_index.get_device())
+                if q_index.is_cuda
+                else kb_index
+            )
 
             return kb_index
 
         except Exception as e:
-            print("ERROR: ", e)
+            print("ERROR in `translate_question_to_kg`: ", e)
 
     def propagate_weights(
         self, graph_tensor, visited_edges_tensor, list_max_weights, waiting_list
