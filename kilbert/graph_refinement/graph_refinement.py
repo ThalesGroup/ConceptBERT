@@ -157,8 +157,8 @@ class GraphRefinement(nn.Module):
             str_edge = self.idx_to_edge_list[index_edge]
             str_edge = str_edge.replace("[", "").replace("]", "")
             list_nodes = str_edge.split(";")
-            start_node = list_nodes[0]
-            end_node = list_nodes[1]
+            start_node = int(list_nodes[0])
+            end_node = int(list_nodes[1])
 
             set_nodes.add(start_node)
             if len(set_nodes) >= num_max_nodes:
@@ -178,7 +178,7 @@ class GraphRefinement(nn.Module):
         kg_embedding = []
 
         for entity_idx in list_main_entities:
-            word = self.list_nodes[int(entity_idx.item())]
+            word = self.list_nodes[entity_idx]
             kg_embedding.append(
                 self.conceptnet_embedding.get_node_embedding_tensor(word)
             )
@@ -210,7 +210,7 @@ class GraphRefinement(nn.Module):
         importance_indexes = self.compute_importance_index(attention_question)
         print(
             "Importance indexes on device " + str(device) + " : ",
-            importance_indexes[:20],
+            importance_indexes[:3],
         )
 
         ## Step 3: Propagate the weights in the "graph"
