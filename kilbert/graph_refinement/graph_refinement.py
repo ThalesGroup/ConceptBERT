@@ -284,69 +284,73 @@ class GraphRefinement(nn.Module):
 
             if importance_index >= self.propagation_threshold:
                 # Convert entity in question to entity in knowledge graph
-                entity_kg = self.translate_question_to_kg(entity_in_question)
-                list_neighbors = self.list_neighbors[entity_kg]
+                try:
+                    entity_kg = self.translate_question_to_kg(entity_in_question)
+                    list_neighbors = self.list_neighbors[entity_kg]
 
-                for neighbor in list_neighbors:
-                    edge = (
-                        "["
-                        + str(min(entity_kg, neighbor))
-                        + ";"
-                        + str(max(entity_kg, neighbor))
-                        + "]"
-                    )
-                    edge_index = self.edge_to_idx_dict[edge]
+                    for neighbor in list_neighbors:
+                        edge = (
+                            "["
+                            + str(min(entity_kg, neighbor))
+                            + ";"
+                            + str(max(entity_kg, neighbor))
+                            + "]"
+                        )
+                        edge_index = self.edge_to_idx_dict[edge]
 
-                    if not visited_edges_tensor[edge_index]:
-                        graph_tensor[edge_index] += importance_index
-                        visited_edges_tensor[edge_index] = True
+                        if not visited_edges_tensor[edge_index]:
+                            graph_tensor[edge_index] += importance_index
+                            visited_edges_tensor[edge_index] = True
 
-                        # Check if the new weight is bigger than the smallest weight
-                        # in `list_max_weights`
-                        if graph_tensor[edge_index] > list_max_weights[-1][1]:
-                            is_in_max_list = False
-                            new_position = 0
-                            # If the weight was already in the list_max_weights, just update its weight
-                            for i, entity in enumerate(list_max_weights):
-                                if entity[0] < graph_tensor[edge_index]:
-                                    new_position = i
-                                if entity[0] == edge_index:
-                                    list_max_weights[i][1] += importance_index
-                                    is_in_max_list = True
-                                    break
-
-                            if not is_in_max_list:
-                                # Check where to add the new weight
+                            # Check if the new weight is bigger than the smallest weight
+                            # in `list_max_weights`
+                            if graph_tensor[edge_index] > list_max_weights[-1][1]:
+                                is_in_max_list = False
+                                new_position = 0
+                                # If the weight was already in the list_max_weights, just update its weight
                                 for i, entity in enumerate(list_max_weights):
                                     if entity[0] < graph_tensor[edge_index]:
                                         new_position = i
+                                    if entity[0] == edge_index:
+                                        list_max_weights[i][1] += importance_index
+                                        is_in_max_list = True
                                         break
-                                # Update `list_max_weights`, so that it is still sorted
-                                list_max_weights.pop()
-                                list_max_weights.insert(
-                                    new_position, [edge_index, graph_tensor[edge_index]]
-                                )
 
-                            """
-                            # Sort the list
-                            # TODO: Instead of a sort, just input the new weight at the correct place
-                            # This can be done beforehand when checking if the new weight is already
-                            # in the list, or be done again here
-                            list_max_weights.sort(key=lambda x: x[1], reverse=True)
-                            """
-                        if (
-                            importance_index * self.attenuation_coef
-                            >= self.propagation_threshold
-                        ):
-                            new_list_neighbors = self.list_neighbors[neighbor]
-
-                            for new_neighbor in new_list_neighbors:
-                                waiting_list.append(
-                                    (
-                                        new_neighbor,
-                                        importance_index * self.attenuation_coef,
+                                if not is_in_max_list:
+                                    # Check where to add the new weight
+                                    for i, entity in enumerate(list_max_weights):
+                                        if entity[0] < graph_tensor[edge_index]:
+                                            new_position = i
+                                            break
+                                    # Update `list_max_weights`, so that it is still sorted
+                                    list_max_weights.pop()
+                                    list_max_weights.insert(
+                                        new_position,
+                                        [edge_index, graph_tensor[edge_index]],
                                     )
-                                )
+
+                                """
+                                # Sort the list
+                                # TODO: Instead of a sort, just input the new weight at the correct place
+                                # This can be done beforehand when checking if the new weight is already
+                                # in the list, or be done again here
+                                list_max_weights.sort(key=lambda x: x[1], reverse=True)
+                                """
+                            if (
+                                importance_index * self.attenuation_coef
+                                >= self.propagation_threshold
+                            ):
+                                new_list_neighbors = self.list_neighbors[neighbor]
+
+                                for new_neighbor in new_list_neighbors:
+                                    waiting_list.append(
+                                        (
+                                            new_neighbor,
+                                            importance_index * self.attenuation_coef,
+                                        )
+                                    )
+                except:
+                    pass
 
             return self.propagate_weights(
                 graph_tensor, visited_edges_tensor, list_max_weights, waiting_list
