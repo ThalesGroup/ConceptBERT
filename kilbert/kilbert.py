@@ -135,7 +135,16 @@ class Kilbert(nn.Module):
             word_cache = ""
 
             for j, token in enumerate(list_bert_tokens):
-                if token[:2] == "##":
+                if token == 0:
+                    if word_cache != "":
+                        list_words.append(word_cache)
+                        indexes_to_fuse.append(token_cache)
+
+                    list_words.append(0)
+                    word_cache = ""
+                    token_cache = []
+
+                elif token[:2] == "##":
                     token_cache.append(j)
                     word_cache += token[2:]
                 else:
@@ -146,8 +155,9 @@ class Kilbert(nn.Module):
                     word_cache = str(token)
                     token_cache = [j]
 
-            list_words.append(word_cache)
-            indexes_to_fuse.append(token_cache)
+            if word_cache != "":
+                list_words.append(word_cache)
+                indexes_to_fuse.append(token_cache)
 
             # Create a list for the new question self-attention
             new_q_self_attention = []
