@@ -104,6 +104,80 @@ class Kilbert(nn.Module):
         # )
         self.vil_prediction = SimpleClassifier(1024, 1024 * 2, num_labels, 0.5)
 
+    def convert_tokens(self, input_txt, q_self_attention, conceptnet_graph):
+        """
+
+        """
+        tokens_conceptnet = []
+        q_attention = []
+
+        for i, question in enumerate(input_txt):
+            # Convert the list of BERT tokens to a list of words (but still tokens)
+            list_bert_tokens = []
+            for token in question:
+                list_bert_tokens.append(
+                    self.conceptnet_embedding.token_dictionary[int(token.item())]
+                )
+
+            # Check which tokens need to be fused and create list for the assembled words
+            list_words = []
+            indexes_to_fuse = []
+
+            token_cache = []
+            word_cache = ""
+
+            for i, token in enumerate(list_bert_tokens):
+                if token[:2] == "##":
+                    token_cache.append(i)
+                    word_cache += token[2:]
+                else:
+                    if word_cache != "":
+                        list_words.append(word_cache)
+                        indexes_to_fuse.append(token_cache)
+
+                    word_cache = str(token)
+                    token_cache = [i]
+
+            list_words.append(word_cache)
+            indexes_to_fuse.append(token_cache)
+
+            # Create a list for the new question self-attention
+            new_q_self_attention = []
+            for list_indexes in indexes_to_fuse:
+                attention_batch = 0
+                for index in list_indexes:
+                    attention_batch += q_self_attention[i][index]
+                new_q_self_attention.append(attention_batch)
+
+            new_q_self_attention = torch.stack(new_q_self_attention)
+
+            # Convert the assembled words to their ConceptNet indexes
+            new_input_txt = []
+            for word in list_words:
+                try:
+                    new_input_txt.append(conceptnet_graph.index_nodes_dict[word])
+                except Exception as e:
+                    if word not in ["[CLS]", "[SEP]", "'", "?"]:
+                        print("ERROR in `convert_tokens`: ", e)
+
+            new_input_txt = torch.stack(new_input_txt)
+
+            tokens_conceptnet.append(new_input_txt)
+            q_attention.append(new_q_self_attention)
+
+        # TODO: Send back the tensors in the correct device
+        device = input_txt.get_device()
+
+        tokens_conceptnet = torch.stack(tokens_conceptnet)
+        tokens_conceptnet = (
+            tokens_conceptnet.cuda(device) if device != -1 else tokens_conceptnet
+        )
+
+        q_attention = torch.stack(q_attention)
+        q_attention = q_attention.cuda(device) if device != -1 else q_attention
+
+        return tokens_conceptnet, q_attention
+
     def forward(
         self,
         input_txt,
@@ -223,9 +297,12 @@ class Kilbert(nn.Module):
         if use_pooled_output:
             sequence_output_t_bis = pooled_output_bis
 
-        # Normalize the graph weights, so that high weights don't override
-        # the added weights
-        # conceptnet_graph.normalize_weights()
+        # Convert `input_txt` (tensor of BERT tokens) to a tensor of ConceptNet tokens
+        # Adapt `question_self_attention` accordingly
+        tokens_conceptnet, q_self_attention = self.convert_tokens(
+            input_txt, question_self_attention, conceptnet_graph
+        )
+
         # Refine the given ConceptNet graph with the help of `G_1` model
         """
         list_questions = []
@@ -242,8 +319,13 @@ class Kilbert(nn.Module):
                     print("ERROR: ", e)
             list_questions.append(list_words)
         """
+
         knowledge_graph_emb = self.graph_refinement(
-            input_txt, question_self_attention, conceptnet_graph, k
+            #     input_txt, question_self_attention, conceptnet_graph, k
+            tokens_conceptnet,
+            q_self_attention,
+            conceptnet_graph,
+            k,
         )
 
         # Send the question results from ViLBERT and Transformer to the
