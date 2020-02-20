@@ -184,19 +184,23 @@ class TCNet(nn.Module):
         return f_emb.squeeze(4)
 
     def forward_with_weights(self, v, q, kg, w):
-        v_ = self.v_tucker(v)  # b x v x d # .transpose(2, 1)  # b x d x v
+        # v_ = self.v_tucker(v)  # b x v x d # .transpose(2, 1)  # b x d x v
         # print("Shape v_: ", v_.shape)
-        q_ = self.q_tucker(
-            q
-        )  # b x q x d # .transpose(2, 1).unsqueeze(3)  # b x d x q x 1
+        # q_ = self.q_tucker(
+        #     q
+        # )  # b x q x d # .transpose(2, 1).unsqueeze(3)  # b x d x q x 1
         # print("Shape q_: ", q_.shape)
-        kg_ = self.kg_tucker(
-            kg
-        )  # b x kg x d # .transpose(2, 1).unsqueeze(3)  # b x d x kg
+        # kg_ = self.kg_tucker(
+        #     kg
+        # )  # b x kg x d # .transpose(2, 1).unsqueeze(3)  # b x d x kg
         # print("Shape kg_: ", kg_.shape)
 
-        # logits = torch.einsum("bdv,bvqa,bdqi,bdaj->bdij", [v_, w, q_, kg_])
-        logits = torch.einsum("bvk,bkqg,bqk,bgk->bk")
+        v_ = self.v_tucker(v).transpose(2, 1)  # b x d x v
+        q_ = self.q_tucker(q).transpose(2, 1).unsqueeze(3)  # b x d x q x 1
+        kg_ = self.kg_tucker(kg).transpose(2, 1).unsqueeze(3)  # b x d x kg
+
+        logits = torch.einsum("bdv,bvqa,bdqi,bdaj->bdij", [v_, w, q_, kg_])
+        # logits = torch.einsum("bvk,bkqg,bqk,bgk->bk")
         logits = logits.squeeze(3).squeeze(2)
 
         return logits
