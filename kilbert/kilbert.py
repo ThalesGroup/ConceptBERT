@@ -116,7 +116,7 @@ class Kilbert(nn.Module):
             list_bert_tokens = []
             for token in question:
                 if int(token.item()) == 0:
-                    list_bert_tokens.append(0)
+                    list_bert_tokens.append(-1)
                 else:
                     try:
                         list_bert_tokens.append(
@@ -125,7 +125,7 @@ class Kilbert(nn.Module):
                             ]
                         )
                     except:
-                        pass
+                        list_bert_tokens.append(-1)
 
             # Check which tokens need to be fused and create list for the assembled words
             list_words = []
@@ -135,12 +135,12 @@ class Kilbert(nn.Module):
             word_cache = ""
 
             for j, token in enumerate(list_bert_tokens):
-                if token == 0:
+                if token == -1:
                     if word_cache != "":
                         list_words.append(word_cache)
                         indexes_to_fuse.append(token_cache)
 
-                    list_words.append(0)
+                    list_words.append(-1)
                     word_cache = ""
                     token_cache = []
 
@@ -172,22 +172,22 @@ class Kilbert(nn.Module):
             # Convert the assembled words to their ConceptNet indexes
             new_input_txt = []
             for word in list_words:
-                if word == 0:
-                    new_input_txt.append(0)
+                if word == -1:
+                    new_input_txt.append(-1)
                 else:
                     try:
                         new_input_txt.append(conceptnet_graph.index_nodes_dict[word])
                     except Exception as e:
                         if word not in ["[CLS]", "[SEP]", "'", "?"]:
                             print("ERROR in `convert_tokens`: ", e)
-                        new_input_txt.append(0)
+                        new_input_txt.append(-1)
 
             new_input_txt = torch.IntTensor(new_input_txt)
 
             tokens_conceptnet.append(new_input_txt)
             q_attention.append(new_q_self_attention)
 
-        # TODO: Send back the tensors in the correct device
+        # Send back the tensors in the correct device
         device = input_txt.get_device()
 
         tokens_conceptnet = torch.stack(tokens_conceptnet)
