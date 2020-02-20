@@ -111,6 +111,8 @@ class Kilbert(nn.Module):
         tokens_conceptnet = []
         q_attention = []
 
+        length_question = input_txt.shape[1]
+
         for i, question in enumerate(input_txt):
             # Convert the list of BERT tokens to a list of words (but still tokens)
             list_bert_tokens = []
@@ -158,6 +160,10 @@ class Kilbert(nn.Module):
             if word_cache != "":
                 list_words.append(word_cache)
                 indexes_to_fuse.append(token_cache)
+
+            # Pad your question tensor with `-1`
+            while len(list_words) < length_question:
+                list_words.append(-1)
 
             # Create a list for the new question self-attention
             new_q_self_attention = []
