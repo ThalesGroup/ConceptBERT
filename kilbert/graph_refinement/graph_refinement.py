@@ -178,7 +178,7 @@ class GraphRefinement(nn.Module):
         kg_embedding = []
 
         for entity_idx in list_main_entities:
-            word = self.list_nodes[entity_idx]
+            word = self.list_nodes[int(entity_idx.item())]
             kg_embedding.append(
                 self.conceptnet_embedding.get_node_embedding_tensor(word)
             )
@@ -208,6 +208,10 @@ class GraphRefinement(nn.Module):
 
         ## Step 2: Compute the importance index
         importance_indexes = self.compute_importance_index(attention_question)
+        print(
+            "Importance indexes on device " + str(device) + " : ",
+            importance_indexes[:20],
+        )
 
         ## Step 3: Propagate the weights in the "graph"
         list_kg_embeddings = []
