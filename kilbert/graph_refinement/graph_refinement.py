@@ -265,7 +265,6 @@ class GraphRefinement(nn.Module):
                 if q_index.is_cuda
                 else kb_index
             )
-            print("KB INDEX: ", kb_index)
             return kb_index
 
         except Exception as e:
