@@ -454,7 +454,7 @@ class CustomBertEncoder(nn.Module):
         all_encoder_layers_t = []
         all_attention_mask_t = []
 
-        batch_size, num_words, t_hidden_size = txt_embedding.size()
+        # batch_size, num_words, t_hidden_size = txt_embedding.size()
 
         for idx in range(0, len(self.layer)):
             txt_embedding, txt_attention_probs = self.layer[idx](
