@@ -116,7 +116,7 @@ class Kilbert(nn.Module):
             list_bert_tokens = []
             for token in question:
                 if int(token.item()) == 0:
-                    break
+                    list_bert_tokens.append(0)
                 else:
                     try:
                         list_bert_tokens.append(
@@ -162,11 +162,15 @@ class Kilbert(nn.Module):
             # Convert the assembled words to their ConceptNet indexes
             new_input_txt = []
             for word in list_words:
-                try:
-                    new_input_txt.append(conceptnet_graph.index_nodes_dict[word])
-                except Exception as e:
-                    if word not in ["[CLS]", "[SEP]", "'", "?"]:
-                        print("ERROR in `convert_tokens`: ", e)
+                if word == "0":
+                    new_input_txt.append(0)
+                else:
+                    try:
+                        new_input_txt.append(conceptnet_graph.index_nodes_dict[word])
+                    except Exception as e:
+                        if word not in ["[CLS]", "[SEP]", "'", "?"]:
+                            print("ERROR in `convert_tokens`: ", e)
+                        new_input_txt.append(0)
 
             new_input_txt = torch.IntTensor(new_input_txt)
 
