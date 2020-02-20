@@ -265,11 +265,12 @@ class GraphRefinement(nn.Module):
                 if q_index.is_cuda
                 else kb_index
             )
-
+            print("KB INDEX: ", kb_index)
             return kb_index
 
         except Exception as e:
-            print("ERROR in `translate_question_to_kg`: ", e)
+            if word not in ["[CLS]", "[SEP]", "'", "?"]:
+                print("ERROR in `translate_question_to_kg`: ", e)
 
     def propagate_weights(
         self, graph_tensor, visited_edges_tensor, list_max_weights, waiting_list
