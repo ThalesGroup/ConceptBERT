@@ -288,8 +288,6 @@ class Kilbert(nn.Module):
             knowledge_graph_emb,
         )
 
-        print("SIZE RESULT VECTOR: ", result_vector.shape)
-
         # TODO: Send the vector to the SimpleClassifier to get the answer
         return self.vil_prediction(result_vector)
 
