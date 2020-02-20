@@ -50,28 +50,28 @@ class CTIModel(nn.Module):
         self.q_prj = nn.ModuleList(q_prj)
         self.kg_prj = nn.ModuleList(kg_prj)
 
+        self.q_pooler = FCNet([q_dim, h_dim * 2])
+        self.kg_pooler = FCNet([kg_dim, h_dim * 2])
+
     # def forward(self, v, q, kg):
-    def forward(self, v_emb, q_emb, kg_emb):
+    def forward(self, v_emb, q_emb_raw, kg_emb_raw):
         """
             v: [batch, num_objs, obj_dim]
             b: [batch, num_objs, b_dim]
             q: [batch_size, seq_length]
         """
         b_emb = [0] * self.glimpse
-        att, logits = self.t_att(v_emb, q_emb, kg_emb)
+        att, logits = self.t_att(v_emb, q_emb_raw, kg_emb_raw)
 
-        try:
-            print("Shape att: ", att.shape)
-        except:
-            pass
-        try:
-            print("Shape logits: ", logits.shape)
-        except:
-            pass
+        q_emb = self.q_pooler(q_emb_raw)
+        kg_emb = self.kg_pooler(kg_emb_raw)
+
+        print("Shape q_emb: ", q_emb.shape)
+        print("Shape kg_emb: ", kg_emb.shape)
 
         for g in range(self.glimpse):
             b_emb[g] = self.t_net[g].forward_with_weights(
-                v_emb, q_emb, kg_emb, att[:, :, :, :, g]
+                v_emb, q_emb_raw, kg_emb_raw, att[:, :, :, :, g]
             )
             print(
                 "Expected shape of `q_emb`: ",
