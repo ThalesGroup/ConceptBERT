@@ -168,7 +168,7 @@ class Kilbert(nn.Module):
                     if word not in ["[CLS]", "[SEP]", "'", "?"]:
                         print("ERROR in `convert_tokens`: ", e)
 
-            new_input_txt = torch.stack(new_input_txt)
+            new_input_txt = torch.IntTensor(new_input_txt)
 
             tokens_conceptnet.append(new_input_txt)
             q_attention.append(new_q_self_attention)
