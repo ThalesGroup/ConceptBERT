@@ -85,7 +85,7 @@ class Kilbert(nn.Module):
             v_dim=1024,
             q_dim=768,
             kg_dim=200,
-            glimpse=1,
+            glimpse=2,
             h_dim=512,
             h_out=1,
             rank=32,
