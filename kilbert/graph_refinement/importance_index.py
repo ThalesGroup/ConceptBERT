@@ -27,6 +27,10 @@ class ImportanceIndex(nn.Module):
         """
             Computes the importance index of the given word
         """
+        print(
+            "Attention word on device " + attention_word.get_device() + " : ",
+            attention_word,
+        )
         # importance_idx = self.dense(attention_word)
         # scaled_importance_idx = self.activation(importance_idx)
         # return scaled_importance_idx
