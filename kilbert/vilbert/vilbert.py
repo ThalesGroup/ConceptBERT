@@ -1716,18 +1716,18 @@ class BertForMultiModalPreTraining(BertPreTrainedModel):
 class VILBertForVLTasks(BertPreTrainedModel):
     def __init__(self, config, num_labels, split, dropout_prob=0.1, default_gpu=True):
         super(VILBertForVLTasks, self).__init__(config)
-        self.num_labels = num_labels
+        # self.num_labels = num_labels
         self.bert = BertModel(config, split)
-        self.dropout = nn.Dropout(dropout_prob)
+        # self.dropout = nn.Dropout(dropout_prob)
         # self.cls = BertPreTrainingHeads(
         #     config, self.bert.embeddings.word_embeddings.weight
         # )
-        self.vil_prediction = SimpleClassifier(config.bi_hidden_size, config.bi_hidden_size*2, num_labels, 0.5)
+        # self.vil_prediction = SimpleClassifier(config.bi_hidden_size, config.bi_hidden_size*2, num_labels, 0.5)
         # self.vil_prediction = nn.Linear(config.bi_hidden_size, num_labels)
-        self.vil_logit = nn.Linear(config.bi_hidden_size, 1)
-        self.vision_logit = nn.Linear(config.v_hidden_size, 1)
-        self.linguisic_logit = nn.Linear(config.hidden_size, 1)
-        self.fusion_method = config.fusion_method
+        # self.vil_logit = nn.Linear(config.bi_hidden_size, 1)
+        # self.vision_logit = nn.Linear(config.v_hidden_size, 1)
+        # self.linguisic_logit = nn.Linear(config.hidden_size, 1)
+        # self.fusion_method = config.fusion_method
         self.apply(self.init_bert_weights)
 
     def forward(
