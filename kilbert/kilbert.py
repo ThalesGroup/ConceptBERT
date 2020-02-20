@@ -116,7 +116,9 @@ class Kilbert(nn.Module):
             list_bert_tokens = []
             for token in question:
                 list_bert_tokens.append(
-                    self.conceptnet_embedding.token_dictionary[int(token.item())]
+                    self.txt_embedding.conceptnet_embedding.token_dictionary[
+                        int(token.item())
+                    ]
                 )
 
             # Check which tokens need to be fused and create list for the assembled words
