@@ -42,8 +42,9 @@ class CTIModel(nn.Module):
                     dropout=[0.2, 0.5, 0.2],
                 )
             )
-            q_prj.append(FCNet([q_dim, q_dim], "", 0.2))
-            kg_prj.append(FCNet([kg_dim, kg_dim], "", 0.2))
+            # TODO: Problem here: it's not q_dim or kg_dim, it's 1024 (num_hid <=> v_dim)
+            q_prj.append(FCNet([h_dim * 2, h_dim * 2], "", 0.2))
+            kg_prj.append(FCNet([h_dim * 2, h_dim * 2], "", 0.2))
 
         self.t_net = nn.ModuleList(t_net)
         self.q_prj = nn.ModuleList(q_prj)
