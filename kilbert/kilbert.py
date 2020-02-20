@@ -172,7 +172,7 @@ class Kilbert(nn.Module):
             # Convert the assembled words to their ConceptNet indexes
             new_input_txt = []
             for word in list_words:
-                if word == "0":
+                if word == 0:
                     new_input_txt.append(0)
                 else:
                     try:
