@@ -25,7 +25,7 @@ from torch.optim.lr_scheduler import LambdaLR, ReduceLROnPlateau
 import torch.distributed as dist
 
 # Tensorboard configuration
-from datetime import date
+from datetime import date, datetime
 from tensorboardX import SummaryWriter
 
 # Custom libraries
@@ -51,7 +51,11 @@ logger = logging.getLogger(__name__)
 def main():
     # Tensorboard configuration
     today = str(date.today())
-    writer = SummaryWriter("/nas-data/vilbert/data2/tensorboards/" + today)
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    writer = SummaryWriter(
+        os.path.join("/nas-data/vilbert/data2/tensorboards/", today, str(current_time))
+    )
 
     parser = argparse.ArgumentParser()
 
