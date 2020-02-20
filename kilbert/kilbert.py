@@ -102,7 +102,7 @@ class Kilbert(nn.Module):
         #     num_labels,
         #     0.5,
         # )
-        self.vil_prediction = SimpleClassifier(512, 1024, num_labels, 0.5)
+        self.vil_prediction = SimpleClassifier(1024, 1024 * 2, num_labels, 0.5)
 
     def forward(
         self,
@@ -248,11 +248,16 @@ class Kilbert(nn.Module):
 
         # Send the question results from ViLBERT and Transformer to the
         # F1 fusion module
+        """
         fused_question_emb, fused_question_att = self.fusion_question(
             sequence_output_t,
             all_attention_mask[0],
             sequence_output_t_bis,
             attention_mask_bis,
+        )
+        """
+        fused_question_emb = self.fusion_question(
+            sequence_output_t, sequence_output_t_bis
         )
 
         # Reduce the size of the ConceptNet graph by pruning low-weighted edges
