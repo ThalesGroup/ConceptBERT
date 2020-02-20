@@ -1060,8 +1060,8 @@ class CustomBertEncoder(nn.Module):
             self.layer = nn.ModuleList(
                 [copy.deepcopy(layer) for _ in range(config.num_hidden_layers)]
             )
-            from vilbert.knowledge_graph.conceptnet_graph import ConceptNet
-            self.conceptnet_graph = ConceptNet()
+            # from vilbert.knowledge_graph.conceptnet_graph import ConceptNet
+            # self.conceptnet_graph = ConceptNet()
             
     def forward(
           self, 
