@@ -53,9 +53,9 @@ class ConceptNetEmbedding:
         except:
             return torch.zeros(self.dim_word).double()
 
-    def get_kg_embedding_tokens(self, input_ids, dim1, dim2):
+    def get_kg_embedding_tokens_from_bert(self, input_ids, dim1, dim2):
         """
-            Given a list of tokens, returns the node embedding of each word
+            Given a list of tokens from the question (BERT), returns the node embedding of each word
         """
         kg_embedding = []
 
