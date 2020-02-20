@@ -66,71 +66,13 @@ class CTIModel(nn.Module):
         q_emb = self.q_pooler(q_emb_raw)
         kg_emb = self.kg_pooler(kg_emb_raw)
 
-        print("Shape q_emb: ", q_emb.shape)
-        print("Shape kg_emb: ", kg_emb.shape)
-
         for g in range(self.glimpse):
             b_emb[g] = self.t_net[g].forward_with_weights(
                 v_emb, q_emb_raw, kg_emb_raw, att[:, :, :, :, g]
             )
-            print(
-                "Expected shape of `q_emb`: ",
-                self.q_prj[g](b_emb[g].unsqueeze(1)).shape,
-            )
+
             q_emb = self.q_prj[g](b_emb[g].unsqueeze(1)) + q_emb
             kg_emb = self.kg_prj[g](b_emb[g].unsqueeze(1)) + kg_emb
 
         joint_emb = q_emb.sum(1) + kg_emb.sum(1)
         return joint_emb, att
-
-
-"""
-def build_cti(args, dataset):
-    t_att = TriAttention(
-        dataset.v_dim,
-        args.num_hid,
-        args.num_hid,
-        args.h_mm,
-        1,
-        args.rank,
-        args.gamma,
-        args.k,
-        dropout=[0.2, 0.5],
-    )
-
-    t_net = []
-    q_prj = []
-    a_prj = []
-
-    for i in range(args.gamma):
-        t_net.append(
-            TCNet(
-                dataset.v_dim,
-                args.num_hid,
-                args.num_hid,
-                args.h_mm,
-                args.h_out,
-                args.rank,
-                1,
-                k=2,
-                dropout=[0.2, 0.5],
-            )
-        )
-        q_prj.append(FCNet([args.num_hid, args.num_hid], "", 0.2))
-        a_prj.append(FCNet([args.num_hid, args.num_hid], "", 0.2))
-
-    return CTIModel(
-        dataset,
-        w_emb,
-        q_emb,
-        wa_emb,
-        ans_emb,
-        t_att,
-        t_net,
-        q_prj,
-        a_prj,
-        classifier,
-        args.op,
-        args.gamma,
-    )
-"""
