@@ -176,7 +176,7 @@ class Kilbert(nn.Module):
 
             # Pad the attention tensor with 0
             while len(new_q_self_attention) < length_question:
-                new_q_self_attention.append(torch.Tensor(0))
+                new_q_self_attention.append(torch.Tensor(0).cuda(device))
 
             new_q_self_attention = torch.stack(new_q_self_attention)
             new_q_self_attention = new_q_self_attention.cuda(device)
