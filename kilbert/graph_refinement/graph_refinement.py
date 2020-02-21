@@ -290,6 +290,10 @@ class GraphRefinement(nn.Module):
                     list_neighbors = self.list_neighbors[entity_kg]
 
                     for neighbor in list_neighbors:
+                        try:
+                            print("Shape entity_kg: ", entity_kg.shape)
+                        except:
+                            print("Entity_kg: ", entity_kg)
                         edge = (
                             "["
                             + str(min(entity_kg, neighbor))
