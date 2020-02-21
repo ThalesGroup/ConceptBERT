@@ -353,6 +353,7 @@ class Kilbert(nn.Module):
             list_questions.append(list_words)
         """
 
+        self.graph_refinement.cuda(input_txt.get_device())
         print("GRAPH REFINEMENT DEVICE: ", self.graph_refinement.get_device())
 
         knowledge_graph_emb = self.graph_refinement(
