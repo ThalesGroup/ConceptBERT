@@ -354,7 +354,6 @@ class Kilbert(nn.Module):
         """
 
         self.graph_refinement.cuda(input_txt.get_device())
-        print("GRAPH REFINEMENT DEVICE: ", self.graph_refinement.get_device())
 
         knowledge_graph_emb = self.graph_refinement(
             #     input_txt, question_self_attention, conceptnet_graph, k
