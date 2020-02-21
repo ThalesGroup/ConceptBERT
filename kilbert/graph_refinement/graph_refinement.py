@@ -249,7 +249,6 @@ class GraphRefinement(nn.Module):
                 graph_tensor,
                 tensor_max_weights,
                 num_max_nodes,
-                list_words,
             )
             list_kg_embeddings.append(question_graph_embedding)
             # if device == 0:
