@@ -111,9 +111,6 @@ class Kilbert(nn.Module):
         tokens_conceptnet = []
         q_attention = []
 
-        print("Q_SELF_ATTENTION: ", q_self_attention)
-        print("Q_SELF_ATTENTION SHAPE: ", q_self_attention.shape)
-
         length_question = input_txt.shape[1]
         device = input_txt.get_device()
 
@@ -170,6 +167,7 @@ class Kilbert(nn.Module):
                 list_words.append(-1)
 
             # Create a list for the new question self-attention
+            q_self_attention = q_self_attention.tolist()
             new_q_self_attention = []
             for list_indexes in indexes_to_fuse:
                 attention_batch = 0
@@ -179,10 +177,9 @@ class Kilbert(nn.Module):
 
             # Pad the attention tensor with 0
             while len(new_q_self_attention) < length_question:
-                new_q_self_attention.append(torch.Tensor(0).cuda(device))
+                new_q_self_attention.append(0)
 
-            new_q_self_attention = torch.stack(new_q_self_attention)
-            new_q_self_attention = new_q_self_attention.cuda(device)
+            new_q_self_attention = torch.Tensor(new_q_self_attention).cuda(device)
 
             # Convert the assembled words to their ConceptNet indexes
             new_input_txt = []
