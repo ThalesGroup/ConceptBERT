@@ -112,6 +112,7 @@ class Kilbert(nn.Module):
         q_attention = []
 
         length_question = input_txt.shape[1]
+        device = input_txt.get_device()
 
         for i, question in enumerate(input_txt):
             # Convert the list of BERT tokens to a list of words (but still tokens)
@@ -178,6 +179,7 @@ class Kilbert(nn.Module):
                 new_q_self_attention.append(torch.Tensor(0))
 
             new_q_self_attention = torch.stack(new_q_self_attention)
+            new_q_self_attention = new_q_self_attention.cuda(device)
 
             # Convert the assembled words to their ConceptNet indexes
             new_input_txt = []
@@ -193,20 +195,17 @@ class Kilbert(nn.Module):
                         new_input_txt.append(-1)
 
             new_input_txt = torch.IntTensor(new_input_txt)
+            new_input_txt = new_input_txt.cuda(device)
 
             tokens_conceptnet.append(new_input_txt)
             q_attention.append(new_q_self_attention)
 
         # Send back the tensors in the correct device
-        device = input_txt.get_device()
-
         tokens_conceptnet = torch.stack(tokens_conceptnet)
-        tokens_conceptnet = (
-            tokens_conceptnet.cuda(device) if device != -1 else tokens_conceptnet
-        )
+        tokens_conceptnet = tokens_conceptnet.cuda(device)
 
         q_attention = torch.stack(q_attention)
-        q_attention = q_attention.cuda(device) if device != -1 else q_attention
+        q_attention = q_attention.cuda(device)
 
         return tokens_conceptnet, q_attention
 
