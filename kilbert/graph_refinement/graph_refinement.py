@@ -335,10 +335,7 @@ class GraphRefinement(nn.Module):
                         edge_index = self.edge_to_idx_dict[edge]
 
                         if not visited_edges_tensor[edge_index]:
-                            print("WEIGHT BEFORE: ", graph_tensor[edge_index])
                             graph_tensor[edge_index] += importance_index
-                            print("WEIGHT AFTER: ", graph_tensor[edge_index])
-                            print("VALUE IMPORTANCE INDEX: ", importance_index.item())
                             visited_edges_tensor[edge_index] = True
 
                             # Check if the new weight is bigger than the
