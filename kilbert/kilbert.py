@@ -353,6 +353,8 @@ class Kilbert(nn.Module):
             list_questions.append(list_words)
         """
 
+        print("GRAPH REFINEMENT DEVICE: ", self.graph_refinement.get_device())
+
         knowledge_graph_emb = self.graph_refinement(
             #     input_txt, question_self_attention, conceptnet_graph, k
             tokens_conceptnet,
