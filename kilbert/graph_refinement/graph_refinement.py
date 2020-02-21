@@ -357,7 +357,9 @@ class GraphRefinement(nn.Module):
                                     # Update `list_max_weights`, so that it
                                     # is still sorted
                                     tensor_max_weights = self.add_and_update(
-                                        tensor_max_weights, new_position, entity
+                                        tensor_max_weights,
+                                        new_position,
+                                        [edge_index, graph_tensor[edge_index]],
                                     )
 
                             # Continue the propagation
