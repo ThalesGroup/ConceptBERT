@@ -187,7 +187,7 @@ class GraphRefinement(nn.Module):
         return torch.stack(kg_embedding)
 
     def forward(
-        self, list_questions, attention_question, conceptnet_graph, num_max_nodes,
+        self, list_questions, attention_question, num_max_nodes,
     ):
         """
             For each question in `list_questions`, computes the importance index of each word
@@ -260,26 +260,6 @@ class GraphRefinement(nn.Module):
 
         return knowledge_graph_embedding
 
-    # def translate_question_to_kg(self, q_index):
-    #     """
-    #         Given an index from a question, gives the equivalent index in the knowledge
-    #         graph, if it exists.
-    #         If it doesn't exist, returns an error.
-    #     """
-    #     try:
-    #         word = self.conceptnet_embedding.token_dictionary[int(q_index.item())]
-    #         kb_index = self.index_nodes_dict[word]
-    #         # Convert kb_index to tensor and send it to the correct device
-    #         kb_index = (
-    #             torch.Tensor(kb_index).cuda(q_index.get_device())
-    #             if q_index.is_cuda
-    #             else kb_index
-    #         )
-    #         return kb_index
-    #
-    #     except Exception as e:
-    #         if word not in ["[CLS]", "[SEP]", "'", "?"]:
-    #             print("ERROR in `translate_question_to_kg`: ", e)
     def update_sorted_list(self, original_tensor, index_modif):
         """
             Given a tensor and the index of the modified value,
@@ -390,6 +370,14 @@ class GraphRefinement(nn.Module):
                                 importance_index * self.attenuation_coef
                                 >= self.propagation_threshold
                             ):
+                                neighbor_tensor = torch.zeros_like(entity_kg) + neighbor
+                                waiting_list.append(
+                                    (
+                                        neighbor_tensor,
+                                        importance_index * self.attenuation_coef,
+                                    )
+                                )
+                                """
                                 new_list_neighbors = self.list_neighbors[neighbor]
 
                                 for new_neighbor in new_list_neighbors:
@@ -404,6 +392,7 @@ class GraphRefinement(nn.Module):
                                             importance_index * self.attenuation_coef,
                                         )
                                     )
+                                """
 
                 except Exception as e:
                     print("ERROR in `propagate_weights`: ", e)
