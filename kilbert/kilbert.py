@@ -167,12 +167,12 @@ class Kilbert(nn.Module):
                 list_words.append(-1)
 
             # Create a list for the new question self-attention
-            q_self_attention = q_self_attention.tolist()
+            list_attention = q_self_attention[i].tolist()
             new_q_self_attention = []
             for list_indexes in indexes_to_fuse:
                 attention_batch = 0
                 for index in list_indexes:
-                    attention_batch += q_self_attention[i][index]
+                    attention_batch += list_attention[index]
                 new_q_self_attention.append(attention_batch)
 
             # Pad the attention tensor with 0
