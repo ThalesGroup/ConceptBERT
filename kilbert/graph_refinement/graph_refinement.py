@@ -152,6 +152,7 @@ class GraphRefinement(nn.Module):
         """
         print("Starting computing graph representation")
         set_nodes = set()
+        print("Shape tensor_max_weights: ", tensor_max_weights.shape)
         for entity in tensor_max_weights:
             index_edge = entity[0].item()
             # Convert index edge to the string value
