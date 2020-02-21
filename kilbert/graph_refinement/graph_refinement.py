@@ -120,7 +120,7 @@ class GraphRefinement(nn.Module):
         self.init_graph_tensor = torch.Tensor(list_weights)
 
         # Write initialization tensor to keep track of visited edges
-        self.init_visited_edges_tensor = torch.Tensor(
+        self.init_visited_edges_tensor = torch.BoolTensor(
             [False for _ in self.initial_weight_edges]
         )
 
@@ -232,7 +232,7 @@ class GraphRefinement(nn.Module):
                     graph_tensor,
                     visited_edges_tensor,
                     list_max_weights,
-                    [(entity_index.item(), importance_indexes[i][j].item())],
+                    [(entity_index, importance_indexes[i][j])],
                 )
             # if device == 0:
             #     print("Building the graph embedding")
@@ -283,18 +283,21 @@ class GraphRefinement(nn.Module):
             # entity_in_question, importance_index = waiting_list.pop(0)
             entity_kg, importance_index = waiting_list.pop(0)
 
-            if entity_kg != -1 and importance_index >= self.propagation_threshold:
+            if (
+                entity_kg.item() != -1
+                and importance_index >= self.propagation_threshold
+            ):
                 # Convert entity in question to entity in knowledge graph
                 try:
                     # entity_kg = self.translate_question_to_kg(entity_in_question)
-                    list_neighbors = self.list_neighbors[entity_kg]
+                    list_neighbors = self.list_neighbors[entity_kg.item()]
 
                     for neighbor in list_neighbors:
                         edge = (
                             "["
-                            + str(min(entity_kg, neighbor))
+                            + str(min(entity_kg.item(), neighbor))
                             + ";"
-                            + str(max(entity_kg, neighbor))
+                            + str(max(entity_kg.item(), neighbor))
                             + "]"
                         )
                         edge_index = self.edge_to_idx_dict[edge]
@@ -310,11 +313,17 @@ class GraphRefinement(nn.Module):
                                 new_position = 0
                                 # If the weight was already in the list_max_weights, just update its weight
                                 for i, entity in enumerate(list_max_weights):
-                                    if entity[0] < graph_tensor[edge_index]:
+                                    if entity[1] < graph_tensor[edge_index]:
                                         new_position = i
                                     if entity[0] == edge_index:
-                                        list_max_weights[i][1] += importance_index
+                                        list_max_weights[i][
+                                            1
+                                        ] += importance_index.item()
                                         is_in_max_list = True
+                                        # Sort the new list
+                                        new_list = list_max_weights[: i + 1]
+                                        new_list.sort(key=lambda x: x[1], reverse=True)
+                                        list_max_weights[: i + 1] = new_list
                                         break
 
                                 if not is_in_max_list:
@@ -327,7 +336,7 @@ class GraphRefinement(nn.Module):
                                     list_max_weights.pop()
                                     list_max_weights.insert(
                                         new_position,
-                                        [edge_index, graph_tensor[edge_index]],
+                                        [edge_index, graph_tensor[edge_index].item()],
                                     )
 
                                 """
