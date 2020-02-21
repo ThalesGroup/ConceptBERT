@@ -34,4 +34,4 @@ class ImportanceIndex(nn.Module):
         # importance_idx = self.dense(attention_word)
         # scaled_importance_idx = self.activation(importance_idx)
         # return scaled_importance_idx
-        return 250 * attention_word
+        return 5000 * attention_word
