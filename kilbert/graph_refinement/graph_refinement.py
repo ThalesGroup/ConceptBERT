@@ -334,13 +334,15 @@ class GraphRefinement(nn.Module):
                         edge_index = self.edge_to_idx_dict[edge]
 
                         if not visited_edges_tensor[edge_index]:
+                            print("WEIGHT BEFORE: ", graph_tensor[edge_index])
                             graph_tensor[edge_index] += importance_index
+                            print("WEIGHT AFTER: ", graph_tensor[edge_index])
+                            print("VALUE IMPORTANCE INDEX: ", importance_index.item())
                             visited_edges_tensor[edge_index] = True
 
                             # Check if the new weight is bigger than the
                             # smallest weight in `tensor_max_weights`
                             if graph_tensor[edge_index] > tensor_max_weights[-1][1]:
-                                print("Tensor max weights is updated!")
                                 # Check if the edge is already in the list of the
                                 # heaviest weights and update it
                                 is_in_max_list = False
@@ -366,7 +368,6 @@ class GraphRefinement(nn.Module):
                                     #     new_position,
                                     #     [edge_index, graph_tensor[edge_index].item()],
                                     # )
-                                print("Tensor max weights: ", tensor_max_weights)
 
                             # Continue the propagation
                             if (
