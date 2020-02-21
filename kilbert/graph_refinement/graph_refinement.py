@@ -154,7 +154,7 @@ class GraphRefinement(nn.Module):
         set_nodes = set()
         print("Shape tensor_max_weights: ", tensor_max_weights.shape)
         for entity in tensor_max_weights:
-            index_edge = entity[0].item()
+            index_edge = int(entity[0].item())
             # Convert index edge to the string value
             str_edge = self.idx_to_edge_list[index_edge]
             str_edge = str_edge.replace("[", "").replace("]", "")
