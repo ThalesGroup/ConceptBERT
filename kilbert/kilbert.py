@@ -313,7 +313,9 @@ class Kilbert(nn.Module):
 
         # Compute the question self-attention
 
-        question_self_attention = self.q_att(sequence_output_t_bis)
+        # TODO: Use `txt_embedding` (raw question features) or `sequence_output_t_bis` (question features enriched with attention)
+        # question_self_attention = self.q_att(sequence_output_t_bis)
+        question_self_attention = self.q_att(txt_embedding)
         # Transfer question self-attention to correct device
         question_self_attention = (
             question_self_attention.cuda(sequence_output_t_bis.get_device())
@@ -452,6 +454,7 @@ class QuestionSelfAttention(nn.Module):
             Returns a list of attention values for each word in the question
             Shape: [batch, size_question, num_hid]
         """
+        print("Shape input `QuestionSelfAttention`: ", question_features.shape)
         batch_size = question_features.shape[0]
         q_len = question_features.shape[1]
 
@@ -464,4 +467,5 @@ class QuestionSelfAttention(nn.Module):
         atten_1 = torch.tanh(atten_1)
         atten = self.W2_self_att_q(atten_1).view(batch_size, q_len)
         # (batch, size_question)
+        print("Shape `atten`: ", atten.shape)
         return F.softmax(atten.t(), dim=1).view(-1, q_len)
