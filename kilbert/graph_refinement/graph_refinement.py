@@ -225,6 +225,9 @@ class GraphRefinement(nn.Module):
             list_max_weights = self.ordered_edge_weights_list
 
             for j, entity_index in enumerate(question):
+                if device == 0:
+                    print("ENTITY INDEX: ", entity_index)
+                    print("IMPORTANCE INDEXES: ", importance_indexes[i][j])
                 # Initialize the edges
                 visited_edges_tensor = deepcopy(self.init_visited_edges_tensor)
                 # Propagate the weights for this entity
@@ -351,7 +354,7 @@ class GraphRefinement(nn.Module):
                                         )
                                     )
                 except Exception as e:
-                    print("ERROR in `propagate_weights`: ", e)
+                    # print("ERROR in `propagate_weights`: ", e)
                     pass
 
             return self.propagate_weights(
