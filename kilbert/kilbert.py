@@ -173,6 +173,10 @@ class Kilbert(nn.Module):
                     attention_batch += q_self_attention[i][index]
                 new_q_self_attention.append(attention_batch)
 
+            # Pad the attention tensor with 0
+            while len(new_q_self_attention) < length_question:
+                new_q_self_attention.append(torch.Tensor(0))
+
             new_q_self_attention = torch.stack(new_q_self_attention)
 
             # Convert the assembled words to their ConceptNet indexes
