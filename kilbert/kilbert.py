@@ -111,6 +111,9 @@ class Kilbert(nn.Module):
         tokens_conceptnet = []
         q_attention = []
 
+        print("Q_SELF_ATTENTION: ", q_self_attention)
+        print("Q_SELF_ATTENTION SHAPE: ", q_self_attention.shape)
+
         length_question = input_txt.shape[1]
         device = input_txt.get_device()
 
