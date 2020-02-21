@@ -208,10 +208,8 @@ class GraphRefinement(nn.Module):
 
         ## Step 2: Compute the importance index
         importance_indexes = self.compute_importance_index(attention_question)
-        # print(
-        #     "Importance indexes on device " + str(device) + " : ",
-        #     importance_indexes[:3],
-        #  )
+        if device == 0:
+            print("Importance indexes on device 0: ", importance_indexes[:3])
 
         ## Step 3: Propagate the weights in the "graph"
         list_kg_embeddings = []
@@ -225,11 +223,6 @@ class GraphRefinement(nn.Module):
             tensor_max_weights = torch.Tensor(self.ordered_edge_weights_list).cuda(
                 device
             )
-            if device == 0:
-                print("Shape tensor_max_weights: ", tensor_max_weights.shape)
-
-            if device == 0:
-                print("Importance indexes: ", importance_indexes[:3])
 
             for j, entity_index in enumerate(question):
                 # Initialize the edges
@@ -346,9 +339,14 @@ class GraphRefinement(nn.Module):
                                 # Check if the edge is already in the list of the
                                 # heaviest weights and update it
                                 is_in_max_list = False
+                                check_position = True
                                 for i, entity in enumerate(tensor_max_weights):
-                                    if entity[1] < graph_tensor[edge_index]:
+                                    if (
+                                        check_position
+                                        and entity[1] < graph_tensor[edge_index]
+                                    ):
                                         new_position = i
+                                        check_position = False
                                     if entity[0] == edge_index:
                                         tensor_max_weights[i][1] += importance_index
                                         is_in_max_list = True
