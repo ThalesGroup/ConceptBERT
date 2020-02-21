@@ -283,21 +283,18 @@ class GraphRefinement(nn.Module):
             # entity_in_question, importance_index = waiting_list.pop(0)
             entity_kg, importance_index = waiting_list.pop(0)
 
-            if (
-                entity_kg.item() != -1
-                and importance_index >= self.propagation_threshold
-            ):
+            if entity_kg != -1 and importance_index >= self.propagation_threshold:
                 # Convert entity in question to entity in knowledge graph
                 try:
                     # entity_kg = self.translate_question_to_kg(entity_in_question)
-                    list_neighbors = self.list_neighbors[entity_kg.item()]
+                    list_neighbors = self.list_neighbors[entity_kg]
 
                     for neighbor in list_neighbors:
                         edge = (
                             "["
-                            + str(min(entity_kg.item(), neighbor))
+                            + str(min(entity_kg, neighbor))
                             + ";"
-                            + str(max(entity_kg.item(), neighbor))
+                            + str(max(entity_kg, neighbor))
                             + "]"
                         )
                         edge_index = self.edge_to_idx_dict[edge]
