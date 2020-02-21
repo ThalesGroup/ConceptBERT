@@ -292,8 +292,10 @@ class GraphRefinement(nn.Module):
                     for neighbor in list_neighbors:
                         try:
                             print("Shape entity_kg: ", entity_kg.shape)
+                            print("Item entity_kg: ", entity_kg.item())
                         except:
                             print("Entity_kg: ", entity_kg)
+                            print("Neighbor: ", neighbor)
                         edge = (
                             "["
                             + str(min(entity_kg, neighbor))
