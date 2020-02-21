@@ -225,6 +225,8 @@ class GraphRefinement(nn.Module):
             tensor_max_weights = torch.Tensor(self.ordered_edge_weights_list).cuda(
                 device
             )
+            if device == 0:
+                print("Shape tensor_max_weights: ", tensor_max_weights.shape)
 
             if device == 0:
                 print("Importance indexes: ", importance_indexes[:3])
@@ -306,30 +308,30 @@ class GraphRefinement(nn.Module):
         return sorted_tensor
 
     def propagate_weights(
-        self, graph_tensor, visited_edges_tensor, tensor_max_weights, waiting_list
+        self, graph_tensor, visited_edges_tensor, tensor_max_weights, waiting_tensor
     ):
         """
             Given the index of an entity, propagates the weights around it
         """
         device = graph_tensor.get_device()
-        while len(waiting_list) > 0:
-            if device == 0:
-                print("Length waiting list: ", len(waiting_list))
-            entity_kg, importance_index = waiting_list.pop(0)
+        while len(waiting_tensor) > 0:
+            entity_kg, importance_index = waiting_tensor[0]
+            waiting_tensor = waiting_tensor[1:]
+
             if (
                 entity_kg.item() != -1
                 and importance_index >= self.propagation_threshold
             ):
                 # Convert entity in question to entity in knowledge graph
                 try:
-                    list_neighbors = self.list_neighbors[entity_kg.item()]
+                    list_neighbors = self.list_neighbors[int(entity_kg.item())]
 
                     for neighbor in list_neighbors:
                         edge = (
                             "["
-                            + str(min(entity_kg.item(), neighbor))
+                            + str(min(int(entity_kg.item()), neighbor))
                             + ";"
-                            + str(max(entity_kg.item(), neighbor))
+                            + str(max(int(entity_kg.item()), neighbor))
                             + "]"
                         )
                         edge_index = self.edge_to_idx_dict[edge]
@@ -361,11 +363,6 @@ class GraphRefinement(nn.Module):
                                     tensor_max_weights = self.add_and_update(
                                         tensor_max_weights, new_position, entity
                                     )
-                                    # list_max_weights.pop()
-                                    # list_max_weights.insert(
-                                    #     new_position,
-                                    #     [edge_index, graph_tensor[edge_index].item()],
-                                    # )
 
                             # Continue the propagation
                             if (
@@ -373,28 +370,18 @@ class GraphRefinement(nn.Module):
                                 >= self.propagation_threshold
                             ):
                                 neighbor_tensor = torch.zeros_like(entity_kg) + neighbor
-                                waiting_list.append(
-                                    (
-                                        neighbor_tensor,
-                                        importance_index * self.attenuation_coef,
-                                    )
+                                waiting_tensor = torch.cat(
+                                    [
+                                        waiting_tensor,
+                                        torch.Tensor(
+                                            [
+                                                neighbor_tensor,
+                                                importance_index
+                                                * self.attenuation_coef,
+                                            ]
+                                        ),
+                                    ]
                                 )
-                                """
-                                new_list_neighbors = self.list_neighbors[neighbor]
-
-                                for new_neighbor in new_list_neighbors:
-                                    # Convert `new_neighbor` to a tensor to have
-                                    # the same format
-                                    new_neighbor_tensor = (
-                                        torch.zeros_like(entity_kg) + new_neighbor
-                                    )
-                                    waiting_list.append(
-                                        (
-                                            new_neighbor_tensor,
-                                            importance_index * self.attenuation_coef,
-                                        )
-                                    )
-                                """
 
                 except Exception as e:
                     print("ERROR in `propagate_weights`: ", e)
@@ -422,14 +409,14 @@ class GraphRefinement(nn.Module):
                 try:
                     # entity_kg = self.translate_question_to_kg(entity_in_question)
                     # TODO: `list_neighbors` to tensor?
-                    list_neighbors = self.list_neighbors[entity_kg.item()]
+                    list_neighbors = self.list_neighbors[int(entity_kg.item())]
 
                     for neighbor in list_neighbors:
                         edge = (
                             "["
-                            + str(min(entity_kg.item(), neighbor))
+                            + str(min(int(entity_kg.item()), neighbor))
                             + ";"
-                            + str(max(entity_kg.item(), neighbor))
+                            + str(max(int(entity_kg.item()), neighbor))
                             + "]"
                         )
                         edge_index = self.edge_to_idx_dict[edge]
