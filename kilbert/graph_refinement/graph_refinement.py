@@ -145,14 +145,14 @@ class GraphRefinement(nn.Module):
         return torch.stack(list_importance_indexes)
 
     def compute_graph_representation(
-        self, graph_tensor, list_max_weights, num_max_nodes
+        self, graph_tensor, tensor_max_weights, num_max_nodes
     ):
         """
-            list_max_weights: [[index_edge, weight_edge]]
+            tensor_max_weights: [[index_edge, weight_edge]]
         """
         set_nodes = set()
-        for entity in list_max_weights:
-            index_edge = entity[0]
+        for entity in tensor_max_weights:
+            index_edge = entity[0].item()
             # Convert index edge to the string value
             str_edge = self.idx_to_edge_list[index_edge]
             str_edge = str_edge.replace("[", "").replace("]", "")
@@ -221,23 +221,31 @@ class GraphRefinement(nn.Module):
             # if device == 0:
             #     print("New question (device: " + str(device) + ")")
             graph_tensor = deepcopy(self.init_graph_tensor)
-            list_max_weights = self.ordered_edge_weights_list
+            # Convert the list of max_weights to a tensor
+            # list_max_weights = self.ordered_edge_weights_list
+            tensor_max_weights = torch.Tensor(self.ordered_edge_weights_list).cuda(
+                device
+            )
 
             for j, entity_index in enumerate(question):
                 # Initialize the edges
                 visited_edges_tensor = deepcopy(self.init_visited_edges_tensor)
                 # Propagate the weights for this entity
-                graph_tensor, list_max_weights = self.propagate_weights(
+                graph_tensor, tensor_max_weights = self.propagate_weights(
                     graph_tensor,
                     visited_edges_tensor,
-                    list_max_weights,
+                    # list_max_weights,
+                    tensor_max_weights,
                     [(entity_index, importance_indexes[i][j])],
                 )
             # if device == 0:
             #     print("Building the graph embedding")
             ## Step 4: Build the graph embedding
             question_graph_embedding = self.compute_graph_representation(
-                graph_tensor, list_max_weights, num_max_nodes
+                # graph_tensor, list_max_weights, num_max_nodes
+                graph_tensor,
+                tensor_max_weights,
+                num_max_nodes,
             )
             list_kg_embeddings.append(question_graph_embedding)
             # if device == 0:
@@ -269,8 +277,138 @@ class GraphRefinement(nn.Module):
     #     except Exception as e:
     #         if word not in ["[CLS]", "[SEP]", "'", "?"]:
     #             print("ERROR in `translate_question_to_kg`: ", e)
+    def update_sorted_list(self, original_tensor, index_modif):
+        """
+            Given a tensor and the index of the modified value,
+            returns a new tensor which is correctly sorted.
+        """
+        new_index = index_modif
+        new_value = original_tensor[index_modif]
+        length_tensor = original_tensor.shape[0]
+        for i in range(index_modif):
+            if original_tensor[i][1] < new_value[1]:
+                new_index = i
+                break
+
+        # Create the new tensor
+        sorted_tensor = torch.zeros_like(original_tensor)
+        # Fill the new tensor
+        for i in range(new_index):
+            sorted_tensor[i] = original_tensor[i]
+        sorted_tensor[new_index] = new_value
+        if new_index + 1 == index_modif:
+            sorted_tensor[new_index + 1] = original_tensor[new_index]
+        else:
+            for i in range(new_index + 1, index_modif):
+                sorted_tensor[i] = original_tensor[i - 1]
+        for i in range(index_modif + 1, length_tensor):
+            sorted_tensor[i] = original_tensor[i]
+
+        return sorted_tensor
+
+    def add_and_update(self, original_tensor, new_position, new_entity):
+        """
+            The entity `new_entity` doesn't exist in `original_tensor`, so 
+            add it at `new_position` and push the other weights
+        """
+        length_tensor = original_tensor.shape[0]
+        # Create the new tensor
+        sorted_tensor = torch.zeros_like(original_tensor)
+        # Fill the new tensor
+        for i in range(new_position):
+            sorted_tensor[i] = original_tensor[i]
+        sorted_tensor[new_position] = new_entity
+        for i in range(new_position + 1, length_tensor):
+            sorted_tensor[i] = original_tensor[i - 1]
+
+        return sorted_tensor
 
     def propagate_weights(
+        self, graph_tensor, visited_edges_tensor, tensor_max_weights, waiting_list
+    ):
+        """
+            Given the index of an entity, propagates the weights around it
+        """
+        while len(waiting_list) > 0:
+            entity_kg, importance_index = waiting_list.pop(0)
+            if (
+                entity_kg.item() != -1
+                and importance_index >= self.propagation_threshold
+            ):
+                # Convert entity in question to entity in knowledge graph
+                try:
+                    list_neighbors = self.list_neighbors[entity_kg.item()]
+
+                    for neighbor in list_neighbors:
+                        edge = (
+                            "["
+                            + str(min(entity_kg.item(), neighbor))
+                            + ";"
+                            + str(max(entity_kg.item(), neighbor))
+                            + "]"
+                        )
+                        edge_index = self.edge_to_idx_dict[edge]
+
+                        if not visited_edges_tensor[edge_index]:
+                            graph_tensor[edge_index] += importance_index
+                            visited_edges_tensor[edge_index] = True
+
+                            # Check if the new weight is bigger than the
+                            # smallest weight in `tensor_max_weights`
+                            if graph_tensor[edge_index] > tensor_max_weights[-1][1]:
+                                # Check if the edge is already in the list of the
+                                # heaviest weights and update it
+                                is_in_max_list = False
+                                for i, entity in enumerate(tensor_max_weights):
+                                    if entity[1] < graph_tensor[edge_index]:
+                                        new_position = i
+                                    if entity[0] == edge_index:
+                                        tensor_max_weights[i][1] += importance_index
+                                        is_in_max_list = True
+                                        tensor_max_weights = self.update_sorted_list(
+                                            tensor_max_weights, i
+                                        )
+                                        break
+
+                                if not is_in_max_list:
+                                    # Update `list_max_weights`, so that it
+                                    # is still sorted
+                                    tensor_max_weights = self.add_and_update(
+                                        tensor_max_weights, new_position, entity
+                                    )
+                                    # list_max_weights.pop()
+                                    # list_max_weights.insert(
+                                    #     new_position,
+                                    #     [edge_index, graph_tensor[edge_index].item()],
+                                    # )
+
+                            # Continue the propagation
+                            if (
+                                importance_index * self.attenuation_coef
+                                >= self.propagation_threshold
+                            ):
+                                new_list_neighbors = self.list_neighbors[neighbor]
+
+                                for new_neighbor in new_list_neighbors:
+                                    # Convert `new_neighbor` to a tensor to have
+                                    # the same format
+                                    new_neighbor_tensor = (
+                                        torch.zeros_like(entity_kg) + new_neighbor
+                                    )
+                                    waiting_list.append(
+                                        (
+                                            new_neighbor_tensor,
+                                            importance_index * self.attenuation_coef,
+                                        )
+                                    )
+
+                except Exception as e:
+                    print("ERROR in `propagate_weights`: ", e)
+
+        # return graph_tensor, list_max_weights
+        return graph_tensor, tensor_max_weights
+
+    def old_propagate_weights(
         self, graph_tensor, visited_edges_tensor, list_max_weights, waiting_list
     ):
         """
