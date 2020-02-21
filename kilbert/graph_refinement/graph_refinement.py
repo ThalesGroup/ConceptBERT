@@ -150,9 +150,7 @@ class GraphRefinement(nn.Module):
         """
             tensor_max_weights: [[index_edge, weight_edge]]
         """
-        print("Starting computing graph representation")
         set_nodes = set()
-        print("Shape tensor_max_weights: ", tensor_max_weights.shape)
         for entity in tensor_max_weights:
             index_edge = int(entity[0].item())
             # Convert index edge to the string value
@@ -171,7 +169,6 @@ class GraphRefinement(nn.Module):
 
         list_main_entities = list(set_nodes)
         if str(graph_tensor.get_device()) == "0":
-            print("Starting computing the main words")
             # Have the equivalent words
             list_main_words = []
             for entity in list_main_entities:
@@ -181,7 +178,6 @@ class GraphRefinement(nn.Module):
         # Get the embedding of each word
         kg_embedding = []
 
-        print("Building `kg_embedding`")
         for entity_idx in list_main_entities:
             word = self.list_nodes[entity_idx]
             kg_embedding.append(
@@ -191,7 +187,7 @@ class GraphRefinement(nn.Module):
         return torch.stack(kg_embedding)
 
     def forward(
-        self, list_questions, attention_question, conceptnet_graph, num_max_nodes
+        self, list_questions, attention_question, conceptnet_graph, num_max_nodes,
     ):
         """
             For each question in `list_questions`, computes the importance index of each word
@@ -253,6 +249,7 @@ class GraphRefinement(nn.Module):
                 graph_tensor,
                 tensor_max_weights,
                 num_max_nodes,
+                list_words,
             )
             list_kg_embeddings.append(question_graph_embedding)
             # if device == 0:
