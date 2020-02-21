@@ -350,7 +350,8 @@ class GraphRefinement(nn.Module):
                                             importance_index * self.attenuation_coef,
                                         )
                                     )
-                except:
+                except Exception as e:
+                    print("ERROR in `propagate_weights`: ", e)
                     pass
 
             return self.propagate_weights(

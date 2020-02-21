@@ -320,7 +320,6 @@ class Kilbert(nn.Module):
             if sequence_output_t_bis.is_cuda
             else question_self_attention
         )
-        print("QUESTION SELF ATTENTION: ", question_self_attention)
 
         """
         # Choose the layer used
@@ -334,8 +333,6 @@ class Kilbert(nn.Module):
         tokens_conceptnet, q_self_attention = self.convert_tokens(
             input_txt, question_self_attention, conceptnet_graph
         )
-
-        print("Q SELF ATTENTION: ", q_self_attention)
 
         # Refine the given ConceptNet graph with the help of `G_1` model
         """
