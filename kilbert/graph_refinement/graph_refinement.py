@@ -197,8 +197,6 @@ class GraphRefinement(nn.Module):
             At the end, updates the graph weights with a simple addition (graph already normalized)
         """
         ## Step 1: Compute the "constants" in this function
-        # TODO: Check if the `self.` values are overwritten by the parallel modules
-        # or if everything works as expected
 
         # Send initialization tensor representing the graph to the right GPU
         device = list_questions.get_device() if list_questions.is_cuda else -1
@@ -218,8 +216,8 @@ class GraphRefinement(nn.Module):
         list_kg_embeddings = []
 
         for i, question in enumerate(list_questions):
-            # if device == 0:
-            #     print("New question (device: " + str(device) + ")")
+            if device == 0:
+                print("New question (device: " + str(device) + ")")
             graph_tensor = deepcopy(self.init_graph_tensor)
             # Convert the list of max_weights to a tensor
             # list_max_weights = self.ordered_edge_weights_list
@@ -228,7 +226,7 @@ class GraphRefinement(nn.Module):
             )
 
             if device == 0:
-                print("Importance indexes: ", importance_indexes)
+                print("Importance indexes: ", importance_indexes[:3])
 
             for j, entity_index in enumerate(question):
                 # Initialize the edges
@@ -241,8 +239,8 @@ class GraphRefinement(nn.Module):
                     tensor_max_weights,
                     [(entity_index, importance_indexes[i][j])],
                 )
-            # if device == 0:
-            #     print("Building the graph embedding")
+            if device == 0:
+                print("Building the graph embedding")
             ## Step 4: Build the graph embedding
             question_graph_embedding = self.compute_graph_representation(
                 # graph_tensor, list_max_weights, num_max_nodes
@@ -339,6 +337,7 @@ class GraphRefinement(nn.Module):
                             # Check if the new weight is bigger than the
                             # smallest weight in `tensor_max_weights`
                             if graph_tensor[edge_index] > tensor_max_weights[-1][1]:
+                                print("Tensor max weights is updated!")
                                 # Check if the edge is already in the list of the
                                 # heaviest weights and update it
                                 is_in_max_list = False
@@ -364,6 +363,7 @@ class GraphRefinement(nn.Module):
                                     #     new_position,
                                     #     [edge_index, graph_tensor[edge_index].item()],
                                     # )
+                                print("Tensor max weights: ", tensor_max_weights)
 
                             # Continue the propagation
                             if (
