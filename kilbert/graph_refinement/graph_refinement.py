@@ -227,6 +227,9 @@ class GraphRefinement(nn.Module):
                 device
             )
 
+            if device == 0:
+                print("Importance indexes: ", importance_indexes)
+
             for j, entity_index in enumerate(question):
                 # Initialize the edges
                 visited_edges_tensor = deepcopy(self.init_visited_edges_tensor)
@@ -238,6 +241,7 @@ class GraphRefinement(nn.Module):
                     tensor_max_weights,
                     [(entity_index, importance_indexes[i][j])],
                 )
+                print("Loop finished")
             # if device == 0:
             #     print("Building the graph embedding")
             ## Step 4: Build the graph embedding
