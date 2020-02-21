@@ -102,4 +102,4 @@ TASK42:
   train_split: train
   val_split: val
   lr: 0.000044
-  num_epoch: 30
+  num_epoch: 100
