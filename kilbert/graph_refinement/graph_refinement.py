@@ -254,18 +254,13 @@ class GraphRefinement(nn.Module):
 
         return knowledge_graph_embedding
 
-    def update_sorted_list(self, original_tensor, index_modif):
+    def update_sorted_list(self, original_tensor, index_modif, new_index):
         """
             Given a tensor and the index of the modified value,
             returns a new tensor which is correctly sorted.
         """
-        new_index = index_modif
         new_value = original_tensor[index_modif]
         length_tensor = original_tensor.shape[0]
-        for i in range(index_modif):
-            if original_tensor[i][1] < new_value[1]:
-                new_index = i
-                break
 
         # Create the new tensor
         sorted_tensor = torch.zeros_like(original_tensor)
@@ -348,10 +343,12 @@ class GraphRefinement(nn.Module):
                                         new_position = i
                                         check_position = False
                                     if entity[0] == edge_index:
+                                        if check_position:
+                                            new_position = i
                                         tensor_max_weights[i][1] += importance_index
                                         is_in_max_list = True
                                         tensor_max_weights = self.update_sorted_list(
-                                            tensor_max_weights, i
+                                            tensor_max_weights, i, new_position
                                         )
                                         break
 
@@ -361,7 +358,12 @@ class GraphRefinement(nn.Module):
                                     tensor_max_weights = self.add_and_update(
                                         tensor_max_weights, new_position, entity
                                     )
-                                print("New position: ", new_position)
+                                print(
+                                    "New position: "
+                                    + str(new_position)
+                                    + " ; check_position: ",
+                                    check_position,
+                                )
 
                             # Continue the propagation
                             if (
