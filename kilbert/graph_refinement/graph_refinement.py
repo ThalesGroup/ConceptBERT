@@ -310,7 +310,10 @@ class GraphRefinement(nn.Module):
         """
             Given the index of an entity, propagates the weights around it
         """
+        device = graph_tensor.get_device()
         while len(waiting_list) > 0:
+            if device == 0:
+                print("Length waiting list: ", len(waiting_list))
             entity_kg, importance_index = waiting_list.pop(0)
             if (
                 entity_kg.item() != -1
