@@ -283,24 +283,21 @@ class GraphRefinement(nn.Module):
             # entity_in_question, importance_index = waiting_list.pop(0)
             entity_kg, importance_index = waiting_list.pop(0)
 
-            if entity_kg != -1 and importance_index >= self.propagation_threshold:
+            if (
+                entity_kg.item() != -1
+                and importance_index >= self.propagation_threshold
+            ):
                 # Convert entity in question to entity in knowledge graph
                 try:
                     # entity_kg = self.translate_question_to_kg(entity_in_question)
-                    list_neighbors = self.list_neighbors[entity_kg]
+                    list_neighbors = self.list_neighbors[entity_kg.item()]
 
                     for neighbor in list_neighbors:
-                        try:
-                            print("Shape entity_kg: ", entity_kg.shape)
-                            print("Item entity_kg: ", entity_kg.item())
-                        except:
-                            print("Entity_kg: ", entity_kg)
-                            print("Neighbor: ", neighbor)
                         edge = (
                             "["
-                            + str(min(entity_kg, neighbor))
+                            + str(min(entity_kg.item(), neighbor))
                             + ";"
-                            + str(max(entity_kg, neighbor))
+                            + str(max(entity_kg.item(), neighbor))
                             + "]"
                         )
                         edge_index = self.edge_to_idx_dict[edge]
@@ -356,9 +353,13 @@ class GraphRefinement(nn.Module):
                                 new_list_neighbors = self.list_neighbors[neighbor]
 
                                 for new_neighbor in new_list_neighbors:
+                                    # Convert `new_neighbor` to a tensor to have the same format
+                                    new_neighbor_tensor = (
+                                        torch.zeros_like(entity_kg) + new_neighbor
+                                    )
                                     waiting_list.append(
                                         (
-                                            new_neighbor,
+                                            new_neighbor_tensor,
                                             importance_index * self.attenuation_coef,
                                         )
                                     )
