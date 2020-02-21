@@ -351,7 +351,7 @@ class GraphRefinement(nn.Module):
                                         )
                                     )
                 except Exception as e:
-                    # print("ERROR in `propagate_weights`: ", e)
+                    print("ERROR in `propagate_weights`: ", e)
                     pass
 
             return self.propagate_weights(
