@@ -210,10 +210,10 @@ class GraphRefinement(nn.Module):
 
         ## Step 2: Compute the importance index
         importance_indexes = self.compute_importance_index(attention_question)
-        print(
-            "Importance indexes on device " + str(device) + " : ",
-            importance_indexes[:3],
-        )
+        # print(
+        #     "Importance indexes on device " + str(device) + " : ",
+        #     importance_indexes[:3],
+        #  )
 
         ## Step 3: Propagate the weights in the "graph"
         list_kg_embeddings = []
@@ -290,6 +290,7 @@ class GraphRefinement(nn.Module):
                 # Convert entity in question to entity in knowledge graph
                 try:
                     # entity_kg = self.translate_question_to_kg(entity_in_question)
+                    # TODO: `list_neighbors` to tensor?
                     list_neighbors = self.list_neighbors[entity_kg.item()]
 
                     for neighbor in list_neighbors:
