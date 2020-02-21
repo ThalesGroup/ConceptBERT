@@ -150,7 +150,7 @@ class GraphRefinement(nn.Module):
         """
             tensor_max_weights: [[index_edge, weight_edge]]
         """
-        print("Beginning tensor_max_weights: ", tensor_max_weights[:10])
+        # print("Beginning tensor_max_weights: ", tensor_max_weights[:10])
         set_nodes = set()
         for entity in tensor_max_weights:
             index_edge = int(entity[0].item())
@@ -384,7 +384,8 @@ class GraphRefinement(nn.Module):
                                 )
 
                 except Exception as e:
-                    print("ERROR in `propagate_weights`: ", e)
+                    # print("ERROR in `propagate_weights`: ", e)
+                    pass
 
         # return graph_tensor, list_max_weights
         return graph_tensor, tensor_max_weights
