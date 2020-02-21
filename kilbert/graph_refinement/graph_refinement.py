@@ -225,9 +225,6 @@ class GraphRefinement(nn.Module):
             list_max_weights = self.ordered_edge_weights_list
 
             for j, entity_index in enumerate(question):
-                if device == 0:
-                    print("ENTITY INDEX: ", entity_index)
-                    print("IMPORTANCE INDEXES: ", importance_indexes[i][j])
                 # Initialize the edges
                 visited_edges_tensor = deepcopy(self.init_visited_edges_tensor)
                 # Propagate the weights for this entity
@@ -235,7 +232,7 @@ class GraphRefinement(nn.Module):
                     graph_tensor,
                     visited_edges_tensor,
                     list_max_weights,
-                    [(entity_index, importance_indexes[i][j])],
+                    [(entity_index.item(), importance_indexes[i][j].item())],
                 )
             # if device == 0:
             #     print("Building the graph embedding")
@@ -286,7 +283,7 @@ class GraphRefinement(nn.Module):
             # entity_in_question, importance_index = waiting_list.pop(0)
             entity_kg, importance_index = waiting_list.pop(0)
 
-            if importance_index >= self.propagation_threshold:
+            if entity_kg != -1 and importance_index >= self.propagation_threshold:
                 # Convert entity in question to entity in knowledge graph
                 try:
                     # entity_kg = self.translate_question_to_kg(entity_in_question)
