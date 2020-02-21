@@ -361,6 +361,7 @@ class GraphRefinement(nn.Module):
                                     tensor_max_weights = self.add_and_update(
                                         tensor_max_weights, new_position, entity
                                     )
+                                print("New position: ", new_position)
 
                             # Continue the propagation
                             if (
