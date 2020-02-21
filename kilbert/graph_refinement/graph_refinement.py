@@ -150,6 +150,7 @@ class GraphRefinement(nn.Module):
         """
             tensor_max_weights: [[index_edge, weight_edge]]
         """
+        print("Starting computing graph representation")
         set_nodes = set()
         for entity in tensor_max_weights:
             index_edge = entity[0].item()
@@ -169,6 +170,7 @@ class GraphRefinement(nn.Module):
 
         list_main_entities = list(set_nodes)
         if str(graph_tensor.get_device()) == "0":
+            print("Starting computing the main words")
             # Have the equivalent words
             list_main_words = []
             for entity in list_main_entities:
@@ -178,6 +180,7 @@ class GraphRefinement(nn.Module):
         # Get the embedding of each word
         kg_embedding = []
 
+        print("Building `kg_embedding`")
         for entity_idx in list_main_entities:
             word = self.list_nodes[entity_idx]
             kg_embedding.append(
@@ -241,7 +244,6 @@ class GraphRefinement(nn.Module):
                     tensor_max_weights,
                     [(entity_index, importance_indexes[i][j])],
                 )
-                print("Loop finished")
             # if device == 0:
             #     print("Building the graph embedding")
             ## Step 4: Build the graph embedding
