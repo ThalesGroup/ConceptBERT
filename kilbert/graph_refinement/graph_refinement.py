@@ -236,7 +236,7 @@ class GraphRefinement(nn.Module):
                     visited_edges_tensor,
                     # list_max_weights,
                     tensor_max_weights,
-                    torch.Tensor([entity_index, importance_indexes[i][j]]),
+                    torch.Tensor([[entity_index, importance_indexes[i][j]]]),
                 )
             # if device == 0:
             #     print("Building the graph embedding")
@@ -487,8 +487,11 @@ class GraphRefinement(nn.Module):
                                     )
                                     waiting_list.append(
                                         (
-                                            new_neighbor_tensor,
-                                            importance_index * self.attenuation_coef,
+                                            [
+                                                new_neighbor_tensor,
+                                                importance_index
+                                                * self.attenuation_coef,
+                                            ]
                                         )
                                     )
                 except Exception as e:
