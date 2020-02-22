@@ -323,7 +323,7 @@ def sort_initial_weight_edges_list():
     sorted_list_idx_weight = []
     for index in sorted_list_idx:
         sorted_list_idx_weight.append(
-            [index, float(list_idx_weights[sorted_list_idx[index]][1]) / max_weight]
+            [index, float(list_idx_weights[index][1]) / max_weight]
         )
 
     # Save in the file
