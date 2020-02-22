@@ -31,7 +31,7 @@ class GraphRefinement(nn.Module):
         # Won't propagate if the weight is smaller than this value
         self.propagation_threshold = 0.5
         # Coefficient multiplied to the weight at each iteration
-        self.attenuation_coef = 0.1
+        self.attenuation_coef = 0.25
 
         # Load the list of nodes in ConceptNet
         if not os.path.exists(
@@ -150,10 +150,6 @@ class GraphRefinement(nn.Module):
         """
             tensor_max_weights: [[index_edge, weight_edge]]
         """
-
-        if str(graph_tensor.get_device()) == "0":
-            print("Beginning `tensor_max_weights`: ", tensor_max_weights[:3])
-
         set_nodes = set()
         for entity in tensor_max_weights:
             index_edge = int(entity[0].item())
@@ -211,15 +207,15 @@ class GraphRefinement(nn.Module):
 
         ## Step 2: Compute the importance index
         importance_indexes = self.compute_importance_index(attention_question)
-        if device == 0:
-            print("Importance indexes on device 0: ", importance_indexes[:3])
+        # if device == 0:
+        #     print("Importance indexes on device 0: ", importance_indexes[:3])
 
         ## Step 3: Propagate the weights in the "graph"
         list_kg_embeddings = []
 
         for i, question in enumerate(list_questions):
-            if device == 0:
-                print("New question (device: " + str(device) + ")")
+            # if device == 0:
+            #     print("New question (device: " + str(device) + ")")
             graph_tensor = deepcopy(self.init_graph_tensor)
             # Convert the list of max_weights to a tensor
             # list_max_weights = self.ordered_edge_weights_list
@@ -238,8 +234,8 @@ class GraphRefinement(nn.Module):
                     tensor_max_weights,
                     [(entity_index, importance_indexes[i][j])],
                 )
-            if device == 0:
-                print("Building the graph embedding")
+            # if device == 0:
+            #     print("Building the graph embedding")
             ## Step 4: Build the graph embedding
             question_graph_embedding = self.compute_graph_representation(
                 # graph_tensor, list_max_weights, num_max_nodes
