@@ -236,7 +236,7 @@ class GraphRefinement(nn.Module):
                     visited_edges_tensor,
                     # list_max_weights,
                     tensor_max_weights,
-                    [(entity_index, importance_indexes[i][j])],
+                    torch.Tensor([entity_index, importance_indexes[i][j]]),
                 )
             # if device == 0:
             #     print("Building the graph embedding")
