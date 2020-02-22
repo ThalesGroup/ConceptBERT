@@ -157,12 +157,12 @@ class GraphRefinement(nn.Module):
         #     )
 
         set_nodes = set()
-        list_weights = []
+        # list_weights = []
         for entity in tensor_max_weights:
             index_edge = int(entity[0].item())
 
-            weight_edge = entity[1].item()
-            list_weights.append(weight_edge)
+            # weight_edge = entity[1].item()
+            # list_weights.append(weight_edge)
 
             # Convert index edge to the string value
             str_edge = self.idx_to_edge_list[index_edge]
@@ -187,7 +187,7 @@ class GraphRefinement(nn.Module):
             print("List main entities from device 0: ", list_main_words)
 
         # Print the weight of the main entities too:
-        print("List weights main entities: ", list_weights)
+        # print("List weights main entities: ", list_weights)
 
         # Get the embedding of each word
         kg_embedding = []
