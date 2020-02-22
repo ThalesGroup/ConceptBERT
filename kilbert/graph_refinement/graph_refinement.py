@@ -1,6 +1,7 @@
 ### LIBRARIES ###
 # Global libraries
 import os
+import sys
 import json
 from copy import deepcopy
 
@@ -388,7 +389,9 @@ class GraphRefinement(nn.Module):
                                 )
 
                 except Exception as e:
+                    error_type, error_obj, error_tb = sys.exc_info()
                     print("ERROR in `propagate_weights`: ", e)
+                    print(error_type, error_obj, error_tb.tb_lineno)
                     # pass
 
         # return graph_tensor, list_max_weights
