@@ -150,6 +150,10 @@ class GraphRefinement(nn.Module):
         """
             tensor_max_weights: [[index_edge, weight_edge]]
         """
+
+        if str(graph_tensor.get_device()) == "0":
+            print("Beginning `tensor_max_weights`: ", tensor_max_weights[:3])
+
         set_nodes = set()
         for entity in tensor_max_weights:
             index_edge = int(entity[0].item())
@@ -352,6 +356,10 @@ class GraphRefinement(nn.Module):
                                         break
 
                                 if not is_in_max_list:
+                                    print(
+                                        "ENTITY: ",
+                                        [edge_index, graph_tensor[edge_index]],
+                                    )
                                     # Update `list_max_weights`, so that it
                                     # is still sorted
                                     tensor_max_weights = self.add_and_update(
