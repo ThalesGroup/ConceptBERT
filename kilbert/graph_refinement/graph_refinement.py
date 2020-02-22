@@ -157,7 +157,7 @@ class GraphRefinement(nn.Module):
         #     )
 
         set_nodes = set()
-        # list_weights = []
+        list_weights = []
         for entity in tensor_max_weights:
             index_edge = int(entity[0].item())
 
