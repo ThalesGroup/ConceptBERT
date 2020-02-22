@@ -187,7 +187,7 @@ class GraphRefinement(nn.Module):
             print("List main entities from device 0: ", list_main_words)
 
         # Print the weight of the main entities too:
-        print("List weights main entities: ", weight_edge)
+        print("List weights main entities: ", list_weights)
 
         # Get the embedding of each word
         kg_embedding = []
