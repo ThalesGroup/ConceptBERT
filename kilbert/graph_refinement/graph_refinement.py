@@ -213,8 +213,8 @@ class GraphRefinement(nn.Module):
 
         ## Step 2: Compute the importance index
         importance_indexes = self.compute_importance_index(attention_question)
-        # if device == 0:
-        #     print("Importance indexes on device 0: ", importance_indexes[:3])
+        if device == 0:
+            print("Importance indexes on device 0: ", importance_indexes[:3])
 
         ## Step 3: Propagate the weights in the "graph"
         list_kg_embeddings = []
