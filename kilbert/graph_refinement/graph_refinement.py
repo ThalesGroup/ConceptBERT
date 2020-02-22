@@ -225,7 +225,12 @@ class GraphRefinement(nn.Module):
                 # Read the question here
                 list_index_words = []
                 for entity_index in question:
-                    list_index_words.append(self.list_nodes[int(entity_index.item())])
+                    if int(entity_index.item()) == -1:
+                        list_index_words.append(-1)
+                    else:
+                        list_index_words.append(
+                            self.list_nodes[int(entity_index.item())]
+                        )
                 print("QUESTION : ", list_index_words)
             graph_tensor = deepcopy(self.init_graph_tensor)
             # Convert the list of max_weights to a tensor
