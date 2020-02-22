@@ -306,6 +306,7 @@ class GraphRefinement(nn.Module):
         """
         device = graph_tensor.get_device()
         while len(waiting_tensor) > 0:
+            print("WAITING TENSOR: ", waiting_tensor)
             entity_kg, importance_index = waiting_tensor[0]
             waiting_tensor = waiting_tensor[1:]
 
