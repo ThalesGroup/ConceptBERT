@@ -356,16 +356,17 @@ class GraphRefinement(nn.Module):
                                         break
 
                                 if not is_in_max_list:
-                                    print(
-                                        "ENTITY: ",
-                                        [edge_index, graph_tensor[edge_index]],
-                                    )
                                     # Update `list_max_weights`, so that it
                                     # is still sorted
                                     tensor_max_weights = self.add_and_update(
                                         tensor_max_weights,
                                         new_position,
-                                        [edge_index, graph_tensor[edge_index]],
+                                        torch.Tensor(
+                                            [
+                                                edge_index,
+                                                graph_tensor[edge_index].item(),
+                                            ]
+                                        ),
                                     )
 
                             # Continue the propagation
