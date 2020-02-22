@@ -218,8 +218,8 @@ class GraphRefinement(nn.Module):
         list_kg_embeddings = []
 
         for i, question in enumerate(list_questions):
-            # if device == 0:
-            #     print("New question (device: " + str(device) + ")")
+            if device == 0:
+                print("New question (device: " + str(device) + ")")
             graph_tensor = deepcopy(self.init_graph_tensor)
             # Convert the list of max_weights to a tensor
             # list_max_weights = self.ordered_edge_weights_list
