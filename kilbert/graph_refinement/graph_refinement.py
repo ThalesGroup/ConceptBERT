@@ -151,10 +151,8 @@ class GraphRefinement(nn.Module):
         """
             tensor_max_weights: [[index_edge, weight_edge]]
         """
-        # if str(graph_tensor.get_device()) == "0":
-        #     print(
-        #         "First weights from `tensor_max_weights`: ", tensor_max_weights[5:]
-        #     )
+        if str(graph_tensor.get_device()) == "0":
+            print("First weights from `tensor_max_weights`: ", tensor_max_weights[10:])
 
         set_nodes = set()
         # list_weights = []
@@ -256,18 +254,19 @@ class GraphRefinement(nn.Module):
             )
 
             for j, entity_index in enumerate(question):
-                # Initialize the edges
-                visited_edges_tensor = torch.BoolTensor(
-                    len(self.initial_weight_edges) * [False]
-                )
-                # Propagate the weights for this entity
-                graph_tensor, tensor_max_weights = self.propagate_weights(
-                    graph_tensor,
-                    visited_edges_tensor,
-                    # list_max_weights,
-                    tensor_max_weights,
-                    torch.Tensor([[entity_index, importance_indexes[i][j]]]),
-                )
+                if entity_index != -1:
+                    # Initialize the edges
+                    visited_edges_tensor = torch.BoolTensor(
+                        len(self.initial_weight_edges) * [False]
+                    )
+                    # Propagate the weights for this entity
+                    graph_tensor, tensor_max_weights = self.propagate_weights(
+                        graph_tensor,
+                        visited_edges_tensor,
+                        # list_max_weights,
+                        tensor_max_weights,
+                        torch.Tensor([[entity_index, importance_indexes[i][j]]]),
+                    )
             if device == 0:
                 print("Building the graph embedding")
             ## Step 4: Build the graph embedding
