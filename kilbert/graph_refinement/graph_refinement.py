@@ -263,8 +263,8 @@ class GraphRefinement(nn.Module):
                     tensor_max_weights,
                     torch.Tensor([[entity_index, importance_indexes[i][j]]]),
                 )
-            # if device == 0:
-            #     print("Building the graph embedding")
+            if device == 0:
+                print("Building the graph embedding")
             ## Step 4: Build the graph embedding
             question_graph_embedding = self.compute_graph_representation(
                 # graph_tensor, list_max_weights, num_max_nodes
