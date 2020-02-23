@@ -243,8 +243,11 @@ class GraphRefinement(nn.Module):
             graph_tensor = deepcopy(self.init_graph_tensor)
             # Convert the list of max_weights to a tensor
             # list_max_weights = self.ordered_edge_weights_list
-            tensor_max_weights = torch.Tensor(self.ordered_edge_weights_list).cuda(
-                device
+            # tensor_max_weights = torch.Tensor(self.ordered_edge_weights_list).cuda(
+            #     device
+            # )
+            tensor_max_weights = torch.zeros_like(
+                torch.Tensor(self.ordered_edge_weights_list).cuda(device)
             )
 
             for j, entity_index in enumerate(question):
