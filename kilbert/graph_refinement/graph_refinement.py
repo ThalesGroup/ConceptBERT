@@ -240,7 +240,8 @@ class GraphRefinement(nn.Module):
                             self.list_nodes[int(entity_index.item())]
                         )
                 print("QUESTION : ", list_index_words)
-            graph_tensor = deepcopy(self.init_graph_tensor)
+            graph_tensor = torch.zeros_like(self.init_graph_tensor)
+            # graph_tensor = deepcopy(self.init_graph_tensor)
             # Convert the list of max_weights to a tensor
             # list_max_weights = self.ordered_edge_weights_list
             # tensor_max_weights = torch.Tensor(self.ordered_edge_weights_list).cuda(
