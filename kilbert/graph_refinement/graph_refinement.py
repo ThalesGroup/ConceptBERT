@@ -254,7 +254,19 @@ class GraphRefinement(nn.Module):
             )
 
             for j, entity_index in enumerate(question):
-                if entity_index != -1:
+                if entity_index not in [
+                    -1,
+                    645132,  # the
+                    291482,  # of
+                    1054824,  # this
+                    379275,  # a
+                    949114,  # it
+                    563711,  # these
+                    627515,  # s
+                    187832,  # that
+                    103641,  # which
+                    282039,  # to
+                ]:
                     # Initialize the edges
                     visited_edges_tensor = torch.BoolTensor(
                         len(self.initial_weight_edges) * [False]
