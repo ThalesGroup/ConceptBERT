@@ -32,7 +32,7 @@ class GraphRefinement(nn.Module):
         # Won't propagate if the weight is smaller than this value
         self.propagation_threshold = 0.5
         # Coefficient multiplied to the weight at each iteration
-        self.attenuation_coef = 0.1
+        self.attenuation_coef = 0.3
 
         # Load the list of nodes in ConceptNet
         if not os.path.exists(
