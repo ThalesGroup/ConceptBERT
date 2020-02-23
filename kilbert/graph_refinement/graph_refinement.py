@@ -178,6 +178,7 @@ class GraphRefinement(nn.Module):
             if len(set_nodes) >= num_max_nodes:
                 break
 
+        # TODO: Convert `list_main_entities` to tensor
         list_main_entities = list(set_nodes)
         if str(graph_tensor.get_device()) == "0":
             # Have the equivalent words
@@ -190,6 +191,8 @@ class GraphRefinement(nn.Module):
         # print("List weights main entities: ", list_weights)
 
         # Get the embedding of each word
+        # TODO: Instead of adding to a list and sending the list, just
+        # complete the existing tensor
         kg_embedding = []
 
         for entity_idx in list_main_entities:
@@ -254,7 +257,9 @@ class GraphRefinement(nn.Module):
 
             for j, entity_index in enumerate(question):
                 # Initialize the edges
-                visited_edges_tensor = deepcopy(self.init_visited_edges_tensor)
+                visited_edges_tensor = torch.BoolTensor(
+                    len(self.initial_weight_edges) * [False]
+                )
                 # Propagate the weights for this entity
                 graph_tensor, tensor_max_weights = self.propagate_weights(
                     graph_tensor,
