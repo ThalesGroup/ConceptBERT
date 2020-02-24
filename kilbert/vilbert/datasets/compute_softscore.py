@@ -358,6 +358,7 @@ def create_dataset_cache(dataset):
         Given the name of the dataset, creates the cache files
     """
     if dataset == "OK-VQA":
+        print("Creating OK-VQA cache files...")
         nas_path = "/nas-data/vilbert/data2/OK-VQA"
         train_answer_file = os.path.join(nas_path, "mscoco_train2014_annotations.json")
         val_answer_file = os.path.join(nas_path, "mscoco_val2014_annotations.json")
@@ -379,6 +380,7 @@ def create_dataset_cache(dataset):
         compute_target(val_answers, ans2label, "val", "OK-VQA", nas_path)
 
     elif dataset == "VQA":
+        print("Creating VQA cache files...")
         nas_path = "/nas-data/vilbert/data2/VQA"
         train_answer_file = os.path.join(
             nas_path, "v2_mscoco_train2014_annotations.json"
