@@ -293,13 +293,9 @@ def create_ans2label(occurence, name, dataset, cache_root="data/OK-VQA/cache"):
 
     create_dir(cache_root)
 
-    cache_file = os.path.join(
-        cache_root, "cache", name + "_" + dataset + "_ans2label.pkl"
-    )
+    cache_file = os.path.join(cache_root, "cache", name + "_ans2label.pkl")
     cPickle.dump(ans2label, open(cache_file, "wb"))
-    cache_file = os.path.join(
-        cache_root, "cache", name + "_" + dataset + "_label2ans.pkl"
-    )
+    cache_file = os.path.join(cache_root, "cache", name + "_label2ans.pkl")
     cPickle.dump(label2ans, open(cache_file, "wb"))
     return ans2label
 
