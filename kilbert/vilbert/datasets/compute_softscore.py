@@ -183,6 +183,7 @@ def create_dir(path):
             if exc.errno != errno.EEXIST:
                 raise
 
+
 def get_score(occurences):
     if occurences == 0:
         return 0
@@ -299,7 +300,9 @@ def create_ans2label(occurence, name, dataset, cache_root="data/OK-VQA/cache"):
     return ans2label
 
 
-def compute_target(answers_dset, ans2label, name, dataset, cache_root="data/OK-VQA/cache"):
+def compute_target(
+    answers_dset, ans2label, name, dataset, cache_root="data/OK-VQA/cache"
+):
     """Augment answers_dset with soft score as label
 
     ***answers_dset should be preprocessed***
@@ -350,21 +353,79 @@ def get_question(qid, questions):
             return question
 
 
+def create_dataset_cache(dataset):
+    """
+        Given the name of the dataset, creates the cache files
+    """
+    if dataset == "ok_vqa":
+        nas_path = "/nas-data/vilbert/data2/OK-VQA"
+        train_answer_file = os.path.join(nas_path, "mscoco_train2014_annotations.json")
+        val_answer_file = os.path.join(nas_path, "mscoco_val2014_annotations.json")
+        train_question_file = os.path.join(
+            nas_path, "OpenEnded_mscoco_train2014_questions.json"
+        )
+        val_question_file = os.path.join(
+            nas_path, "OpenEnded_mscoco_val2014_questions.json"
+        )
+
+        train_answers = json.load(open(train_answer_file))["annotations"]
+        val_answers = json.load(open(val_answer_file))["annotations"]
+
+        answers = train_answers + val_answers
+        occurence = filter_answers(answers, 9, "ok_vqa")
+        ans2label = create_ans2label(occurence, "trainval", "OK-VQA", nas_path)
+
+        compute_target(train_answers, ans2label, "train", "OK-VQA", nas_path)
+        compute_target(val_answers, ans2label, "val", "OK-VQA", nas_path)
+
+    elif dataset == "vqa":
+        nas_path = "/nas-data/vilbert/data2/VQA"
+        train_answer_file = os.path.join(
+            nas_path, "v2_mscoco_train2014_annotations.json"
+        )
+        val_answer_file = os.path.join(nas_path, "v2_mscoco_val2014_annotations.json")
+        train_question_file = os.path.join(
+            nas_path, "v2_OpenEnded_mscoco_train2014_questions.json"
+        )
+        val_question_file = os.path.join(
+            nas_path, "v2_OpenEnded_mscoco_val2014_questions.json"
+        )
+
+        train_answers = json.load(open(train_answer_file))["annotations"]
+        val_answers = json.load(open(val_answer_file))["annotations"]
+
+        answers = train_answers + val_answers
+        occurence = filter_answers(answers, 9, "vqa")
+        ans2label = create_ans2label(occurence, "trainval", "VQA", nas_path)
+
+        compute_target(train_answers, ans2label, "train", "VQA", nas_path)
+        compute_target(val_answers, ans2label, "val", "VQA", nas_path)
+
+    else:
+        print("ERROR: bad dataset given")
+
+
+"""
+
 if __name__ == "__main__":
-    nas_path = "/home/mziaeefard/nas/human-ai-dialog/vilbert/data2/OK-VQA"
+    nas_path = "/nas-data/vilbert/data2/OK-VQA"
     train_answer_file = os.path.join(nas_path, "mscoco_train2014_annotations.json")
     val_answer_file = os.path.join(nas_path, "mscoco_val2014_annotations.json")
-    train_question_file = os.path.join(nas_path, "OpenEnded_mscoco_train2014_questions.json")
-    val_question_file = os.path.join(nas_path, "OpenEnded_mscoco_val2014_questions.json")
-    dataroot = nas_path
-    
+    train_question_file = os.path.join(
+        nas_path, "OpenEnded_mscoco_train2014_questions.json"
+    )
+    val_question_file = os.path.join(
+        nas_path, "OpenEnded_mscoco_val2014_questions.json"
+    )
+
     train_answers = json.load(open(train_answer_file))["annotations"]
     val_answers = json.load(open(val_answer_file))["annotations"]
-    
+
     answers = train_answers + val_answers
     occurence = filter_answers(answers, 9, "ok_vqa")
-    ans2label = create_ans2label(occurence, "trainval", "OK-VQA", dataroot)
-    
-    compute_target(train_answers, ans2label, "train", "OK-VQA", dataroot)
-    compute_target(val_answers, ans2label, "val", "OK-VQA", dataroot)
+    ans2label = create_ans2label(occurence, "trainval", "OK-VQA", nas_path)
 
+    compute_target(train_answers, ans2label, "train", "OK-VQA", nas_path)
+    compute_target(val_answers, ans2label, "val", "OK-VQA", nas_path)
+
+"""
