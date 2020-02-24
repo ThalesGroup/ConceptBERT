@@ -336,7 +336,7 @@ def compute_target(
         )
 
     create_dir(cache_root)
-    cache_file = os.path.join(cache_root, "cache", name + "_" + dataset + "_target.pkl")
+    cache_file = os.path.join(cache_root, "cache", name + "_target.pkl")
     cPickle.dump(target, open(cache_file, "wb"))
     return target
 
