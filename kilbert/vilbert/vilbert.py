@@ -37,6 +37,8 @@ import pdb
 
 logger = logging.getLogger(__name__)
 
+from q_kg_transformer.conceptnet_embedding import ConceptNetEmbedding
+
 ### VARIABLES ###
 
 PRETRAINED_MODEL_ARCHIVE_MAP = {
@@ -333,6 +335,7 @@ class BertEmbeddings(nn.Module):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
         # Initiate the ConceptNet embeddings
+        self.conceptnet_embedding = ConceptNetEmbedding(split)
         self.LayerNorm_kb = BertLayerNorm(config.hidden_size, eps=1e-12)
         self.dropout_kb = nn.Dropout(config.hidden_dropout_prob)
 
