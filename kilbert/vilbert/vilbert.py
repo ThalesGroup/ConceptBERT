@@ -336,7 +336,10 @@ class BertEmbeddings(nn.Module):
 
         # Initiate the ConceptNet embeddings
         self.conceptnet_embedding = ConceptNetEmbedding(config, split)
-        self.LayerNorm_kb = BertLayerNorm(config.hidden_size, eps=1e-12)
+        if config.model_version == 1:
+            self.LayerNorm_kb = BertLayerNorm(config.bi_hidden_size, eps=1e-12)
+        elif config.model_version == 2 or config.model_version == 3:
+            self.LayerNorm_kb = BertLayerNorm(config.hidden_size, eps=1e-12)
         self.dropout_kb = nn.Dropout(config.hidden_dropout_prob)
 
     def forward(self, input_ids, token_type_ids=None):
