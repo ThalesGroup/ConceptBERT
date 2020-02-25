@@ -305,9 +305,6 @@ class Kilbert(nn.Module):
             attention_mask_bis,
         )
         """
-        if self.model_version == 1:
-            print("Dimension sequence_output_v: ", sequence_output_v.shape)
-            print("Dimension sequence_output_t_bis: ", sequence_output_t_bis.shape)
 
         elif self.model_version == 2:
             print("Dimension pooled_output_t: ", pooled_output_t.shape)
@@ -320,7 +317,7 @@ class Kilbert(nn.Module):
 
         # Send the image, question and ConceptNet to the Aggregator module
         if self.model_version == 1:
-            result_vector = self.aggregator(pooled_output_v, pooled_output_bis)
+            result_vector = self.aggregator(pooled_output_v, pooled_output_t_bis)
         elif self.model_version == 2:
             result_vector = self.aggregator(pooled_output_v, fused_question_emb)
         elif self.model_version == 3:
