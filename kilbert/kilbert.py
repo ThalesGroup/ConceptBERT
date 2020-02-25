@@ -206,11 +206,15 @@ class Kilbert(nn.Module):
                 attention_mask_bis,
             ) = self.q_kg_transformer(
                 # txt_embedding,
-                pooled_output_t,
+                # pooled_output_t,
+                sequence_output_t,
                 kg_embedding,
                 extended_attention_mask,
                 output_all_encoded_layers,
             )
+            # Pool the output
+            pooled_output_t_bis = self.question_pooler(sequence_output_t_bis)
+
         elif self.model_version == 2:
             (
                 sequence_output_t_bis,

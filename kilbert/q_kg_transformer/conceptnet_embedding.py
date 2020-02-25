@@ -38,13 +38,9 @@ class ConceptNetEmbedding:
 
         self.model_version = config.model_version
 
-        # Pooler to return a 1024-D embedding
-        if self.model_version == 1:
-            self.cn_pooler = KnowledgePooler(1024)
-            self.dim_word = 1024
-        elif self.model_version == 2:
-            self.cn_pooler = KnowledgePooler(768)
-            self.dim_word = 768
+        # Pooler to return a 768-D embedding
+        self.cn_pooler = KnowledgePooler(768)
+        self.dim_word = 768
 
     def test_has_embedding(self, node):
         """
@@ -71,19 +67,11 @@ class ConceptNetEmbedding:
         """
             Given a node (word), returns the node embedding in a tensor
         """
-        if self.model_version == 1:
-            try:
-                conceptnet_emb = torch.from_numpy(self.dict_embedding[word])
-                return self.cn_pooler(conceptnet_emb)
-            except:
-                return torch.zeros(1024).double()
-
-        elif self.model_version == 2 or self.model_version == 3:
-            try:
-                conceptnet_emb = torch.from_numpy(self.dict_embedding[word])
-                return self.cn_pooler(conceptnet_emb)
-            except:
-                return torch.zeros(768).double()
+        try:
+            conceptnet_emb = torch.from_numpy(self.dict_embedding[word])
+            return self.cn_pooler(conceptnet_emb)
+        except:
+            return torch.zeros(768).double()
 
     def get_kg_embedding_tokens_from_bert(self, input_ids, dim1, dim2):
         """
