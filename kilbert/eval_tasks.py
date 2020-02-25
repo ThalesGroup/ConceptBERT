@@ -49,6 +49,14 @@ logger = logging.getLogger(__name__)
 def main():
 
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--model_version",
+        default=3,
+        type=int,
+        help="Which version of the model you want to use",
+    )
+
     parser.add_argument(
         "--bert_model",
         default="bert-base-uncased",
@@ -215,7 +223,15 @@ def main():
         default_gpu=default_gpu,
     )
     """
-    model = Kilbert(config, num_labels, split="val", default_gpu=default_gpu)
+    model = Kilbert(
+        args.from_pretrained,
+        args.model_version,
+        config,
+        num_labels,
+        args.tasks,
+        split="val",
+        default_gpu=default_gpu,
+    )
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
