@@ -54,6 +54,7 @@ class Kilbert(nn.Module):
         self.num_labels = num_labels
         self.dropout = nn.Dropout(dropout_prob)
         self.model_version = model_version
+        self.use_pooled_output = False
 
         # Load the embedding modules
         # self.txt_embedding = BertEmbeddings(config, split)
@@ -80,6 +81,7 @@ class Kilbert(nn.Module):
         # self.aggregator = SimpleConcatenation(config)
         if model_version == 1 or model_version == 2:
             self.aggregator = SimpleQuestionAddition(config)
+            self.use_pooled_output = True
         elif model_version == 3:
             self.aggregator = CTIModel(
                 v_dim=1024,
@@ -188,9 +190,9 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
-        # if use_pooled_output:
-        #     sequence_output_t = pooled_output_t
-        #     sequence_output_v = pooled_output_v
+        if self.use_pooled_output:
+            sequence_output_t = pooled_output_t
+            sequence_output_v = pooled_output_v
 
         # Get the results from the Transformer module
         if self.model_version == 1:
@@ -216,6 +218,9 @@ class Kilbert(nn.Module):
                 extended_attention_mask,
                 output_all_encoded_layers,
             )
+
+        if self.use_pooled_output:
+            sequence_output_t_bis = pooled_output_bis
 
         """
         # Compute the question self-attention
