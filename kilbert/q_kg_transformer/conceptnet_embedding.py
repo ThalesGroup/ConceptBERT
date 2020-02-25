@@ -10,9 +10,9 @@ from q_kg_transformer.utils import load_embeddings, get_txt_questions
 
 ### CLASS DEFINITION ###
 class KnowledgePooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, final_dim):
         super(KnowledgePooler, self).__init__()
-        self.dense = nn.Linear(200, 1024)
+        self.dense = nn.Linear(200, final_dim)
         self.activation = nn.ReLU()
 
     def forward(self, hidden_states):
