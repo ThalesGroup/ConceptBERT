@@ -306,7 +306,7 @@ class Kilbert(nn.Module):
         )
         """
 
-        elif self.model_version == 2:
+        if self.model_version == 2:
             print("Dimension pooled_output_t: ", pooled_output_t.shape)
             print("Dimension pooled_output_t_bis: ", pooled_output_t_bis.shape)
 
