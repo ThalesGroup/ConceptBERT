@@ -54,7 +54,7 @@ class Kilbert(nn.Module):
         self.num_labels = num_labels
         self.dropout = nn.Dropout(dropout_prob)
         self.model_version = model_version
-        self.use_pooled_output = False
+        # self.use_pooled_output = False
 
         # Load the embedding modules
         # self.txt_embedding = BertEmbeddings(config, split)
@@ -65,6 +65,7 @@ class Kilbert(nn.Module):
         self.vilbert = VILBertForVLTasks.from_pretrained(
             from_pretrained, config, num_labels, split, default_gpu=default_gpu,
         )
+        config.model_version = model_version
 
         # Embedding for the ViLBert model
         self.vilbert_txt_embedding = self.vilbert.bert.embeddings
@@ -77,11 +78,12 @@ class Kilbert(nn.Module):
         # Fusion modules
         if model_version == 2:
             self.fusion_question = SimpleQuestionAddition(config)
+            self.question_pooler = QuestionPooler(config)
 
         # self.aggregator = SimpleConcatenation(config)
         if model_version == 1 or model_version == 2:
             self.aggregator = SimpleQuestionAddition(config)
-            self.use_pooled_output = True
+            # self.use_pooled_output = True
         elif model_version == 3:
             self.aggregator = CTIModel(
                 v_dim=1024,
@@ -190,9 +192,11 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
+        """
         if self.use_pooled_output:
             sequence_output_t = pooled_output_t
             sequence_output_v = pooled_output_v
+        """
 
         # Get the results from the Transformer module
         if self.model_version == 1:
@@ -202,12 +206,12 @@ class Kilbert(nn.Module):
                 attention_mask_bis,
             ) = self.q_kg_transformer(
                 # txt_embedding,
-                sequence_output_t,
+                pooled_output_t,
                 kg_embedding,
                 extended_attention_mask,
                 output_all_encoded_layers,
             )
-        elif self.model_version == 2 or self.model_version == 3:
+        elif self.model_version == 2:
             (
                 sequence_output_t_bis,
                 pooled_output_bis,
@@ -219,9 +223,24 @@ class Kilbert(nn.Module):
                 output_all_encoded_layers,
             )
 
+            # Pool the output
+            pooled_output_t_bis = self.question_pooler(sequence_output_t_bis)
+
+        elif self.model_version == 3:
+            (
+                sequence_output_t_bis,
+                pooled_output_bis,
+                attention_mask_bis,
+            ) = self.q_kg_transformer(
+                vilbert_txt_embedding,
+                kg_embedding,
+                extended_attention_mask,
+                output_all_encoded_layers,
+            )
+        """
         if self.use_pooled_output:
             sequence_output_t_bis = pooled_output_bis
-
+        """
         """
         # Compute the question self-attention
 
@@ -280,16 +299,24 @@ class Kilbert(nn.Module):
             attention_mask_bis,
         )
         """
+        if self.model_version == 1:
+            print("Dimension sequence_output_v: ", sequence_output_v.shape)
+            print("Dimension sequence_output_t_bis: ", sequence_output_t_bis.shape)
+
+        elif self.model_version == 2:
+            print("Dimension pooled_output_t: ", pooled_output_t.shape)
+            print("Dimension pooled_output_t_bis: ", pooled_output_t_bis.shape)
+
         if self.model_version == 2:
             fused_question_emb = self.fusion_question(
-                sequence_output_t, sequence_output_t_bis
+                pooled_output_t, pooled_output_t_bis
             )
 
         # Send the image, question and ConceptNet to the Aggregator module
         if self.model_version == 1:
-            result_vector = self.aggregator(sequence_output_v, sequence_output_t_bis)
+            result_vector = self.aggregator(pooled_output_v, pooled_output_bis)
         elif self.model_version == 2:
-            result_vector = self.aggregator(sequence_output_v, fused_question_emb)
+            result_vector = self.aggregator(pooled_output_v, fused_question_emb)
         elif self.model_version == 3:
             result_vector, result_attention = self.aggregator(
                 sequence_output_v, sequence_output_t, sequence_output_t_bis,
@@ -297,6 +324,18 @@ class Kilbert(nn.Module):
 
         # Send the vector to the SimpleClassifier to get the answer
         return self.vil_prediction(result_vector)
+
+
+class QuestionPooler(nn.Module):
+    def __init__(self, config):
+        super(QuestionPooler, self).__init__()
+        self.dense = nn.Linear(config.hidden_size, config.bi_hidden_size)
+        self.activation = nn.ReLU()
+
+    def forward(self, hidden_states):
+        pooled_output = self.dense(hidden_states)
+        pooled_output = self.activation(pooled_output)
+        return pooled_output
 
 
 class FCNet(nn.Module):
