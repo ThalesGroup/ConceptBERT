@@ -208,7 +208,7 @@ class Kilbert(nn.Module):
                 # txt_embedding,
                 # pooled_output_t,
                 sequence_output_t,
-                kg_embedding,
+                kg_embedding.double(),
                 extended_attention_mask,
                 output_all_encoded_layers,
             )
