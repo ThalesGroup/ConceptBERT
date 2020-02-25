@@ -66,6 +66,8 @@ class ConceptNetEmbedding:
             for word_token in question:
                 try:
                     word = self.token_dictionary[word_token]
+                    if word[:2] == "##":
+                        word = word[2:]
                     word_kg_emb = self.get_node_embedding_tensor(word)
                 except:
                     word_kg_emb = torch.zeros(self.dim_word).double()
