@@ -76,6 +76,8 @@ class Kilbert(nn.Module):
         )
 
         # Fusion modules
+        if model_version == 1:
+            self.question_pooler = QuestionPooler(config)
         if model_version == 2:
             self.fusion_question = SimpleQuestionAddition(config)
             self.question_pooler = QuestionPooler(config)
