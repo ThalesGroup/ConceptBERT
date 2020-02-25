@@ -164,7 +164,8 @@ class VQA:
             for ans in ann["answers"]:
                 print("Answer %d: %s" % (ans["answer_id"], ans["answer"]))
 
-    def loadRes(self, resFile, quesFile):
+    # def loadRes(self, resFile, quesFile):
+    def loadRes(self, results, quesFile):
         """
 		Load result file and return a result object.
 		:param   resFile (str)     : file name of result file
@@ -180,7 +181,8 @@ class VQA:
 
         print("Loading and preparing results...     ")
         time_t = datetime.datetime.utcnow()
-        anns = json.load(open(resFile))
+        # anns = json.load(open(resFile))
+        anns = results
         assert type(anns) == list, "results is not an array of objects"
         annsQuesIds = [ann["question_id"] for ann in anns]
         assert set(annsQuesIds) == set(
