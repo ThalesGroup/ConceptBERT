@@ -446,7 +446,7 @@ def EvaluatingModel(
     dataType = "mscoco"
     dataSubType = "val2014"
     if dataset == "vqa":
-        data_dir = "/nas-data/vilbert/data2/VQA/"
+        data_dir = "/nas-data/vilbert/data2/VQA"
         annFile = "%s/v2_%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
         quesFile = "%s/v2_%s_%s_%s_questions.json" % (
             data_dir,
@@ -455,7 +455,7 @@ def EvaluatingModel(
             dataSubType,
         )
     elif dataset == "ok_vqa":
-        data_dir = "/nas-data/vilbert/data2/OK-VQA/"
+        data_dir = "/nas-data/vilbert/data2/OK-VQA"
         annFile = "%s/%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
         quesFile = "%s/%s_%s_%s_questions.json" % (
             data_dir,
