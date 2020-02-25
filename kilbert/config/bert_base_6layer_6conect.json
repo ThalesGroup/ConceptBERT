@@ -49,5 +49,6 @@
   "intra_gate": false,
   "fixed_t_layer": 0,
   "fixed_v_layer": 0,
-  "predict_feature": false
+  "predict_feature": false,
+  "model_version": 1
 }
