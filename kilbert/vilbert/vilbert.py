@@ -367,11 +367,8 @@ class BertEmbeddings(nn.Module):
             else kg_embeddings
         )
 
-        print("Shape embeddings: ", embeddings.shape)
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
-
-        print("Shape kg_embeddings: ", kg_embeddings.shape)
 
         kg_embeddings = self.LayerNorm_kb(kg_embeddings)
         kg_embeddings = self.dropout(kg_embeddings)
