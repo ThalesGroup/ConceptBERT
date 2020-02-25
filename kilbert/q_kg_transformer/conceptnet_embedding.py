@@ -101,11 +101,11 @@ class ConceptNetEmbedding:
                     word_kg_emb = self.get_node_embedding_tensor(word)
                 except:
                     word_kg_emb = torch.zeros(self.dim_word).double()
-            """
+                """
                 target_emb = torch.zeros((dim2))
                 target_emb[: word_kg_emb.size(0)] = word_kg_emb
+                """
                 question_embedding.append(word_kg_emb)
-            """
 
             question_kg_emb = torch.stack(question_embedding)
             """
