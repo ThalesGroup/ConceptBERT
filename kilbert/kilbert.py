@@ -39,26 +39,30 @@ class Kilbert(nn.Module):
     """
 
     def __init__(
-        self, config, num_labels, split="", dropout_prob=0.1, default_gpu=True,
+        self,
+        from_pretrained,
+        model_version,
+        config,
+        num_labels,
+        task,
+        split="",
+        dropout_prob=0.1,
+        default_gpu=True,
     ):
         super(Kilbert, self).__init__()
         # Variables
         self.num_labels = num_labels
         self.dropout = nn.Dropout(dropout_prob)
+        self.model_version = model_version
 
         # Load the embedding modules
-        self.txt_embedding = BertEmbeddings(config, split)
-        self.img_embedding = BertImageEmbeddings(config)
+        # self.txt_embedding = BertEmbeddings(config, split)
+        # self.img_embedding = BertImageEmbeddings(config)
 
         # Main modules
         config = BertConfig("config/bert_base_6layer_6conect.json")
-        # TODO: Replace the pretrained model with VQA by pretrained model with OK-VQA
         self.vilbert = VILBertForVLTasks.from_pretrained(
-            "/nas-data/vilbert/data2/VQA_bert_base_6layer_6conect-pretrained/pytorch_model_19.bin",
-            config,
-            num_labels,
-            split,
-            default_gpu=default_gpu,
+            from_pretrained, config, num_labels, split, default_gpu=default_gpu,
         )
 
         # Embedding for the ViLBert model
@@ -69,145 +73,35 @@ class Kilbert(nn.Module):
             config, split, dropout_prob, default_gpu
         )
 
-        # Self-attention for question (used for importance index)
-        self.q_att = QuestionSelfAttention(16, 768, 0.2)
-        self.graph_refinement = GraphRefinement(
-            self.txt_embedding.conceptnet_embedding, k
-        )
-
         # Fusion modules
-        self.fusion_question = SimpleQuestionAddition(config)
-        self.bert_text_pooler = BertTextPooler(config)
-        self.bert_image_pooler = BertImagePooler(config)
+        if model_version == 2:
+            self.fusion_question = SimpleQuestionAddition(config)
 
         # self.aggregator = SimpleConcatenation(config)
-        self.aggregator = CTIModel(
-            v_dim=1024,
-            q_dim=768,
-            kg_dim=200,
-            glimpse=2,
-            h_dim=512,
-            h_out=1,
-            rank=32,
-            k=1,
-        )
+        if model_version == 1 or model_version == 2:
+            self.aggregator = SimpleQuestionAddition(config)
+        elif model_version == 3:
+            self.aggregator = CTIModel(
+                v_dim=1024,
+                q_dim=768,
+                kg_dim=768,
+                glimpse=2,
+                h_dim=512,
+                h_out=1,
+                rank=32,
+                k=1,
+            )
 
         # Prediction modules
-        # classifier_in_dim = self.aggregator.output_dim
-        # classifier_hid_dim = self.aggregator.hidden_dim
-        # self.vil_prediction = SimpleClassifier(
-        #     #             classifier_in_dim, classifier_hid_dim, num_labels, 0.5
-        #     1024 + 1024 + 200 * k,
-        #     2048,
-        #     num_labels,
-        #     0.5,
-        # )
-        self.vil_prediction = SimpleClassifier(1024, 1024 * 2, num_labels, 0.5)
-
-    def convert_tokens(self, input_txt, q_self_attention, conceptnet_graph):
-        """
-
-        """
-        tokens_conceptnet = []
-        q_attention = []
-
-        length_question = input_txt.shape[1]
-        device = input_txt.get_device()
-
-        for i, question in enumerate(input_txt):
-            # Convert the list of BERT tokens to a list of words (but still tokens)
-            list_bert_tokens = []
-            for token in question:
-                if int(token.item()) == 0:
-                    list_bert_tokens.append(-1)
-                else:
-                    try:
-                        list_bert_tokens.append(
-                            self.txt_embedding.conceptnet_embedding.token_dictionary[
-                                int(token.item())
-                            ]
-                        )
-                    except:
-                        list_bert_tokens.append(-1)
-
-            # Check which tokens need to be fused and create list for the assembled words
-            list_words = []
-            indexes_to_fuse = []
-
-            token_cache = []
-            word_cache = ""
-
-            for j, token in enumerate(list_bert_tokens):
-                if token == -1:
-                    if word_cache != "":
-                        list_words.append(word_cache)
-                        indexes_to_fuse.append(token_cache)
-
-                    list_words.append(-1)
-                    word_cache = ""
-                    token_cache = []
-
-                elif token[:2] == "##":
-                    token_cache.append(j)
-                    word_cache += token[2:]
-                else:
-                    if word_cache != "":
-                        list_words.append(word_cache)
-                        indexes_to_fuse.append(token_cache)
-
-                    word_cache = str(token)
-                    token_cache = [j]
-
-            if word_cache != "":
-                list_words.append(word_cache)
-                indexes_to_fuse.append(token_cache)
-
-            # Pad your question tensor with `-1`
-            while len(list_words) < length_question:
-                list_words.append(-1)
-
-            # Create a list for the new question self-attention
-            list_attention = q_self_attention[i].tolist()
-            new_q_self_attention = []
-            for list_indexes in indexes_to_fuse:
-                attention_batch = 0
-                for index in list_indexes:
-                    attention_batch += list_attention[index]
-                new_q_self_attention.append(attention_batch)
-
-            # Pad the attention tensor with 0
-            while len(new_q_self_attention) < length_question:
-                new_q_self_attention.append(0)
-
-            new_q_self_attention = torch.Tensor(new_q_self_attention).cuda(device)
-
-            # Convert the assembled words to their ConceptNet indexes
-            new_input_txt = []
-            for word in list_words:
-                if word == -1:
-                    new_input_txt.append(-1)
-                else:
-                    try:
-                        new_input_txt.append(conceptnet_graph.index_nodes_dict[word])
-                    except Exception as e:
-                        if word not in ["[CLS]", "[SEP]", "'", "?"]:
-                            print("ERROR in `convert_tokens`: ", e)
-                        new_input_txt.append(-1)
-
-            new_input_txt = torch.IntTensor(new_input_txt)
-            new_input_txt = new_input_txt.cuda(device)
-
-            tokens_conceptnet.append(new_input_txt)
-            q_attention.append(new_q_self_attention)
-
-        # Send back the tensors in the correct device
-        tokens_conceptnet = torch.stack(tokens_conceptnet)
-        tokens_conceptnet = tokens_conceptnet.cuda(device)
-
-        q_attention = torch.stack(q_attention)
-        q_attention = q_attention.cuda(device)
-
-        return tokens_conceptnet, q_attention
+        if model_version == 1 or model_version == 2:
+            if task == "42":
+                self.vil_prediction = SimpleClassifier(
+                    config.bi_hidden_size, config.bi_hidden_size * 2, num_labels, 0.5
+                )
+            elif task == "0":
+                self.vil_prediction = self.vilbert.vil_prediction
+        elif model_version == 3:
+            self.vil_prediction = SimpleClassifier(1024, 1024 * 2, num_labels, 0.5)
 
     def forward(
         self,
@@ -268,12 +162,13 @@ class Kilbert(nn.Module):
 
         ## Step 1: Prepare the inputs for the main modules
         # Get the text and knowledge graph embeddings
-        txt_embedding, kg_embedding = self.txt_embedding(input_txt, token_type_ids)
+        # txt_embedding, kg_embedding = self.txt_embedding(input_txt, token_type_ids)
         # Get the image embedding
-        # img_embedding = self.img_embedding(input_imgs, image_loc)
 
         # Get the embeddings for ViLBert
-        vilbert_txt_embedding = self.vilbert_txt_embedding(input_txt, token_type_ids)
+        vilbert_txt_embedding, kg_embedding = self.vilbert_txt_embedding(
+            input_txt, token_type_ids
+        )
         vilbert_img_embedding = self.vilbert_img_embedding(input_imgs, image_loc)
 
         # Get the results from the ViLBERT module
@@ -293,24 +188,36 @@ class Kilbert(nn.Module):
             output_all_encoded_layers,
         )
 
-        if use_pooled_output:
-            sequence_output_t = pooled_output_t
-            sequence_output_v = pooled_output_v
-            # sequence_output_t = self.bert_text_pooler(sequence_output_t)
-            # sequence_output_v = self.bert_image_pooler(sequence_output_v)
+        # if use_pooled_output:
+        #     sequence_output_t = pooled_output_t
+        #     sequence_output_v = pooled_output_v
 
         # Get the results from the Transformer module
-        (
-            sequence_output_t_bis,
-            pooled_output_bis,
-            attention_mask_bis,
-        ) = self.q_kg_transformer(
-            txt_embedding,
-            kg_embedding,
-            extended_attention_mask,
-            output_all_encoded_layers,
-        )
+        if self.model_version == 1:
+            (
+                sequence_output_t_bis,
+                pooled_output_bis,
+                attention_mask_bis,
+            ) = self.q_kg_transformer(
+                # txt_embedding,
+                sequence_output_t,
+                kg_embedding,
+                extended_attention_mask,
+                output_all_encoded_layers,
+            )
+        elif self.model_version == 2 or self.model_version == 3:
+            (
+                sequence_output_t_bis,
+                pooled_output_bis,
+                attention_mask_bis,
+            ) = self.q_kg_transformer(
+                vilbert_txt_embedding,
+                kg_embedding,
+                extended_attention_mask,
+                output_all_encoded_layers,
+            )
 
+        """
         # Compute the question self-attention
 
         # TODO: Use `txt_embedding` (raw question features) or `sequence_output_t_bis` (question features enriched with attention)
@@ -323,10 +230,6 @@ class Kilbert(nn.Module):
             else question_self_attention
         )
 
-        """
-        # Choose the layer used
-        sequence_output_t_bis = sequence_output_t_bis[bert_layer_used]
-        """
         if use_pooled_output:
             sequence_output_t_bis = pooled_output_bis
 
@@ -337,6 +240,7 @@ class Kilbert(nn.Module):
         )
 
         # Refine the given ConceptNet graph with the help of `G_1` model
+        """
         """
         list_questions = []
 
@@ -352,13 +256,14 @@ class Kilbert(nn.Module):
                     print("ERROR: ", e)
             list_questions.append(list_words)
         """
-
+        """
         knowledge_graph_emb = self.graph_refinement(
             #     input_txt, question_self_attention, conceptnet_graph, k
             tokens_conceptnet,
             q_self_attention,
             k,
         )
+        """
 
         # Send the question results from ViLBERT and Transformer to the
         # F1 fusion module
@@ -370,39 +275,22 @@ class Kilbert(nn.Module):
             attention_mask_bis,
         )
         """
-        fused_question_emb = self.fusion_question(
-            sequence_output_t, sequence_output_t_bis
-        )
-
-        # Reduce the size of the ConceptNet graph by pruning low-weighted edges
-        # Keep only the k highest ones
-        """
-        list_main_entities = conceptnet_graph.select_top_edges(k)
-        kg_emb = []
-        for entity in list_main_entities:
-            kg_emb.append(
-                self.txt_embedding.conceptnet_embedding.get_node_embedding_tensor(
-                    str(entity)
-                )
+        if self.model_version == 2:
+            fused_question_emb = self.fusion_question(
+                sequence_output_t, sequence_output_t_bis
             )
-        knowledge_graph_emb = torch.stack(kg_emb)
-        """
-        # TODO: Remove this temporary fix
-        ### BEGIN TEMPORARY FIX ###
-        # Flatten knowledge_graph_emb to fit in the SimpleClassifier
-        # knowledge_graph_emb = torch.flatten(knowledge_graph_emb, start_dim=1, end_dim=2)
-        ### END TEMPORARY FIX ###
 
         # Send the image, question and ConceptNet to the Aggregator module
-        result_vector, result_attention = self.aggregator(
-            sequence_output_v,
-            # all_attention_mask[1],
-            fused_question_emb,
-            # fused_question_att,
-            knowledge_graph_emb,
-        )
+        if self.model_version == 1:
+            result_vector = self.aggregator(sequence_output_v, sequence_output_t_bis)
+        elif self.model_version == 2:
+            result_vector = self.aggregator(sequence_output_v, fused_question_emb)
+        elif self.model_version == 3:
+            result_vector, result_attention = self.aggregator(
+                sequence_output_v, sequence_output_t, sequence_output_t_bis,
+            )
 
-        # TODO: Send the vector to the SimpleClassifier to get the answer
+        # Send the vector to the SimpleClassifier to get the answer
         return self.vil_prediction(result_vector)
 
 
