@@ -354,7 +354,7 @@ class BertEmbeddings(nn.Module):
 
         embeddings = words_embeddings + position_embeddings + token_type_embeddings
 
-        kg_embeddings = self.conceptnet_embedding.get_kg_embedding_tokens(
+        kg_embeddings = self.conceptnet_embedding.get_kg_embedding_tokens_from_bert(
             input_ids, words_embeddings.size(1), words_embeddings.size(2)
         )
         # Send tensor to correct device
