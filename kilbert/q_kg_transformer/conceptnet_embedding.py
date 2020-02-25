@@ -29,7 +29,7 @@ class ConceptNetEmbedding:
     def __init__(self, config, split=None):
         # Loading the word embeddings
         self.dict_embedding = load_embeddings()
-        self.dim_word = len(self.dict_embedding["the"])
+        # self.dim_word = len(self.dict_embedding["the"])
 
         # Load the question texts
         if split != None:
@@ -41,8 +41,10 @@ class ConceptNetEmbedding:
         # Pooler to return a 1024-D embedding
         if self.model_version == 1:
             self.cn_pooler = KnowledgePooler(1024)
+            self.dim_word = 1024
         elif self.model_version == 2:
             self.cn_pooler = KnowledgePooler(768)
+            self.dim_word = 768
 
     def test_has_embedding(self, node):
         """
@@ -100,6 +102,7 @@ class ConceptNetEmbedding:
                         word = word[2:]
                     word_kg_emb = self.get_node_embedding_tensor(word)
                 except:
+                    print("Couldn't find node embedding...")
                     word_kg_emb = torch.zeros(self.dim_word).double()
 
                 print("Shape word_kg_emb: ", word_kg_emb.shape)
