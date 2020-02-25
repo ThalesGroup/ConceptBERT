@@ -28,7 +28,7 @@ spec:
           limits:
             nvidia.com/gpu: 8
         command: ["/bin/sh","-c"]
-        args: ["cd kilbert && python3 -u eval_tasks.py --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save/OK-VQA_bert_base_6layer_6conect-test_cn/pytorch_model_29.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/data2/save --num_workers 16 --tasks 42 --split=val"]
+        args: ["cd kilbert && python3 -u eval_tasks.py --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save/OK-VQA_bert_base_6layer_6conect-test_cn-bertadam_manual/pytorch_model_95.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/data2/save --num_workers 16 --tasks 42 --split=val"]
         volumeMounts:
           - name: nas-data-volume
             mountPath: /nas-data
