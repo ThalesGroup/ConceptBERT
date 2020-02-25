@@ -252,6 +252,11 @@ def main():
     print("  Num Iters: ", task_num_iters)
     print("  Batch size: ", task_batch_size)
 
+    if args.tasks == "0":
+        dataset = "vqa"
+    elif args.tasks == "42":
+        dataset = "ok_vqa"
+
     model.eval()
     for task_id in task_ids:
         results = []
@@ -268,6 +273,7 @@ def main():
                 task_losses,
                 results,
                 others,
+                dataset,
             )
 
             tbLogger.step_val(0, float(loss), float(score), task_id, batch_size, "val")
