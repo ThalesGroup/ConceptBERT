@@ -371,7 +371,7 @@ class BertEmbeddings(nn.Module):
         kg_embeddings = self.LayerNorm_kb(kg_embeddings)
         kg_embeddings = self.dropout(kg_embeddings)
 
-        return embeddings, kg_embeddings.double()
+        return embeddings, kg_embeddings.float()
 
 
 class BertImageEmbeddings(nn.Module):
@@ -502,8 +502,8 @@ class CustomBertSelfAttention(nn.Module):
         
     def forward(self, hidden_states, attention_mask, txt_embedding_kb):
         mixed_query_layer = self.query(hidden_states)
-        mixed_key_layer = self.key(txt_embedding_kb.double())
-        mixed_value_layer = self.value(txt_embedding_kb.double())
+        mixed_key_layer = self.key(txt_embedding_kb)
+        mixed_value_layer = self.value(txt_embedding_kb)
         
         query_layer = self.transpose_for_scores(mixed_query_layer)
         key_layer = self.transpose_for_scores(mixed_key_layer)

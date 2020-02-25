@@ -71,7 +71,7 @@ class ConceptNetEmbedding:
             conceptnet_emb = torch.from_numpy(self.dict_embedding[word])
             return self.cn_pooler(conceptnet_emb)
         except:
-            return torch.zeros(768).double()
+            return torch.zeros(768)
 
     def get_kg_embedding_tokens_from_bert(self, input_ids, dim1, dim2):
         """
@@ -88,9 +88,9 @@ class ConceptNetEmbedding:
                     word = self.token_dictionary[word_token]
                     if word[:2] == "##":
                         word = word[2:]
-                    word_kg_emb = self.get_node_embedding_tensor(word).double()
+                    word_kg_emb = self.get_node_embedding_tensor(word)
                 except:
-                    word_kg_emb = torch.zeros(self.dim_word).double()
+                    word_kg_emb = torch.zeros(self.dim_word)
 
                 """
                 target_emb = torch.zeros((dim2))
