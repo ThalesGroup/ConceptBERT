@@ -371,7 +371,7 @@ class BertEmbeddings(nn.Module):
         kg_embeddings = self.LayerNorm_kb(kg_embeddings)
         kg_embeddings = self.dropout(kg_embeddings)
 
-        return embeddings, kg_embeddings
+        return embeddings, kg_embeddings.double()
 
 
 class BertImageEmbeddings(nn.Module):
