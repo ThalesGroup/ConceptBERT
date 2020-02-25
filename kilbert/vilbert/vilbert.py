@@ -1441,58 +1441,59 @@ class BertPreTrainedModel(nn.Module):
             
         # print("EXISTING WEIGHTS: ", existing_weights.keys())
 
-        missing_keys_copy = deepcopy(missing_keys)
+        # missing_keys_copy = deepcopy(missing_keys)
         
-        for custom_key in missing_keys_copy:
-            module_words = custom_key.split(".")
-            module_name = module_words[-2]
-            if module_name[-3:] == "_kb":
-                module_words[-2] = module_name[:-3]
-                existing_weight_name = ""
-                for word in module_words[:-1]:
-                    existing_weight_name += word + "."
-                    """
-                    try:
-                        int_word = int(word)
-                        # existing_weight_name = existing_weight_name[:-1]
-                        # existing_weight_name += "[" + word + "]."
-                    except:
-                        existing_weight_name += word + "."
-                    """
-                existing_weight_name = existing_weight_name[:-1]
-                
-                import functools
-                def rsetattr(obj, attr, val):
-                    pre, _, post = attr.rpartition(".")   
-                    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
-                    
-                def rgetattr(obj, attr, *args):
-                    def _getattr(obj, attr):
-                        return getattr(obj, attr, *args)
-                    return functools.reduce(_getattr, [obj] + attr.split("."))
-                    
-                
-                # common_weight = existing_weights[existing_weight_name]
-                # print("INITIAL WEIGHTS: ", existing_weights[existing_weight_name].shape)
-                
-                if module_words[-1] == "weight":
-                    weight_name = existing_weight_name + ".weight"
-                    common_weight = rgetattr(model, str(weight_name))
-                    # print("STATE_DICT: ", state_dict[weight_name])
-                    # common_weight = state_dict[weight_name]["weight"]
-                    # print("Common weight: ", common_weight.shape)
-                    rsetattr(model, str(custom_key), common_weight)     
-                          
-                elif module_words[-1] == "bias":
-                    bias_name = existing_weight_name + ".bias"
-                    common_bias = rgetattr(model, str(bias_name))
-                    # bias_name = existing_weight_name + ".bias"
-                    # common_bias = state_dict[bias_name]["bias"]
-                    # print("Common bias: ", common_bias.shape)
-                    rsetattr(model, str(custom_key), common_bias)
-                
-                missing_keys.remove(custom_key)
-        
+
+        # for custom_key in missing_keys_copy:
+        #     module_words = custom_key.split(".")
+        #     module_name = module_words[-2]
+        #     if module_name[-3:] == "_kb":
+        #         module_words[-2] = module_name[:-3]
+        #         existing_weight_name = ""
+        #         for word in module_words[:-1]:
+        #             existing_weight_name += word + "."
+        #             """
+        #             try:
+        #                 int_word = int(word)
+        #                 # existing_weight_name = existing_weight_name[:-1]
+        #                 # existing_weight_name += "[" + word + "]."
+        #             except:
+        #                 existing_weight_name += word + "."
+        #             """
+        #         existing_weight_name = existing_weight_name[:-1]
+        #         
+        #         import functools
+        #         def rsetattr(obj, attr, val):
+        #             pre, _, post = attr.rpartition(".")   
+        #             return setattr(rgetattr(obj, pre) if pre else obj, post, val)
+        #             
+        #         def rgetattr(obj, attr, *args):
+        #             def _getattr(obj, attr):
+        #                 return getattr(obj, attr, *args)
+        #             return functools.reduce(_getattr, [obj] + attr.split("."))
+        #             
+        #         
+        #         # common_weight = existing_weights[existing_weight_name]
+        #         # print("INITIAL WEIGHTS: ", existing_weights[existing_weight_name].shape)
+        #         
+        #         if module_words[-1] == "weight":
+        #             weight_name = existing_weight_name + ".weight"
+        #             common_weight = rgetattr(model, str(weight_name))
+        #             # print("STATE_DICT: ", state_dict[weight_name])
+        #             # common_weight = state_dict[weight_name]["weight"]
+        #             # print("Common weight: ", common_weight.shape)
+        #             rsetattr(model, str(custom_key), common_weight)     
+        #                   
+        #         elif module_words[-1] == "bias":
+        #             bias_name = existing_weight_name + ".bias"
+        #             common_bias = rgetattr(model, str(bias_name))
+        #             # bias_name = existing_weight_name + ".bias"
+        #             # common_bias = state_dict[bias_name]["bias"]
+        #             # print("Common bias: ", common_bias.shape)
+        #             rsetattr(model, str(custom_key), common_bias)
+        #         
+        #         missing_keys.remove(custom_key)
+        # 
         ####### END ADDED PART #######
 
         if len(missing_keys) > 0 and default_gpu:
