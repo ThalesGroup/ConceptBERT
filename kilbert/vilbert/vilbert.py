@@ -335,7 +335,7 @@ class BertEmbeddings(nn.Module):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
         # Initiate the ConceptNet embeddings
-        self.conceptnet_embedding = ConceptNetEmbedding(split)
+        self.conceptnet_embedding = ConceptNetEmbedding(config, split)
         self.LayerNorm_kb = BertLayerNorm(config.hidden_size, eps=1e-12)
         self.dropout_kb = nn.Dropout(config.hidden_dropout_prob)
 
@@ -1084,7 +1084,6 @@ class CustomBertEncoder(nn.Module):
             all_attention_mask_t.append(txt_attention_probs)
             
         return all_encoder_layers_t, all_attention_mask_t
-        
 
 class BertTextPooler(nn.Module):
     def __init__(self, config):
