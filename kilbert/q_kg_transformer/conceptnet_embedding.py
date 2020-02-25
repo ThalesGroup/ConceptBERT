@@ -102,7 +102,6 @@ class ConceptNetEmbedding:
                         word = word[2:]
                     word_kg_emb = self.get_node_embedding_tensor(word)
                 except:
-                    print("Couldn't find node embedding...")
                     word_kg_emb = torch.zeros(self.dim_word).double()
 
                 """
