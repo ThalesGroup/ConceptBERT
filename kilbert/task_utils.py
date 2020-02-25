@@ -372,6 +372,7 @@ def EvaluatingModel(
     task_losses,
     results,
     others,
+    dataset,
 ):
     batch = tuple(t.cuda(device=device, non_blocking=True) for t in batch)
     (
@@ -433,4 +434,61 @@ def EvaluatingModel(
                     ],
                 }
             )
+
+    import sys
+    from vqa_helper import VQA
+    from vqaEval import VQAEval
+    import json
+    import random
+    import os
+
+    taskType = "OpenEnded"
+    dataType = "mscoco"
+    dataSubType = "val2014"
+    if dataset == "vqa":
+        data_dir = "/nas-data/vilbert/data2/VQA/"
+        annFile = "%s/v2_%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
+        quesFile = "%s/v2_%s_%s_%s_questions.json" % (
+            data_dir,
+            taskType,
+            dataType,
+            dataSubType,
+        )
+    elif dataset == "ok_vqa":
+        data_dir = "/nas-data/vilbert/data2/OK-VQA/"
+        annFile = "%s/%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
+        quesFile = "%s/%s_%s_%s_questions.json" % (
+            data_dir,
+            taskType,
+            dataType,
+            dataSubType,
+        )
+    fileTypes = ["results", "accuracy", "evalQA", "evalQuesType", "evalAnsType"]
+    # embedding = "nb"
+
+    [resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = [
+        "%s/%s.json" % (data_dir, fileType) for fileType in fileTypes
+    ]
+    # create vqa object and vqaRes object
+    vqa = VQA(annFile, quesFile)
+    vqaRes = vqa.loadRes(resFile, quesFile)
+
+    # create vqaEval object by taking vqa and vqaRes
+    vqaEval = VQAEval(
+        vqa, vqaRes, n=2
+    )  # n is precision of accuracy (number of places after decimal), default is 2
+
+    # evaluate results
+    """
+    If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
+    By default it uses all the question ids in annotation file
+    """
+    vqaEval.evaluate()
+
+    # save evaluation results to ./Results folder
+    json.dump(vqaEval.accuracy, open(accuracyFile, "w"))
+    json.dump(vqaEval.evalQA, open(evalQAFile, "w"))
+    json.dump(vqaEval.evalQuesType, open(evalQuesTypeFile, "w"))
+    json.dump(vqaEval.evalAnsType, open(evalAnsTypeFile, "w"))
+
     return float(loss), float(batch_score), batch_size, results, others
