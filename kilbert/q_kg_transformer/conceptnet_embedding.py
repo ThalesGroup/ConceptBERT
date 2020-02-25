@@ -3,17 +3,30 @@
 from termcolor import colored
 
 import torch
+import torch.nn as nn
 
 # Custom libraries
 from q_kg_transformer.utils import load_embeddings, get_txt_questions
 
 ### CLASS DEFINITION ###
+class KnowledgePooler(nn.Module):
+    def __init__(self, config):
+        super(KnowledgePooler, self).__init__()
+        self.dense = nn.Linear(200, 1024)
+        self.activation = nn.ReLU()
+
+    def forward(self, hidden_states):
+        pooled_output = self.dense(hidden_states)
+        pooled_output = self.activation(pooled_output)
+        return pooled_output
+
+
 class ConceptNetEmbedding:
     """
 
     """
 
-    def __init__(self, split=None):
+    def __init__(self, config, split=None):
         # Loading the word embeddings
         self.dict_embedding = load_embeddings()
         self.dim_word = len(self.dict_embedding["the"])
@@ -22,6 +35,14 @@ class ConceptNetEmbedding:
         if split != None:
             print(colored("Loading question texts...", "yellow"))
             self.token_dictionary = get_txt_questions(split)
+
+        self.model_version = config.model_version
+
+        # Pooler to return a 1024-D embedding
+        if self.model_version == 1:
+            self.cn_pooler = KnowledgePooler(1024)
+        elif self.model_version == 2:
+            self.cn_pooler = KnowledgePooler(768)
 
     def test_has_embedding(self, node):
         """
@@ -48,10 +69,19 @@ class ConceptNetEmbedding:
         """
             Given a node (word), returns the node embedding in a tensor
         """
-        try:
-            return torch.from_numpy(self.dict_embedding[word])
-        except:
-            return torch.zeros(self.dim_word).double()
+        if self.model_version == 1:
+            try:
+                conceptnet_emb = torch.from_numpy(self.dict_embedding[word])
+                return self.cn_pooler(conceptnet_emb)
+            except:
+                return torch.zeros(1024).double()
+
+        elif self.model_version == 2 or self.model_version == 3:
+            try:
+                conceptnet_emb = torch.from_numpy(self.dict_embedding[word])
+                return self.cn_pooler(conceptnet_emb)
+            except:
+                return torch.zeros(768).double()
 
     def get_kg_embedding_tokens_from_bert(self, input_ids, dim1, dim2):
         """
@@ -71,16 +101,20 @@ class ConceptNetEmbedding:
                     word_kg_emb = self.get_node_embedding_tensor(word)
                 except:
                     word_kg_emb = torch.zeros(self.dim_word).double()
-
+            """
                 target_emb = torch.zeros((dim2))
                 target_emb[: word_kg_emb.size(0)] = word_kg_emb
                 question_embedding.append(word_kg_emb)
+            """
 
             question_kg_emb = torch.stack(question_embedding)
+            """
             target_kg = torch.zeros((dim1, dim2))
             target_kg[
                 : question_kg_emb.size(0), : question_kg_emb.size(1)
             ] = question_kg_emb
-            kg_embedding.append(target_kg)
+            """
+            # kg_embedding.append(target_kg)
+            kg_embedding.append(question_kg_emb)
 
         return torch.stack(kg_embedding)
