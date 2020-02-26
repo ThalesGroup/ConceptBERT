@@ -341,9 +341,13 @@ class QuestionPooler(nn.Module):
         self.activation = nn.ReLU()
 
     def forward(self, hidden_states):
+        print("Shape hidden_states: ", hidden_states.shape)
         pooled_output = self.dense1(hidden_states)
+        print("After dense1: ", pooled_output.shape)
         pooled_output = self.dense2(hidden_states.transpose(2, 1))
+        print("After dense2: ", pooled_output.shape)
         pooled_output = self.activation(pooled_output.transpose(2, 1))
+        print("After activation: ", pooled_output.shape)
         return torch.squeeze(pooled_output)
 
 
