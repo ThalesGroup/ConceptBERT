@@ -307,8 +307,8 @@ class Kilbert(nn.Module):
         """
         if self.model_version == 1:
             print("Dimension pooled_output_t: ", pooled_output_t.shape)
-            print("Dimension pooled_output_t_bis: ", pooled_output_t_bis)
-            print("Dimension pooled_output_v: ", pooled_output_v)
+            print("Dimension pooled_output_t_bis: ", pooled_output_t_bis.shape)
+            print("Dimension pooled_output_v: ", pooled_output_v.shape)
 
         if self.model_version == 2:
             print("Dimension pooled_output_t: ", pooled_output_t.shape)
