@@ -74,6 +74,9 @@ def main():
         "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
     )
     parser.add_argument(
+        "--kilbert_path", type=str, help="Path to the pretrained Kilbert model",
+    )
+    parser.add_argument(
         "--output_dir",
         default="results",
         type=str,
@@ -225,6 +228,7 @@ def main():
         default_gpu=default_gpu,
     )
     """
+    """
     model = Kilbert(
         args.from_pretrained,
         args.model_version,
@@ -234,6 +238,17 @@ def main():
         split="val",
         default_gpu=default_gpu,
     )
+    """
+    model = Kilbert(
+        args.from_pretrained,
+        args.model_version,
+        config,
+        num_labels,
+        args.tasks,
+        split="val",
+        default_gpu=default_gpu,
+    )
+    model.load_state_dict(torch.load(args.kilbert_path))
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
