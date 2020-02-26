@@ -342,8 +342,8 @@ class QuestionPooler(nn.Module):
 
     def forward(self, hidden_states):
         pooled_output = self.dense1(hidden_states)
-        pooled_output = self.dense2(hidden_states)
-        pooled_output = self.activation(pooled_output)
+        pooled_output = self.dense2(hidden_states.transpose(2, 1))
+        pooled_output = self.activation(pooled_output.transpose(2, 1))
         return torch.squeeze(pooled_output)
 
 
