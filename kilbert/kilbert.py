@@ -336,13 +336,15 @@ class Kilbert(nn.Module):
 class QuestionPooler(nn.Module):
     def __init__(self, config):
         super(QuestionPooler, self).__init__()
-        self.dense = nn.Linear(config.hidden_size, config.bi_hidden_size)
+        self.dense1 = nn.Linear(config.hidden_size, config.bi_hidden_size)
+        self.dense2 = nn.Linear(16, 1)
         self.activation = nn.ReLU()
 
     def forward(self, hidden_states):
-        pooled_output = self.dense(hidden_states)
+        pooled_output = self.dense1(hidden_states)
+        pooled_output = self.dense2(hidden_states)
         pooled_output = self.activation(pooled_output)
-        return pooled_output
+        return torch.squeeze(pooled_output)
 
 
 class FCNet(nn.Module):
