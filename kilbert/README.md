@@ -52,3 +52,7 @@ python -m torch.distributed.launch --nproc_per_node=8 --nnodes=1 --node_rank=0 t
 
 
 ## Evaluation
+
+cd PythonEvaluationTools
+
+python  vqaEval_okvqa.py #edit the path in the script to "val_result.json"
