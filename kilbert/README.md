@@ -8,47 +8,24 @@ This repository is based on and inspired by [Facebook research](https://github.c
 
 ## Data
 
-Check `README.md` under `data` for more details.  Check  `vlbert_tasks.yml` for more details. 
+Our implementation uses the pretrained features from bottom-up-attention, 100 fixed features per image and the GloVe vectors. The data has been saved in NAS folder: human-ai-dialog/vilbert/data2
+The data folder and pretrained_models folder are organized as shown below:
 
 
-## Pre-trained model for Evaluation
+The pretrained models are saved in NAS folder: human-ai-dialog/vilbert/outputs/
 
-| Model | Objective | Link |
-|:-------:|:------:|:------:|
-|ViLBERT 2-Layer| Conceptual Caption |[Google Drive]()|
-|ViLBERT 4-Layer| Conceptual Caption |[Google Drive]()|
-|ViLBERT 6-Layer| Conceptual Caption |[Google Drive](https://drive.google.com/drive/folders/1Re0L75uazH3Qrep_aRgtaVelDEz4HV9c?usp=sharing)|
-|ViLBERT 8-Layer| Conceptual Caption |[Google Drive]()|
-|ViLBERT 6-Layer| VQA |[Google Drive](https://drive.google.com/drive/folders/1nrcVww0u_vozcFRQVr58-YH5LOU1ZiWT?usp=sharing)|
-|ViLBERT 6-Layer| VCR |[Google Drive](https://drive.google.com/drive/folders/1QJuMzBarTKU_hAWDSZm60rWiDnbAVEVZ?usp=sharing)|
-|ViLBERT 6-Layer| RefCOCO+ |[Google Drive](https://drive.google.com/drive/folders/1GWY2fEbZCYHkcnxd0oysU0olfPdzcD3l?usp=sharing)|
-|ViLBERT 6-Layer| Image Retrieval |[Google Drive](https://drive.google.com/drive/folders/18zUTF3ZyOEuOT1z1aykwtIkBUhfROmJo?usp=sharing)|
+
 
 ## Training and Validation
 
+1: First we use VQA dataset to train a baseline model. Use the following job template: vilbert-job-train-model3_vqa_MZ.tpl  
 
+2: Then we use OK-VQA dataset and the trained model from step 1 to train a model. Use the following job template: vilbert-job-train-model3_okvqa_MZ.tpl
 
+3: To validate on held out validation split, we use the model trained in step 2 using following job template: vilbert-job-eval-model3_okvqa_MZ.tpl
 
-### VQA
-
-1: Download the pretrained model with objective `VQA` and put it under `save`
-
-2: To test on held out validation split, use the following command: 
-
-```
-python eval_tasks.py --bert_model bert-base-uncased --from_pretrained save/VQA_bert_base_6layer_6conect-pretrained/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --task 0 --split minval
-```
-
-
-
-
-### VQA 
-
-To fintune a 6-layer ViLBERT model for VQA with 8 GPU. `--tasks 0` means VQA tasks. Check `vlbert_tasks.yml` for more settings for VQA tasks.  
-
-```bash
-python -m torch.distributed.launch --nproc_per_node=8 --nnodes=1 --node_rank=0 train_tasks.py --bert_model bert-base-uncased --from_pretrained save/bert_base_6_layer_6_connect_freeze_0/pytorch_model_8.bin  --config_file config/bert_base_6layer_6conect.json  --learning_rate 4e-5 --num_workers 16 --tasks 0 --save_name pretrained
-```
+Note: In the job templates, `--tasks 0` means VQA dataset and `--tasks 42` means OK-VQA dataset
+Note: The validation step 3 generates a json file ("val_result.json") that will be used in the evaluation.
 
 
 ## Evaluation
