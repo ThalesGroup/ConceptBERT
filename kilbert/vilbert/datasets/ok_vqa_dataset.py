@@ -1,20 +1,31 @@
+### LIBRARIES ###
+# Global libraries
 import os
 import json
 import _pickle as cPickle
 import logging
+import pdb
 
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 
+# Custom libraries
 from ._image_features_reader import ImageFeaturesH5Reader
-import pdb
+from .compute_softscore import create_dataset_cache
+
+### VARIABLE DEFINITIONS ###
+
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
+### FUNCTION DEFINITIONS ###
+
+
 def assert_eq(real, expected):
     assert real == expected, "%s (true) vs %s (expected)" % (real, expected)
+
 
 def _create_entry(question, answer):
     answer.pop("image_id")
@@ -27,40 +38,55 @@ def _create_entry(question, answer):
     }
     return entry
 
+
 def _load_dataset(dataroot, name):
     """Load entries
 
     dataroot: root path of dataset
     name: 'train', 'val', 'trainval', 'minsval'
     """
-    if name == 'train' or name == 'val':
-        question_path = os.path.join(dataroot, "OpenEnded_mscoco_%s2014_questions.json" % name)
-        questions = sorted(json.load(open(question_path))["questions"], key=lambda x: x["question_id"])
+    if name == "train" or name == "val":
+        question_path = os.path.join(
+            dataroot, "OpenEnded_mscoco_%s2014_questions.json" % name
+        )
+        questions = sorted(
+            json.load(open(question_path))["questions"], key=lambda x: x["question_id"]
+        )
         answer_path = os.path.join(dataroot, "cache", "%s_target.pkl" % name)
         answers = cPickle.load(open(answer_path, "rb"))
         answers = sorted(answers, key=lambda x: x["question_id"])
 
-    elif name  == 'trainval':
-        question_path_train = os.path.join(dataroot, "OpenEnded_mscoco_%s2014_questions.json" % 'train')
-        questions_train = sorted(json.load(open(question_path_train))["questions"], key=lambda x: x["question_id"])
-        answer_path_train = os.path.join(dataroot, "cache", "%s_target.pkl" % 'train')
+    elif name == "trainval":
+        question_path_train = os.path.join(
+            dataroot, "OpenEnded_mscoco_%s2014_questions.json" % "train"
+        )
+        questions_train = sorted(
+            json.load(open(question_path_train))["questions"],
+            key=lambda x: x["question_id"],
+        )
+        answer_path_train = os.path.join(dataroot, "cache", "%s_target.pkl" % "train")
         answers_train = cPickle.load(open(answer_path_train, "rb"))
         answers_train = sorted(answers_train, key=lambda x: x["question_id"])
 
-        question_path_val = os.path.join(dataroot, "OpenEnded_mscoco_%s2014_questions.json" % 'val')
-        questions_val = sorted(json.load(open(question_path_val))["questions"], key=lambda x: x["question_id"])
-        answer_path_val = os.path.join(dataroot, "cache", "%s_target.pkl" % 'val')
+        question_path_val = os.path.join(
+            dataroot, "OpenEnded_mscoco_%s2014_questions.json" % "val"
+        )
+        questions_val = sorted(
+            json.load(open(question_path_val))["questions"],
+            key=lambda x: x["question_id"],
+        )
+        answer_path_val = os.path.join(dataroot, "cache", "%s_target.pkl" % "val")
         answers_val = cPickle.load(open(answer_path_val, "rb"))
         answers_val = sorted(answers_val, key=lambda x: x["question_id"])
         # questions = questions_train + questions_val[:-3000]
         questions = questions_train + questions_val
         # answers = answers_train + answers_val[:-3000]
         answers = answers_train + answers_val
-        
+
     else:
         assert False, "data split is not recognized."
 
-    if 'test' in name:
+    if "test" in name:
         entries = []
         for question in questions:
             entries.append(question)
@@ -72,6 +98,7 @@ def _load_dataset(dataroot, name):
             assert_eq(question["image_id"], answer["image_id"])
             entries.append(_create_entry(question, answer))
     return entries
+
 
 class OKVQAClassificationDataset(Dataset):
     def __init__(
@@ -89,6 +116,12 @@ class OKVQAClassificationDataset(Dataset):
     ):
         super().__init__()
         self.split = split
+        if not os.path.exists(
+            os.path.join(dataroot, "cache", "trainval_ans2label.pkl")
+        ) or not os.path.exists(
+            os.path.join(dataroot, "cache", "trainval_label2ans.pkl")
+        ):
+            create_dataset_cache(task)
         ans2label_path = os.path.join(dataroot, "cache", "trainval_ans2label.pkl")
         label2ans_path = os.path.join(dataroot, "cache", "trainval_label2ans.pkl")
         self.ans2label = cPickle.load(open(ans2label_path, "rb"))
@@ -99,18 +132,20 @@ class OKVQAClassificationDataset(Dataset):
         self._image_features_reader = image_features_reader
         self._tokenizer = tokenizer
         self._padding_index = padding_index
-        
+
         if not os.path.exists(os.path.join(dataroot, "cache")):
             os.makedirs(os.path.join(dataroot, "cache"))
 
-        cache_path = os.path.join(dataroot, "cache", task + '_' + split + '_' + str(max_seq_length)+'.pkl')
+        cache_path = os.path.join(
+            dataroot, "cache", task + "_" + split + "_" + str(max_seq_length) + ".pkl"
+        )
         if not os.path.exists(cache_path):
             self.entries = _load_dataset(dataroot, split)
             self.tokenize(max_seq_length)
             self.tensorize()
-            cPickle.dump(self.entries, open(cache_path, 'wb'))
+            cPickle.dump(self.entries, open(cache_path, "wb"))
         else:
-            logger.info("Loading from %s" %cache_path)
+            logger.info("Loading from %s" % cache_path)
             self.entries = cPickle.load(open(cache_path, "rb"))
 
     def tokenize(self, max_length=16):
@@ -127,7 +162,7 @@ class OKVQAClassificationDataset(Dataset):
                 self._tokenizer.vocab.get(w, self._tokenizer.vocab["[UNK]"])
                 for w in tokens
             ]
-            
+
             tokens = tokens[:max_length]
             segment_ids = [0] * len(tokens)
             input_mask = [1] * len(tokens)
@@ -156,7 +191,7 @@ class OKVQAClassificationDataset(Dataset):
             q_segment_ids = torch.from_numpy(np.array(entry["q_segment_ids"]))
             entry["q_segment_ids"] = q_segment_ids
 
-            if 'test' not in self.split:
+            if "test" not in self.split:
                 answer = entry["answer"]
                 labels = np.array(answer["labels"])
                 scores = np.array(answer["scores"], dtype=np.float32)
@@ -188,7 +223,7 @@ class OKVQAClassificationDataset(Dataset):
         # img_idx.append(0)
         # mix_boxes_pad[:mix_num_boxes] = boxes[img_idx]
         # mix_features_pad[:mix_num_boxes] = features[img_idx]
-        
+
         mix_boxes_pad[:mix_num_boxes] = boxes[:mix_num_boxes]
         mix_features_pad[:mix_num_boxes] = features[:mix_num_boxes]
 
@@ -210,7 +245,17 @@ class OKVQAClassificationDataset(Dataset):
             if labels is not None:
                 target.scatter_(0, labels, scores)
 
-        return features, spatials, image_mask, question, target, input_mask, segment_ids, co_attention_mask, question_id
+        return (
+            features,
+            spatials,
+            image_mask,
+            question,
+            target,
+            input_mask,
+            segment_ids,
+            co_attention_mask,
+            question_id,
+        )
 
     def __len__(self):
         return len(self.entries)

@@ -13,14 +13,23 @@ class SimpleQuestionAddition(nn.Module):
     """
 
     def __init__(self, config):
+        super(SimpleQuestionAddition, self).__init__()
         # self.output_dim = [
         #     config.batch_size,
         #     config.hidden_size,
         # ]
         print("TBD")
 
+    def forward(self, emb_vilbert, emb_transformer):
+        return emb_vilbert + emb_transformer
+
+    """
     def forward(self, emb_vilbert, att_vilbert, emb_transformer, att_transformer):
-        return emb_vilbert + emb_transformer, att_vilbert + att_transformer
+        return (
+            emb_vilbert + emb_transformer,
+            att_vilbert + att_transformer,
+        )
+    """
 
 
 class SimpleQuestionMultiplication(nn.Module):
@@ -30,6 +39,7 @@ class SimpleQuestionMultiplication(nn.Module):
     """
 
     def __init__(self, config):
+        super(SimpleQuestionMultiplication, self).__init__()
         # self.output_dim = [
         #     config.batch_size,
         #     config.hidden_size,
@@ -47,6 +57,7 @@ class SimpleQuestionConcatenation(nn.Module):
     """
 
     def __init__(self, config):
+        super(SimpleQuestionConcatenation, self).__init__()
         # self.output_dim = [
         #     config.batch_size,
         #     config.hidden_size,

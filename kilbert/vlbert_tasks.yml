@@ -5,9 +5,9 @@ TASK0:
   task_id: 1
   dataroot: /nas-data/vilbert/data2/VQA
   features_h5path1: /nas-data/vilbert/data2/coco/vilbert-job-0.1.dev10-g7158c0c.d20200127182633/coco_trainval_resnet101_faster_rcnn_genome.lmdb/
-  features_h5path2: ''
-  train_annotations_jsonpath: ''
-  val_annotations_jsonpath: ''
+  features_h5path2: ""
+  train_annotations_jsonpath: ""
+  val_annotations_jsonpath: ""
   max_seq_length: 16
   max_region_num: 100
   batch_size: 256
@@ -57,7 +57,7 @@ TASK3:
   task_id: 9
   dataroot: data/flickr30k
   features_h5path1: data/flickr30k/flickr30k_test_resnet101_faster_rcnn_genome.lmdb
-  features_h5path2: ''
+  features_h5path2: ""
   train_annotations_jsonpath: data/flickr30k/all_data_final_train_2014.jsonline
   val_annotations_jsonpath: data/flickr30k/all_data_final_test_set0_2014.jsonline
   max_seq_length: 30
@@ -75,8 +75,8 @@ TASK4:
   dataroot: data/referExpression
   features_h5path1: data/referExpression/refcoco+_resnet101_faster_rcnn_genome.lmdb
   features_h5path2: data/referExpression/refcoco+_gt_resnet101_faster_rcnn_genome.lmdb
-  train_annotations_jsonpath: ''
-  val_annotations_jsonpath: ''
+  train_annotations_jsonpath: ""
+  val_annotations_jsonpath: ""
   max_seq_length: 20
   max_region_num: 100
   batch_size: 256
@@ -92,9 +92,9 @@ TASK42:
   task_id: 1
   dataroot: /nas-data/vilbert/data2/OK-VQA
   features_h5path1: /nas-data/vilbert/data2/coco/vilbert-job-0.1.dev10-g7158c0c.d20200127182633/coco_trainval_resnet101_faster_rcnn_genome.lmdb/
-  features_h5path2: ''
-  train_annotations_jsonpath: ''
-  val_annotations_jsonpath: ''
+  features_h5path2: ""
+  train_annotations_jsonpath: ""
+  val_annotations_jsonpath: ""
   max_seq_length: 16
   max_region_num: 36
   batch_size: 1024
@@ -102,5 +102,4 @@ TASK42:
   train_split: train
   val_split: val
   lr: 0.000044
-  num_epoch: 200
-
+  num_epoch: 100

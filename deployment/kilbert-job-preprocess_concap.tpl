@@ -22,13 +22,13 @@ spec:
         - name: nas-data-volume
           mountPath: /nas-data
       containers:
-      - name: vilbert-pod
+      - name: kilbert-pod
         image: "collaborative-docker-registry.collaborative.local:5100/IMAGE_NAME_PLACEHOLDER"
         resources:
           limits:
-            nvidia.com/gpu: 8
+            nvidia.com/gpu: 1
         command: ["/bin/sh","-c"]
-        args: ["cd kilbert && python3 -u eval_tasks.py --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save/OK-VQA_bert_base_6layer_6conect-test_cn-bertadam_manual/pytorch_model_95.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/data2/save --num_workers 16 --tasks 42 --split=val"]
+        args: ["cd kilbert/diverse/script && python3 -u conceptual_caption_preprocess_sequential_train.py"]
         volumeMounts:
           - name: nas-data-volume
             mountPath: /nas-data
@@ -36,7 +36,7 @@ spec:
             mountPath: /dev/shm
         env:
         - name: CUDA_VISIBLE_DEVICES
-          value: "0,1,2,3,4,5,6,7"
+          value: "0"
       restartPolicy: Never    
       volumes:
       # DSHM to raise Shared memory

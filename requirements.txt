@@ -16,3 +16,8 @@ python-prctl
 msgpack
 msgpack-numpy
 gensim
+
+# For Conceptual Caption download
+pandas
+python-magic
+requests

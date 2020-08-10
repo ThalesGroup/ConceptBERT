@@ -12,13 +12,19 @@ class SimpleConcatenation(nn.Module):
     """
 
     def __init__(self, config):
-        # self.output_dim =
-        print("TBD")
+        super(SimpleConcatenation, self).__init__()
 
     def forward(
-        self, question_emb, question_att, image_emb, image_att, knowledge_graph_emb
+        # self, question_emb, question_att, image_emb, image_att, knowledge_graph_emb
+        self,
+        question_emb,
+        image_emb,
+        knowledge_graph_emb,
     ):
         # TODO: Convert the conceptnet_graph to a vector that can be concatenated
         return torch.cat(
-            [question_emb, question_att, image_emb, image_att, knowledge_graph_emb]
+            # [question_emb, question_att, image_emb, image_att, knowledge_graph_emb]
+            [question_emb, image_emb, knowledge_graph_emb],
+            dim=1,
         )
+

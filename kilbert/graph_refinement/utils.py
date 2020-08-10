@@ -244,6 +244,10 @@ def write_weight_edges():
                 "updated": bool,
             }
         }
+        # TODO: Switch to this structure instead:
+        weight_edges = {
+            "[0, 1]": weight(float)
+        }
     """
     """
         Given the nodes and the edges, computes the weights of each edge
@@ -290,3 +294,41 @@ def write_weight_edges():
     ) as json_file:
         json.dump(weight_edges, json_file)
         print(colored("`cn_weight_edges.json` saved", "green"))
+
+
+def sort_initial_weight_edges_list():
+    """
+        Given the weights of the edges of a graph, sort the edges from the heaviest edge to the lightest one.
+        Save this list in a file to be loaded afterwards.
+    """
+    # Load the weights of the edges
+    with open(
+        "/nas-data/vilbert/data2/conceptnet/processed/cn_weight_edges.json", "r"
+    ) as json_file:
+        weight_edges = json.load(json_file)
+
+    list_idx_weights = []
+    index_edge = 0
+    for _, weight in weight_edges.items():
+        list_idx_weights.append([index_edge, weight["weight"]])
+        index_edge += 1
+
+    print("Beginning sorting the list...")
+    sorted_list_idx = sorted(
+        range(len(list_idx_weights)), key=lambda i: list_idx_weights[i][1], reverse=True
+    )
+
+    # Add the weights in the file and normalize them
+    max_weight = list_idx_weights[sorted_list_idx[0]][1]
+    sorted_list_idx_weight = []
+    for index in sorted_list_idx:
+        sorted_list_idx_weight.append(
+            [index, float(list_idx_weights[index][1]) / max_weight]
+        )
+
+    # Save in the file
+    with open(
+        "/nas-data/vilbert/data2/conceptnet/processed/cn_ordered_weights_list.json", "w"
+    ) as json_file:
+        json.dump(sorted_list_idx_weight, json_file)
+        print(colored("`cn_ordered_weights_list.json` saved", "green"))

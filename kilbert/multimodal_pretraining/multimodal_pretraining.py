@@ -6,7 +6,11 @@ from torch.nn import CrossEntropyLoss
 import torch.nn.functional as F
 
 # Custom libraries
-from bert_classes import BertPreTrainedModel, BertModel, BertPreTrainingHeads
+from multimodal_pretraining.bert_classes import (
+    BertPreTrainedModel,
+    BertModel,
+    BertPreTrainingHeads,
+)
 
 ### CLASS DEFINITION ###
 class BertForMultiModalPreTraining(BertPreTrainedModel):

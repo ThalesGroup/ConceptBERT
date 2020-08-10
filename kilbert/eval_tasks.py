@@ -33,6 +33,8 @@ from task_utils import (
     EvaluatingModel,
 )
 import utils as utils
+from vqa_helper import VQA
+from vqaEval import VQAEval
 
 ### LOGGER CONFIGURATION ###
 
@@ -49,6 +51,14 @@ logger = logging.getLogger(__name__)
 def main():
 
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--model_version",
+        default=3,
+        type=int,
+        help="Which version of the model you want to use",
+    )
+
     parser.add_argument(
         "--bert_model",
         default="bert-base-uncased",
@@ -62,6 +72,9 @@ def main():
         type=str,
         help="Bert pre-trained model selected in the list: bert-base-uncased, "
         "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
+    )
+    parser.add_argument(
+        "--kilbert_path", type=str, help="Path to the pretrained Kilbert model",
     )
     parser.add_argument(
         "--output_dir",
@@ -138,7 +151,7 @@ def main():
     torch.manual_seed(args.seed)
 
     # Load main module
-    from kilbert_config import BertConfig
+    from bert_pretrained_model import BertConfig
     from kilbert import Kilbert
 
     task_names = []
@@ -206,6 +219,7 @@ def main():
 
     num_labels = max([dataset.num_labels for dataset in task_datasets_val.values()])
 
+    """
     model = Kilbert.from_pretrained(
         args.from_pretrained,
         config,
@@ -213,6 +227,28 @@ def main():
         num_labels=num_labels,
         default_gpu=default_gpu,
     )
+    """
+    """
+    model = Kilbert(
+        args.from_pretrained,
+        args.model_version,
+        config,
+        num_labels,
+        args.tasks,
+        split="val",
+        default_gpu=default_gpu,
+    )
+    """
+    model = Kilbert(
+        args.from_pretrained,
+        args.model_version,
+        config,
+        num_labels,
+        args.tasks,
+        split="val",
+        default_gpu=default_gpu,
+    )
+    model.load_state_dict(torch.load(args.kilbert_path))
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
@@ -233,6 +269,11 @@ def main():
     print("  Num Iters: ", task_num_iters)
     print("  Batch size: ", task_batch_size)
 
+    if args.tasks == "0":
+        dataset = "vqa"
+    elif args.tasks == "42":
+        dataset = "ok_vqa"
+
     model.eval()
     for task_id in task_ids:
         results = []
@@ -249,6 +290,7 @@ def main():
                 task_losses,
                 results,
                 others,
+                dataset,
             )
 
             tbLogger.step_val(0, float(loss), float(score), task_id, batch_size, "val")
@@ -265,6 +307,56 @@ def main():
 
         json.dump(results, open(json_path + "_result.json", "w"))
         json.dump(others, open(json_path + "_others.json", "w"))
+
+        taskType = "OpenEnded"
+        dataType = "mscoco"
+        dataSubType = "val2014"
+        if dataset == "vqa":
+            data_dir = "/nas-data/vilbert/data2/VQA"
+            annFile = "%s/v2_%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
+            quesFile = "%s/v2_%s_%s_%s_questions.json" % (
+                data_dir,
+                taskType,
+                dataType,
+                dataSubType,
+            )
+        elif dataset == "ok_vqa":
+            data_dir = "/nas-data/vilbert/data2/OK-VQA"
+            annFile = "%s/%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
+            quesFile = "%s/%s_%s_%s_questions.json" % (
+                data_dir,
+                taskType,
+                dataType,
+                dataSubType,
+            )
+        fileTypes = ["results", "accuracy", "evalQA", "evalQuesType", "evalAnsType"]
+        # embedding = "nb"
+
+        [resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = [
+            "%s/%s.json" % (data_dir, fileType) for fileType in fileTypes
+        ]
+        # create vqa object and vqaRes object
+        vqa = VQA(annFile, quesFile)
+        # vqaRes = vqa.loadRes(resFile, quesFile)
+        vqaRes = vqa.loadRes(results, quesFile)
+
+        # create vqaEval object by taking vqa and vqaRes
+        vqaEval = VQAEval(
+            vqa, vqaRes, n=2
+        )  # n is precision of accuracy (number of places after decimal), default is 2
+
+        # evaluate results
+        """
+        If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
+        By default it uses all the question ids in annotation file
+        """
+        vqaEval.evaluate()
+
+        # save evaluation results to ./Results folder
+        json.dump(vqaEval.accuracy, open(accuracyFile, "w"))
+        json.dump(vqaEval.evalQA, open(evalQAFile, "w"))
+        json.dump(vqaEval.evalQuesType, open(evalQuesTypeFile, "w"))
+        json.dump(vqaEval.evalAnsType, open(evalAnsTypeFile, "w"))
 
 
 if __name__ == "__main__":

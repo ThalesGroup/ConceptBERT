@@ -1,3 +1,5 @@
+### LIBRARIES ###
+# Global libraries
 import copy
 import json
 import logging
@@ -15,6 +17,8 @@ import torch.distributed as dist
 import sys
 import pdb
 
+### LOGGER CONFIGURATION ###
+
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
     datefmt="%m/%d/%Y %H:%M:%S",
@@ -22,12 +26,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+### CLASS DEFINITIONS ###
+
 
 class InputExample(object):
     """A single training/test example for the language model."""
 
     def __init__(
-        self, image_feat=None, image_target=None, caption=None, is_next=None, lm_labels=None, image_loc=None, num_boxes=None
+        self,
+        image_feat=None,
+        image_target=None,
+        caption=None,
+        is_next=None,
+        lm_labels=None,
+        image_loc=None,
+        num_boxes=None,
     ):
         """Constructs a InputExample.
         Args:
@@ -47,6 +60,7 @@ class InputExample(object):
         self.image_target = image_target
         self.num_boxes = num_boxes
 
+
 class InputFeatures(object):
     """A single set of features of data."""
 
@@ -61,7 +75,7 @@ class InputFeatures(object):
         image_target=None,
         image_loc=None,
         image_label=None,
-        image_mask=None
+        image_mask=None,
     ):
         self.input_ids = input_ids
         self.input_mask = input_mask
@@ -73,6 +87,7 @@ class InputFeatures(object):
         self.image_label = image_label
         self.image_target = image_target
         self.image_mask = image_mask
+
 
 class ConceptCapLoaderTrain(object):
     """
@@ -119,15 +134,28 @@ class ConceptCapLoaderTrain(object):
             num_replicas = dist.get_world_size()
             # assert num_replicas == 8
             rank = dist.get_rank()
-            lmdb_file = "/coc/dataset/conceptual_caption/training_feat_part_" + str(rank) + ".lmdb"
+            # lmdb_file = (
+            #     "/coc/dataset/conceptual_caption/training_feat_part_"
+            #     + str(rank)
+            #     + ".lmdb"
+            # )
+            lmdb_file = (
+                "/nas-data/vilbert/data2/conceptual_captions/training_feat_part_"
+                + str(rank)
+                + ".lmdb"
+            )
             # if not os.path.exists(lmdb_file):
             # lmdb_file = "/srv/share/datasets/conceptual_caption/training_feat_part_" + str(rank) + ".lmdb"
         else:
             # lmdb_file = "/coc/dataset/conceptual_caption/training_feat_all.lmdb"
             # if not os.path.exists(lmdb_file):
-            lmdb_file = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/training_feat_all.lmdb"
-            
-        caption_path = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/caption_train.json"
+            # lmdb_file = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/training_feat_all.lmdb"
+            lmdb_file = (
+                "/nas-data/vilbert/data2/conceptual_captions/training_feat_all.lmdb"
+            )
+
+        # caption_path = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/caption_train.json"
+        caption_path = "/nas-data/vilbert/data2/conceptual_captions/caption_train.json"
         print("Loading from %s" % lmdb_file)
 
         ds = td.LMDBSerializer.load(lmdb_file, shuffle=False)
@@ -158,28 +186,59 @@ class ConceptCapLoaderTrain(object):
     def __iter__(self):
 
         for batch in self.ds.get_data():
-            input_ids, input_mask, segment_ids, lm_label_ids, is_next, image_feat, \
-            image_loc, image_target, image_label, image_mask, image_id = batch
+            (
+                input_ids,
+                input_mask,
+                segment_ids,
+                lm_label_ids,
+                is_next,
+                image_feat,
+                image_loc,
+                image_target,
+                image_label,
+                image_mask,
+                image_id,
+            ) = batch
 
             batch_size = input_ids.shape[0]
-            g_image_feat = np.sum(image_feat, axis=1) / np.sum(image_mask, axis=1, keepdims=True)
-            image_feat = np.concatenate([np.expand_dims(g_image_feat, axis=1), image_feat], axis=1)
+            g_image_feat = np.sum(image_feat, axis=1) / np.sum(
+                image_mask, axis=1, keepdims=True
+            )
+            image_feat = np.concatenate(
+                [np.expand_dims(g_image_feat, axis=1), image_feat], axis=1
+            )
             image_feat = np.array(image_feat, dtype=np.float32)
 
-            g_image_loc = np.repeat(np.array([[0,0,1,1,1]], dtype=np.float32), batch_size, axis=0)
-            image_loc = np.concatenate([np.expand_dims(g_image_loc, axis=1), image_loc], axis=1)
-            
+            g_image_loc = np.repeat(
+                np.array([[0, 0, 1, 1, 1]], dtype=np.float32), batch_size, axis=0
+            )
+            image_loc = np.concatenate(
+                [np.expand_dims(g_image_loc, axis=1), image_loc], axis=1
+            )
+
             image_loc = np.array(image_loc, dtype=np.float32)
             g_image_mask = np.repeat(np.array([[1]]), batch_size, axis=0)
             image_mask = np.concatenate([g_image_mask, image_mask], axis=1)
 
-            batch = (input_ids, input_mask, segment_ids, lm_label_ids, is_next, image_feat, \
-            image_loc, image_target, image_label, image_mask, image_id)
+            batch = (
+                input_ids,
+                input_mask,
+                segment_ids,
+                lm_label_ids,
+                is_next,
+                image_feat,
+                image_loc,
+                image_target,
+                image_label,
+                image_mask,
+                image_id,
+            )
 
             yield tuple(torch.tensor(data) for data in batch)
 
     def __len__(self):
         return self.ds.size()
+
 
 class ConceptCapLoaderVal(object):
     """
@@ -220,11 +279,18 @@ class ConceptCapLoaderVal(object):
         distributed=False,
         visualization=False,
     ):
-    
-        lmdb_file = "/coc/dataset/conceptual_caption/validation_feat_all.lmdb"
+
+        # lmdb_file = "/coc/dataset/conceptual_caption/validation_feat_all.lmdb"
+        lmdb_file = (
+            "/nas-data/vilbert/data2/conceptual_captions/validation_feat_all.lmdb"
+        )
         if not os.path.exists(lmdb_file):
-            lmdb_file = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/validation_feat_all.lmdb"
-        caption_path = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/caption_val.json"
+            # lmdb_file = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/validation_feat_all.lmdb"
+            lmdb_file = (
+                "/nas-data/vilbert/data2/conceptual_captions/validation_feat_all.lmdb"
+            )
+        # caption_path = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/caption_val.json"
+        caption_path = "/nas-data/vilbert/data2/conceptual_captions/caption_val.json"
 
         print("Loading from %s" % lmdb_file)
 
@@ -250,26 +316,54 @@ class ConceptCapLoaderVal(object):
 
     def __iter__(self):
         for batch in self.ds.get_data():
-            input_ids, input_mask, segment_ids, lm_label_ids, is_next, image_feat, \
-            image_loc, image_target, image_label, image_mask, image_id = batch
+            (
+                input_ids,
+                input_mask,
+                segment_ids,
+                lm_label_ids,
+                is_next,
+                image_feat,
+                image_loc,
+                image_target,
+                image_label,
+                image_mask,
+                image_id,
+            ) = batch
 
             batch_size = input_ids.shape[0]
-            g_image_feat = np.sum(image_feat, axis=1) / np.sum(image_mask, axis=1, keepdims=True)
-            image_feat = np.concatenate([np.expand_dims(g_image_feat, axis=1), image_feat], axis=1)
+            g_image_feat = np.sum(image_feat, axis=1) / np.sum(
+                image_mask, axis=1, keepdims=True
+            )
+            image_feat = np.concatenate(
+                [np.expand_dims(g_image_feat, axis=1), image_feat], axis=1
+            )
             image_feat = np.array(image_feat, dtype=np.float32)
 
-            g_image_loc = np.repeat(np.array([[0,0,1,1,1]], dtype=np.float32), batch_size, axis=0)
-            image_loc = np.concatenate([np.expand_dims(g_image_loc, axis=1), image_loc], axis=1)
-            
+            g_image_loc = np.repeat(
+                np.array([[0, 0, 1, 1, 1]], dtype=np.float32), batch_size, axis=0
+            )
+            image_loc = np.concatenate(
+                [np.expand_dims(g_image_loc, axis=1), image_loc], axis=1
+            )
+
             image_loc = np.array(image_loc, dtype=np.float32)
             g_image_mask = np.repeat(np.array([[1]]), batch_size, axis=0)
             image_mask = np.concatenate([g_image_mask, image_mask], axis=1)
 
             # batch = (input_ids, input_mask, segment_ids, lm_label_ids, is_next, image_feat, \
             # image_loc, image_target, image_label, image_mask, image_id)
-            batch = (input_ids, input_mask, segment_ids, lm_label_ids, is_next, image_feat, \
-                image_loc, image_target, image_label, image_mask)
-
+            batch = (
+                input_ids,
+                input_mask,
+                segment_ids,
+                lm_label_ids,
+                is_next,
+                image_feat,
+                image_loc,
+                image_target,
+                image_label,
+                image_mask,
+            )
 
             yield tuple([torch.tensor(data) for data in batch] + [image_id])
 
@@ -283,12 +377,12 @@ class BertPreprocessBatch(object):
         caption_path,
         tokenizer,
         seq_len,
-        region_len, 
+        region_len,
         data_size,
         split="Train",
         encoding="utf-8",
         predict_feature=False,
-        visualization=False
+        visualization=False,
     ):
 
         self.split = split
@@ -297,13 +391,22 @@ class BertPreprocessBatch(object):
         self.tokenizer = tokenizer
         self.predict_feature = predict_feature
         self.num_caps = data_size
-        self.captions = list(json.load(open(caption_path, 'r')).values())
+        self.captions = list(json.load(open(caption_path, "r")).values())
         self.visualization = visualization
 
     def __call__(self, data):
 
-        image_feature_wp, image_target_wp, image_location_wp, num_boxes,  image_h, image_w, image_id, caption = data
-        
+        (
+            image_feature_wp,
+            image_target_wp,
+            image_location_wp,
+            num_boxes,
+            image_h,
+            image_w,
+            image_id,
+            caption,
+        ) = data
+
         image_feature = np.zeros((self.region_len, 2048), dtype=np.float32)
         image_target = np.zeros((self.region_len, 1601), dtype=np.float32)
         image_location = np.zeros((self.region_len, 5), dtype=np.float32)
@@ -311,21 +414,25 @@ class BertPreprocessBatch(object):
         num_boxes = int(num_boxes)
         image_feature[:num_boxes] = image_feature_wp
         image_target[:num_boxes] = image_target_wp
-        image_location[:num_boxes,:4] = image_location_wp
+        image_location[:num_boxes, :4] = image_location_wp
 
-        image_location[:,4] = (image_location[:,3] - image_location[:,1]) * (image_location[:,2] - image_location[:,0]) / (float(image_w) * float(image_h))
-        
-        image_location[:,0] = image_location[:,0] / float(image_w)
-        image_location[:,1] = image_location[:,1] / float(image_h)
-        image_location[:,2] = image_location[:,2] / float(image_w)
-        image_location[:,3] = image_location[:,3] / float(image_h)
+        image_location[:, 4] = (
+            (image_location[:, 3] - image_location[:, 1])
+            * (image_location[:, 2] - image_location[:, 0])
+            / (float(image_w) * float(image_h))
+        )
+
+        image_location[:, 0] = image_location[:, 0] / float(image_w)
+        image_location[:, 1] = image_location[:, 1] / float(image_h)
+        image_location[:, 2] = image_location[:, 2] / float(image_w)
+        image_location[:, 3] = image_location[:, 3] / float(image_h)
 
         if self.predict_feature:
             image_feature = copy.deepcopy(image_feature)
             image_target = copy.deepcopy(image_feature)
         else:
             image_feature = copy.deepcopy(image_feature)
-            image_target = copy.deepcopy(image_target)            
+            image_target = copy.deepcopy(image_target)
 
         caption, label = self.random_cap(caption)
 
@@ -336,12 +443,14 @@ class BertPreprocessBatch(object):
             caption=tokens_caption,
             is_next=label,
             image_loc=image_location,
-            num_boxes=num_boxes
+            num_boxes=num_boxes,
         )
 
         # transform sample to features
-        cur_features = self.convert_example_to_features(cur_example, self.seq_len, self.tokenizer, self.region_len)
-        
+        cur_features = self.convert_example_to_features(
+            cur_example, self.seq_len, self.tokenizer, self.region_len
+        )
+
         cur_tensors = (
             cur_features.input_ids,
             cur_features.input_mask,
@@ -391,7 +500,9 @@ class BertPreprocessBatch(object):
 
         return caption
 
-    def convert_example_to_features(self, example, max_seq_length, tokenizer, max_region_length):
+    def convert_example_to_features(
+        self, example, max_seq_length, tokenizer, max_region_length
+    ):
         """
         Convert a raw sample (pair of sentences as tokenized strings) into a proper training sample with
         IDs, LM labels, input_mask, CLS and SEP tokens etc.
@@ -408,7 +519,9 @@ class BertPreprocessBatch(object):
         self._truncate_seq_pair(caption, max_seq_length - 2)
         caption, caption_label = self.random_word(caption, tokenizer)
 
-        image_feat, image_loc, image_label = self.random_region(image_feat, image_loc, num_boxes)
+        image_feat, image_loc, image_label = self.random_region(
+            image_feat, image_loc, num_boxes
+        )
 
         # concatenate lm labels and account for CLS, SEP, SEP
         # lm_label_ids = ([-1] + caption_label + [-1] + image_label + [-1])
@@ -498,7 +611,7 @@ class BertPreprocessBatch(object):
             image_target=image_target,
             image_loc=image_loc,
             image_label=np.array(image_label),
-            image_mask = np.array(image_mask)
+            image_mask=np.array(image_mask),
         )
         return features
 
@@ -528,7 +641,7 @@ class BertPreprocessBatch(object):
         for i, token in enumerate(tokens):
             prob = random.random()
             # mask token with 15% probability
-            
+
             if prob < 0.15 and not self.visualization:
                 prob /= 0.15
 
@@ -549,7 +662,9 @@ class BertPreprocessBatch(object):
                     # For unknown words (should not occur with BPE vocab)
                     output_label.append(tokenizer.vocab["[UNK]"])
                     logger.warning(
-                        "Cannot find token '{}' in vocab. Using [UNK] insetad".format(token)
+                        "Cannot find token '{}' in vocab. Using [UNK] insetad".format(
+                            token
+                        )
                     )
             else:
                 # no masking token (will be ignored by loss function later)
@@ -583,8 +698,6 @@ class BertPreprocessBatch(object):
                 output_label.append(-1)
 
         return image_feat, image_loc, output_label
-
-
 
 
 class ConceptCapLoaderRetrieval(object):
@@ -624,7 +737,7 @@ class ConceptCapLoaderRetrieval(object):
         drop_last=False,
         cuda=False,
     ):
-    
+
         lmdb_file = "/coc/dataset/conceptual_caption/validation_feat_all.lmdb"
         if not os.path.exists(lmdb_file):
             lmdb_file = "/coc/pskynet2/jlu347/multi-modal-bert/data/conceptual_caption/validation_feat_all.lmdb"
@@ -660,31 +773,47 @@ class ConceptCapLoaderRetrieval(object):
         for i, batch in enumerate(self.ds.get_data()):
             if i >= 1000:
                 break
-            input_ids, input_mask, segment_ids, is_next, image_feat, \
-            image_loc, image_mask, image_id, caption = batch
+            (
+                input_ids,
+                input_mask,
+                segment_ids,
+                is_next,
+                image_feat,
+                image_loc,
+                image_mask,
+                image_id,
+                caption,
+            ) = batch
 
             batch_size = input_ids.shape[0]
-            g_image_feat = np.sum(image_feat, axis=1) / np.sum(image_mask, axis=1, keepdims=True)
-            image_feat = np.concatenate([np.expand_dims(g_image_feat, axis=1), image_feat], axis=1)
+            g_image_feat = np.sum(image_feat, axis=1) / np.sum(
+                image_mask, axis=1, keepdims=True
+            )
+            image_feat = np.concatenate(
+                [np.expand_dims(g_image_feat, axis=1), image_feat], axis=1
+            )
             image_feat = np.array(image_feat, dtype=np.float32)
 
-            g_image_loc = np.repeat(np.array([[0,0,1,1,1]], dtype=np.float32), batch_size, axis=0)
-            image_loc = np.concatenate([np.expand_dims(g_image_loc, axis=1), image_loc], axis=1)
-            
+            g_image_loc = np.repeat(
+                np.array([[0, 0, 1, 1, 1]], dtype=np.float32), batch_size, axis=0
+            )
+            image_loc = np.concatenate(
+                [np.expand_dims(g_image_loc, axis=1), image_loc], axis=1
+            )
+
             image_loc = np.array(image_loc, dtype=np.float32)
             g_image_mask = np.repeat(np.array([[1]]), batch_size, axis=0)
             image_mask = np.concatenate([g_image_mask, image_mask], axis=1)
 
             batch = (input_ids, input_mask, segment_ids, image_id, caption)
             self._entry.append(batch)
-            
+
             self.features_all[i] = image_feat
             self.image_mask_all[i] = np.array(image_mask)
             self.spatials_all[i] = image_loc
             self.image_ids.append(image_id)
-            sys.stdout.write('%d/%d\r' % (i, 1000))
-            sys.stdout.flush()            
-
+            sys.stdout.write("%d/%d\r" % (i, 1000))
+            sys.stdout.flush()
 
     def __iter__(self):
 
@@ -704,19 +833,30 @@ class ConceptCapLoaderRetrieval(object):
                 spatials_all = self.spatials_all[500:]
                 image_mask_all = self.image_mask_all[500:]
 
-            caption, input_mask, segment_ids, txt_image_id, caption = self._entry[caption_idx]
+            caption, input_mask, segment_ids, txt_image_id, caption = self._entry[
+                caption_idx
+            ]
             target_all = np.zeros((500))
             for i, image_id in enumerate(image_entries):
                 if image_id == txt_image_id:
                     target_all[i] = 1
 
-            batch = (features_all, spatials_all, image_mask_all, caption, input_mask, segment_ids, target_all, caption_idx, image_idx)
+            batch = (
+                features_all,
+                spatials_all,
+                image_mask_all,
+                caption,
+                input_mask,
+                segment_ids,
+                target_all,
+                caption_idx,
+                image_idx,
+            )
             batch = [torch.tensor(data) for data in batch]
             batch.append(txt_image_id)
             batch.append(caption)
-            
-            yield batch
 
+            yield batch
 
     def __len__(self):
         return len(self._entry) * 2
@@ -728,7 +868,7 @@ class BertPreprocessRetrieval(object):
         caption_path,
         tokenizer,
         seq_len,
-        region_len, 
+        region_len,
         data_size,
         split="Train",
         encoding="utf-8",
@@ -741,12 +881,21 @@ class BertPreprocessRetrieval(object):
         self.tokenizer = tokenizer
         self.predict_feature = predict_feature
         self.num_caps = data_size
-        self.captions = list(json.load(open(caption_path, 'r')).values())[:data_size]
+        self.captions = list(json.load(open(caption_path, "r")).values())[:data_size]
 
     def __call__(self, data):
 
-        image_feature_wp, image_target_wp, image_location_wp, num_boxes,  image_h, image_w, image_id, caption = data
-        
+        (
+            image_feature_wp,
+            image_target_wp,
+            image_location_wp,
+            num_boxes,
+            image_h,
+            image_w,
+            image_id,
+            caption,
+        ) = data
+
         image_feature = np.zeros((self.region_len, 2048), dtype=np.float32)
         image_target = np.zeros((self.region_len, 1601), dtype=np.float32)
         image_location = np.zeros((self.region_len, 5), dtype=np.float32)
@@ -754,17 +903,21 @@ class BertPreprocessRetrieval(object):
         num_boxes = int(num_boxes)
         image_feature[:num_boxes] = image_feature_wp
         image_target[:num_boxes] = image_target_wp
-        image_location[:num_boxes,:4] = image_location_wp
+        image_location[:num_boxes, :4] = image_location_wp
 
-        image_location[:,4] = (image_location[:,3] - image_location[:,1]) * (image_location[:,2] - image_location[:,0]) / (float(image_w) * float(image_h))
-        
-        image_location[:,0] = image_location[:,0] / float(image_w)
-        image_location[:,1] = image_location[:,1] / float(image_h)
-        image_location[:,2] = image_location[:,2] / float(image_w)
-        image_location[:,3] = image_location[:,3] / float(image_h)
+        image_location[:, 4] = (
+            (image_location[:, 3] - image_location[:, 1])
+            * (image_location[:, 2] - image_location[:, 0])
+            / (float(image_w) * float(image_h))
+        )
+
+        image_location[:, 0] = image_location[:, 0] / float(image_w)
+        image_location[:, 1] = image_location[:, 1] / float(image_h)
+        image_location[:, 2] = image_location[:, 2] / float(image_w)
+        image_location[:, 3] = image_location[:, 3] / float(image_h)
 
         label = 0
-        
+
         tokens_caption = self.tokenizer.tokenize(caption)
         cur_example = InputExample(
             image_feat=image_feature,
@@ -772,12 +925,14 @@ class BertPreprocessRetrieval(object):
             caption=tokens_caption,
             is_next=label,
             image_loc=image_location,
-            num_boxes=num_boxes
+            num_boxes=num_boxes,
         )
 
         # transform sample to features
-        cur_features = self.convert_example_to_features(cur_example, self.seq_len, self.tokenizer, self.region_len)
-        
+        cur_features = self.convert_example_to_features(
+            cur_example, self.seq_len, self.tokenizer, self.region_len
+        )
+
         cur_tensors = (
             cur_features.input_ids,
             cur_features.input_mask,
@@ -791,8 +946,9 @@ class BertPreprocessRetrieval(object):
         )
         return cur_tensors
 
-
-    def convert_example_to_features(self, example, max_seq_length, tokenizer, max_region_length):
+    def convert_example_to_features(
+        self, example, max_seq_length, tokenizer, max_region_length
+    ):
         """
         Convert a raw sample (pair of sentences as tokenized strings) into a proper training sample with
         IDs, LM labels, input_mask, CLS and SEP tokens etc.
@@ -853,7 +1009,7 @@ class BertPreprocessRetrieval(object):
             is_next=np.array(example.is_next),
             image_feat=image_feat,
             image_loc=image_loc,
-            image_mask = np.array(image_mask),
+            image_mask=np.array(image_mask),
         )
         return features
 

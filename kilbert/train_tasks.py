@@ -17,13 +17,16 @@ import random
 
 import numpy as np
 
-from tensorboardX import SummaryWriter
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_pretrained_bert.optimization import WarmupLinearSchedule
 from torch.optim.lr_scheduler import LambdaLR, ReduceLROnPlateau
 import torch.distributed as dist
+
+# Tensorboard configuration
+from datetime import date, datetime
+from tensorboardX import SummaryWriter
 
 # Custom libraries
 from task_utils import (
@@ -46,7 +49,22 @@ logger = logging.getLogger(__name__)
 
 ### MAIN FUNCTION ###
 def main():
+    # Tensorboard configuration
+    today = str(date.today())
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    writer = SummaryWriter(
+        os.path.join("/nas-data/vilbert/data2/tensorboards/", today, str(current_time))
+    )
+
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--model_version",
+        default=3,
+        type=int,
+        help="Which version of the model you want to use",
+    )
 
     parser.add_argument(
         "--bert_model",
@@ -185,7 +203,8 @@ def main():
         task_cfg = edict(yaml.safe_load(f))
 
     # Load the main module
-    from bert_config import BertConfig
+    # from bert_config import BertConfig
+    from bert_pretrained_model import BertConfig
     from kilbert import Kilbert
 
     task_names = []
@@ -300,11 +319,22 @@ def main():
 
         num_epoch = task_cfg[task]["num_epoch"]
 
+    """
     model = Kilbert.from_pretrained(
         args.from_pretrained,
         config,
-        split="val",
+        split="train",
         num_labels=num_labels,
+        default_gpu=default_gpu,
+    )
+    """
+    model = Kilbert(
+        args.from_pretrained,
+        args.model_version,
+        config,
+        num_labels,
+        args.tasks,
+        split="train",
         default_gpu=default_gpu,
     )
 
@@ -445,6 +475,11 @@ def main():
                     if args.gradient_accumulation_steps > 1:
                         loss = loss / args.gradient_accumulation_steps
 
+                    # Update tensorboard
+                    niter = epochId * max_num_iter + step
+                    writer.add_scalar("Train/Loss", loss.item(), niter)
+                    writer.add_scalar("Train/Score", score.item(), niter)
+
                     loss.backward()
                     if (step + 1) % args.gradient_accumulation_steps == 0:
                         optimizer.step()
@@ -463,7 +498,8 @@ def main():
                             )
 
             if (
-                step % (20 * args.gradient_accumulation_steps) == 0
+                # step % (20 * args.gradient_accumulation_steps) == 0
+                step % (8 * args.gradient_accumulation_steps) == 0
                 and step != 0
                 and default_gpu
             ):
@@ -493,6 +529,7 @@ def main():
             )
             torch.save(model_to_save.state_dict(), output_model_file)
 
+    writer.close()
     tbLogger.txt_close()
 
 

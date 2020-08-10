@@ -372,6 +372,7 @@ def EvaluatingModel(
     task_losses,
     results,
     others,
+    dataset,
 ):
     batch = tuple(t.cuda(device=device, non_blocking=True) for t in batch)
     (
@@ -433,4 +434,5 @@ def EvaluatingModel(
                     ],
                 }
             )
+
     return float(loss), float(batch_score), batch_size, results, others
