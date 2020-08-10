@@ -2,7 +2,7 @@
 
 This repository is the implementation of ConceptBert: Concept-Aware Representation for Visual QuestionAnswering
 
-For an overbiew of the pipleline, please refere [here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/pipeline.pdf)
+For an overview of the pipleline, please refere [here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/pipeline.pdf)
 
 This repository is based on and inspired by [Facebook research](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes.
 
