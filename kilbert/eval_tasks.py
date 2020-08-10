@@ -315,59 +315,9 @@ def main():
             json_path = os.path.join(savePath, task_cfg[task_id]["val_split"])
 
         path_brut='/nas-data/'
-        json.dump(results, open(path_brut + "_result.json", "w"))
-        json.dump(others, open(path_brut + "_others.json", "w"))
-
-        taskType = "OpenEnded"
-        dataType = "mscoco"
-        dataSubType = "val2014"
-        if dataset == "vqa":
-            data_dir = "/nas-data/vilbert/data2/VQA"
-            annFile = "%s/v2_%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
-            quesFile = "%s/v2_%s_%s_%s_questions.json" % (
-                data_dir,
-                taskType,
-                dataType,
-                dataSubType,
-            )
-        elif dataset == "ok_vqa":
-            data_dir = "/nas-data/vilbert/data2/OK-VQA"
-            annFile = "%s/%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
-            quesFile = "%s/%s_%s_%s_questions.json" % (
-                data_dir,
-                taskType,
-                dataType,
-                dataSubType,
-            )
-        fileTypes = ["results", "accuracy", "evalQA", "evalQuesType", "evalAnsType"]
-        # embedding = "nb"
-
-        [resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = [
-            "%s/%s.json" % (data_dir, fileType) for fileType in fileTypes
-        ]
-        # create vqa object and vqaRes object
-        vqa = VQA(annFile, quesFile)
-        # vqaRes = vqa.loadRes(resFile, quesFile)
-        vqaRes = vqa.loadRes(results, quesFile)
-
-        # create vqaEval object by taking vqa and vqaRes
-        vqaEval = VQAEval(
-            vqa, vqaRes, n=2
-        )  # n is precision of accuracy (number of places after decimal), default is 2
-
-        # evaluate results
-        """
-        If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
-        By default it uses all the question ids in annotation file
-        """
-        vqaEval.evaluate()
-
-        # save evaluation results to ./Results folder
-        json.dump(vqaEval.accuracy, open(accuracyFile, "w"))
-        json.dump(vqaEval.evalQA, open(evalQAFile, "w"))
-        json.dump(vqaEval.evalQuesType, open(evalQuesTypeFile, "w"))
-        json.dump(vqaEval.evalAnsType, open(evalAnsTypeFile, "w"))
-
+        json.dump(results, open(args.output_dir + "/val_result.json", "w"))
+        json.dump(others, open(args.output_dir + "/val_others.json", "w"))
+        print("************DONE writing")
 
 if __name__ == "__main__":
     main()
