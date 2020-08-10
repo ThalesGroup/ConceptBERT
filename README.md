@@ -22,7 +22,7 @@ Make sure project values are exported as environment variable in **environment.s
 
 The .gitlab-ci.yml can be used by GitLab-CI to automatically deploy the job after each push.
 
-The following environment variables need to be set in the project/group [CI/CD setting](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/vilbert/-/settings/ci_cd):
+The following environment variables need to be set in the project/group [CI/CD setting](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/-/settings/ci_cd):
 1. variable DOCKER_REGISTRY=collaborative-docker-registry.collaborative.local:5100
 2. variable DOCKER_REGISTRY_USER=<namespace service account username>
 3. variable DOCKER_REGISTRY_PASSWORD=<namespace service account password>
@@ -31,7 +31,7 @@ The following environment variables need to be set in the project/group [CI/CD s
 
 To generate the KUBECONFIG file, follow instructions at [Service Account](https://wiki-trt.thales-systems.ca/bin/view/Trt%20Quebec/Engineering/Infrastructure/VLANs/Collaborative_VLAN/Kubernetes/Usage/#HCreateServiceAccount). See also ci/ci-service-account.yaml file into vilbert project.
 
-**Important**: You may also have to increase the pipeline timeout value (default value is 1h). If your job may take more than 1 hour, go in your [gitlab project page](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/vilbert/-/settings/ci_cd):
+**Important**: You may also have to increase the pipeline timeout value (default value is 1h). If your job may take more than 1 hour, go in your [gitlab project page](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/-/settings/ci_cd):
 1. Under Settings
 2. Select CI/CD
 3. Expand "General pipelines"
@@ -43,7 +43,7 @@ To generate the KUBECONFIG file, follow instructions at [Service Account](https:
 
 You can save your job outputs with every job pipeline. In order to achieve that, edit the **deployment/job-outputs-downloader.tpl** template and make sure you set the volumeMount subPath to refer to your job outputs folder.
 
-You will then be able to download outputs for pipeline by selecting **Artifacts->Download download-outputs artifacts** from the download button to the [right side of the pipeline](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/vilbert/pipelines).
+You will then be able to download outputs for pipeline by selecting **Artifacts->Download download-outputs artifacts** from the download button to the [right side of the pipeline](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/pipelines).
 
 ### Manual Deployment
 
@@ -65,7 +65,7 @@ Previous commands will result in:
 1. Build a .whl (wheel) file containing the application code and copy it in the dist/ folder;
 2. Build a Docker image containing the application code and all its dependencies (using deployment/Dockerfile);
 3. Push the Docker image to the [collaborative docker registry](http://collaborative-docker-registry.collaborative.local/)
-4. Create a kubernetes job file from the (using deployment/vilbert-job.tpl template) and copy it in the jobs/ folder;
+4. Create a kubernetes job file from the (using deployment/kilbert-job.tpl template) and copy it in the jobs/ folder;
 5. Deploy the kubernetes job to the collaborative cluster.
 
 ## Monitor Job
@@ -87,11 +87,11 @@ kubectl delete -f ./jobs/<JOB_NAME>.yml
 
 ## Outputs
 
-This project is configured to redirect print output to //common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED/outputs/vilbert-job-VERSION/output.log.
+This project is configured to redirect print output to //common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED/vilbert/outputs/.
 
 ## Inputs
 
-This project is configured to read inputs from //common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED/inputs/
+This project is configured to read inputs from //common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED/vilbert/data2/
 
 
 ## Import / Organize Dataset(s)
