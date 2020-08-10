@@ -26,7 +26,7 @@ spec:
         image: "collaborative-docker-registry.collaborative.local:5100/IMAGE_NAME_PLACEHOLDER"
         resources:
           limits:
-            nvidia.com/gpu: 8
+            nvidia.com/gpu: 4
         command: ["/bin/sh","-c"]
         args: ["cd kilbert && python3 -u eval_tasks.py --model_version 1 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/VQA_bert_base_6layer_6conect-pretrained/pytorch_model_19.bin --kilbert_path=/nas-data/vilbert/data2/save_final/OKVQA_model1/OK-VQA_bert_base_6layer_6conect/pytorch_model_86.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/data2/save_final/OKVQA_model1/results_eval  --num_workers 16 --tasks 42 --split=val"]
         volumeMounts:
@@ -36,7 +36,7 @@ spec:
             mountPath: /dev/shm
         env:
         - name: CUDA_VISIBLE_DEVICES
-          value: "0,1,2,3,4,5,6,7"
+          value: "0,1,2,3"
       restartPolicy: Never    
       volumes:
       # DSHM to raise Shared memory

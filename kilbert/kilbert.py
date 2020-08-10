@@ -5,7 +5,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.weight_norm import weight_norm
 
+import logging
+logger = logging.getLogger(__name__)
+import os
+import shutil
+import tarfile
+import tempfile
+
 # Custom libraries
+from utils import cached_path
+
 from vilbert.vilbert import BertPreTrainedModel, BertConfig
 
 from embeddings import BertEmbeddings, BertImageEmbeddings
@@ -92,7 +101,7 @@ class Kilbert(nn.Module):
                 q_dim=768,
                 kg_dim=768,
                 glimpse=2,
-                h_dim=512,
+                h_dim=256,
                 h_out=1,
                 rank=32,
                 k=1,
@@ -105,9 +114,9 @@ class Kilbert(nn.Module):
                     config.bi_hidden_size, config.bi_hidden_size * 2, num_labels, 0.5
                 )
             elif task == "0":
-                self.vil_prediction = self.vilbert.vil_prediction
+                self.vil_prediction = self.vilbert.vil_predictions
         elif model_version == 3:
-            self.vil_prediction = SimpleClassifier(1024, 1024 * 2, num_labels, 0.5)
+            self.vil_prediction = SimpleClassifier(512, 512 * 2, num_labels, 0.5)
 
     def forward(
         self,
@@ -331,7 +340,7 @@ class Kilbert(nn.Module):
 
         # Send the vector to the SimpleClassifier to get the answer
         return self.vil_prediction(result_vector)
-
+    
 
 class QuestionPooler(nn.Module):
     def __init__(self, config):

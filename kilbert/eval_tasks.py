@@ -35,6 +35,7 @@ from task_utils import (
 import utils as utils
 from vqa_helper import VQA
 from vqaEval import VQAEval
+from load_kilbert import load_kilbert
 
 ### LOGGER CONFIGURATION ###
 
@@ -68,6 +69,13 @@ def main():
     )
     parser.add_argument(
         "--from_pretrained",
+        default="bert-base-uncased",
+        type=str,
+        help="Bert pre-trained model selected in the list: bert-base-uncased, "
+        "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
+    )
+    parser.add_argument(
+        "--from_pretrained_kilbert",
         default="bert-base-uncased",
         type=str,
         help="Bert pre-trained model selected in the list: bert-base-uncased, "
@@ -248,7 +256,8 @@ def main():
         split="val",
         default_gpu=default_gpu,
     )
-    model.load_state_dict(torch.load(args.kilbert_path))
+    # model.load_state_dict(torch.load(args.kilbert_path))
+    model = load_kilbert(model, args.from_pretrained_kilbert)
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
@@ -305,8 +314,9 @@ def main():
         else:
             json_path = os.path.join(savePath, task_cfg[task_id]["val_split"])
 
-        json.dump(results, open(json_path + "_result.json", "w"))
-        json.dump(others, open(json_path + "_others.json", "w"))
+        path_brut='/nas-data/'
+        json.dump(results, open(path_brut + "_result.json", "w"))
+        json.dump(others, open(path_brut + "_others.json", "w"))
 
         taskType = "OpenEnded"
         dataType = "mscoco"

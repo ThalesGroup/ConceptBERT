@@ -38,6 +38,7 @@ from task_utils import (
 from optimization import BertAdam, Adam, Adamax
 
 import utils as utils
+from load_kilbert import load_kilbert
 
 ### LOGGER CONFIGURATION ###
 logging.basicConfig(
@@ -72,6 +73,11 @@ def main():
         type=str,
         help="Bert pre-trained model selected in the list: bert-base-uncased, "
         "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
+    )
+    parser.add_argument(
+        "--from_pretrained_kilbert",
+        default="bert-base-uncased",
+        type=str,
     )
     parser.add_argument(
         "--from_pretrained",
@@ -328,6 +334,7 @@ def main():
         default_gpu=default_gpu,
     )
     """
+    """
     model = Kilbert(
         args.from_pretrained,
         args.model_version,
@@ -337,7 +344,33 @@ def main():
         split="train",
         default_gpu=default_gpu,
     )
-
+    if args.from_pretrained_kilbert != "bert-base-uncased":
+        model = torch.load(args.from_pretrained_kilbert)
+    """
+    """
+    model = Kilbert.from_pretrained(
+        args.from_pretrained,
+        args.from_pretrained_kilbert,
+        args.model_version,
+        config,
+        num_labels,
+        args.task,
+        split="train",
+        default_gpu=default_gpu,    
+    )
+    """
+    model = Kilbert(
+        args.from_pretrained,
+        args.model_version,
+        config,
+        num_labels,
+        args.tasks,
+        split="train",
+        default_gpu=default_gpu,
+    )
+    if args.from_pretrained_kilbert!="None":
+      model = load_kilbert(model, args.from_pretrained_kilbert)
+    
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
     if args.local_rank != -1:

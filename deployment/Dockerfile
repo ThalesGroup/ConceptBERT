@@ -14,6 +14,6 @@ RUN pip3 install -r requirements.txt
 
 ENV LANG C.UTF-8
 
-ADD vilbert vilbert
-RUN cd vilbert/tools/refer && make
+ADD kilbert kilbert
+RUN cd kilbert/tools/refer && make
 
