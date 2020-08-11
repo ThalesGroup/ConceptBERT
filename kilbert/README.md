@@ -14,7 +14,7 @@ Our implementation uses the pretrained features from bottom-up-attention, 100 fi
 ├── data2
 │   ├── coco (visual features)
 │   ├── conceptnet (conceptnet facts)
-│   ├── conceptual_captions (captions for each image, extracted from [here](https://github.com/google-research-datasets/conceptual-captions))
+│   ├── conceptual_captions (captions for each image, extracted from (https://github.com/google-research-datasets/conceptual-captions))
 │   ├── kilbert_base_model (pre-trained weights for initial kilbert model)
 │   ├── OK-VQA (OK-VQA dataset)
 │   ├── save_final (final saved models and outputs)
