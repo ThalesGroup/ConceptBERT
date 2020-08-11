@@ -90,6 +90,10 @@ Note: The validation step 3 generates a json file ("val_result.json") that will 
 
 ## Evaluation
 
-cd PythonEvaluationTools
-
-python  vqaEval_okvqa.py #edit the path in the script to "val_result.json"
+Use the `vilbert-job-evaluation.tpl` to run the evaluation :
+```
+args: ["ls && python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/ --output_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/"]
+```
+* `json_dir`: path where is located the `val_result.json`
+* `output_path`: folder where the accuracy will be saved
+* `/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/`: is the last best model. *You must change this by the path of model you want to evaluate*.
