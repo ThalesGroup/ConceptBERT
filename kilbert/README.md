@@ -31,12 +31,14 @@ The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outpu
 ## Training and Validation
 
 ### Train with VQA
-1: First we use VQA dataset to train a baseline model. Use the following job template: vilbert-job-train-model3_vqa_MZ.tpl  
-Start the training with:
-* ```./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl```
+1: First we use VQA dataset to train a baseline model. Use the following job template: `vilbert-job-train-model3_vqa_MZ.tpl`
+* Start the training with:
+    ```console
+    ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
+    ```
 
 
-In the template the command is :
+#### Command description
 ```
 args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0"]
 ```
@@ -53,9 +55,12 @@ args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=b
 
 ### Train with OK-VQA (fine-tuning)
 2: Then we use OK-VQA dataset and the trained model from step 1 to train a model. Use the following job template: vilbert-job-train-model3_okvqa_MZ.tpl
-```
-./deploy.sh deployment/vilbert-job-train-model3_okvqa_MZ.tpl  
-```
+* Start the training with:
+    ```
+    ./deploy.sh deployment/vilbert-job-train-model3_okvqa_MZ.tpl  
+    ```
+    
+#### Command description   
 In the template the command is :
 ```
 args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin --from_pretrained_kilbert /nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200807135547/VQA_bert_base_6layer_6conect/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42"]
@@ -70,10 +75,12 @@ The parameters are the same as above, but theses values change:
 
 ### Validation with OK-VQA
 3: To validate on held out validation split, we use the model trained in step 2 using following job template: vilbert-job-eval-model3_okvqa_MZ.tpl
-```
-./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl  
-```
-In the template the command is :
+* Start the training with:
+    ```
+    ./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl  
+    ```
+
+#### Command description
 ```
 args: ["cd kilbert && python3 -u eval_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin  --from_pretrained_kilbert=/nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200810140504/OK-VQA_bert_base_6layer_6conect/pytorch_model_99.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42 --split val"]
 ```
@@ -94,6 +101,12 @@ Note: The validation step 3 generates a json file ("val_result.json") that will 
 ## Evaluation
 
 Use the `vilbert-job-evaluation.tpl` to run the evaluation :
+* Start the training with:
+    ```console
+    ./deploy.sh deployment/vilbert-job-evaluation.tpl
+    ```
+
+### Command description
 ```
 args: ["ls && python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/ --output_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/"]
 ```
