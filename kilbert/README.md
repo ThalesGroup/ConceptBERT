@@ -10,6 +10,7 @@ This repository is based on and inspired by [Facebook research](https://github.c
 
 Our implementation uses the pretrained features from bottom-up-attention, 100 fixed features per image and the GloVe vectors. The data has been saved in NAS folder: human-ai-dialog/vilbert/data2. The data folder and pretrained_models folder are organized as shown below:
 
+```bash
 ├── data2
 │   ├── coco (visual features)
 │   ├── conceptnet (conceptnet facts)
@@ -20,7 +21,7 @@ Our implementation uses the pretrained features from bottom-up-attention, 100 fi
 │   ├── tensorboards (location to save tensorboard files)
 │   ├── VQA (VQA dataset)
 │   ├── VQA_bert_base_6layer_6conect-pretrained (pre-trained weights for initial vilbert model trained on vqa)
-
+```
 
 
 The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER/
