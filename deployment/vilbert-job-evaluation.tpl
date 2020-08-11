@@ -26,7 +26,7 @@ spec:
         image: "collaborative-docker-registry.collaborative.local:5100/IMAGE_NAME_PLACEHOLDER"
         resources:
           limits:
-            nvidia.com/gpu: 4
+            nvidia.com/gpu: 1
         command: ["/bin/sh","-c"]
         args: ["ls && python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/ --output_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/"]
         volumeMounts:

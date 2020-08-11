@@ -113,3 +113,14 @@ args: ["ls && python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_
 * `json_dir`: path where is located the `val_result.json`
 * `output_path`: folder where the accuracy will be saved
 * `/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/`: is the final json. *You must change this by the path of the json you want to evaluate*.
+
+
+## Knowing issues
+Sometimes the `deploy.sh` command don't display the correct name of the job and the link given doesn't work (but the job is still active on kubernetes).
+You can empty the `JOB_NAME` variable to fix the problem.
+
+Ex.
+```console
+export JOB_NAME= && ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
+```
+
