@@ -112,4 +112,4 @@ args: ["ls && python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_
 ```
 * `json_dir`: path where is located the `val_result.json`
 * `output_path`: folder where the accuracy will be saved
-* `/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/`: is the last best model. *You must change this by the path of model you want to evaluate*.
+* `/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/`: is the final json. *You must change this by the path of the json you want to evaluate*.
