@@ -32,9 +32,10 @@ The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outpu
 
 ### Train with VQA
 1: First we use VQA dataset to train a baseline model. Use the following job template: vilbert-job-train-model3_vqa_MZ.tpl  
-```
-./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl  
-```
+Start the training with:
+* ```./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl```
+
+
 In the template the command is :
 ```
 args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0"]
