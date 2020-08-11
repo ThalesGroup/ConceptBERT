@@ -16,12 +16,12 @@ data_dir = '/nas-data/vilbert/data2/OK-VQA/'
 json_dir = '/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/'
 annFile = "%s/%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
 quesFile    ="%%s/%s_%s_%s_questions.json" %(data_dir, taskType, dataType, dataSubType)
-output_dir = '/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER/'
+output_dir = '/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/'
 res_name = 'val_result'
 fileTypes   = ['accuracy', 'evalQA', 'evalQuesType', 'evalAnsType']
 # An example result json file has been provided in './Results' folder.  
 
-resFile = ['%s/%s.json'%(json_dir, res_name)
+resFile = ['%s/%s.json'%(json_dir, res_name)]
 
 [accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = ['%s/%s.json'%(output_dir, fileType) for fileType in fileTypes]
 
