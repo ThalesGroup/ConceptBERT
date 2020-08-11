@@ -50,6 +50,7 @@ args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=b
 | task  |  task = 0, we use VQA dataset |
 
 
+### Train with OK-VQA (fine-tuning)
 2: Then we use OK-VQA dataset and the trained model from step 1 to train a model. Use the following job template: vilbert-job-train-model3_okvqa_MZ.tpl
 ```
 ./deploy.sh deployment/vilbert-job-train-model3_okvqa_MZ.tpl  
@@ -66,6 +67,7 @@ The parameters are the same as above, but theses values change:
 | from_pretrained  | pre-trained Bert model (OK-VQA) |
 | task  |  task = 42 OKVQA dataset is used |
 
+### Validation with OK-VQA
 3: To validate on held out validation split, we use the model trained in step 2 using following job template: vilbert-job-eval-model3_okvqa_MZ.tpl
 ```
 ./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl  
