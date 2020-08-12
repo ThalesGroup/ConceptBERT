@@ -79,6 +79,10 @@ To validate on held out validation split, we use the model trained in step 2 usi
     ```
     ./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl  
     ```
+    
+Two files will be generated:
+* `Val_other` give a 8top answers for each questions
+* `val_result` used in the evaluation
 
 #### Command description
 ```
@@ -92,10 +96,6 @@ The parameters are the same as above, but theses values change:
 | from_pretrained  | same pre-trained Bert model (OK-VQA) as step2 |
 | task  |  task = 42 OKVQA is used |
 
-
-Note: In the job templates, `--tasks 0` means VQA dataset and `--tasks 42` means OK-VQA dataset.
-
-Note: The validation step 3 generates a json file ("val_result.json") that will be used in the evaluation.
 
 
 ## Evaluation
@@ -123,4 +123,26 @@ Ex.
 ```console
 export JOB_NAME= && ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
 ```
+
+
+
+
+## Compare the results
+### Step 1: Training with VQA
+todo
+### Step 2: Training with OK-VQA
+todo
+### Step 3: Validation with OK-VQA
+* The validation generates two json file. `val_result.json` will be used in the evaluation.
+* Open the logs in the kubernetes pod to check the result of the `eval_score`:
+
+```bash
+08/12/2020 13:09:46 - INFO - utils -   Validation [OK-VQA]: loss 3.681 score 33.040
+```
+
+If you want to optimize your model the `loss` and `score` must be at least be the same as above.
+
+### Evaluation
+Compare the result of the `accuracy.json` generated with the json of the last best model (`/nas-data/kr-gat/saved_models/kr-gat-job-0.1.dev308-g5614c95.d20200803174427/regat_semantic/cti_semantic_vqa_1682/results/accuracy.json`). \
+The results must be at least as good as the previous ones.
 
