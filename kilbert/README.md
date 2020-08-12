@@ -149,3 +149,18 @@ If you want to optimize your model the `loss` and `score` must be at least be th
 Compare the result of the `accuracy.json` generated with the json of the last best model (`/nas-data/kr-gat/saved_models/kr-gat-job-0.1.dev308-g5614c95.d20200803174427/regat_semantic/cti_semantic_vqa_1682/results/accuracy.json`). \
 The results must be at least as good as the previous ones.
 
+```console
+Overall Accuracy is: 33.04
+Per Question Type Accuracy is the following:
+one : 30.82
+eight : 33.60
+other : 32.57
+seven : 30.61
+four : 36.79
+five : 33.66
+three : 31.73
+nine : 31.43
+ten : 45.58
+two : 30.23
+
+```
