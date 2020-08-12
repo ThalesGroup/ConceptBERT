@@ -33,7 +33,7 @@ Note: models and json used in the following examples are the actual best results
 
 ## 1. Train with VQA
 First we use VQA dataset to train a baseline model. Use the following job template: `vilbert-job-train-model3_vqa_MZ.tpl`
-* Start the training with:
+### Start the training with:
     ```console
     ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
     ```
@@ -56,7 +56,7 @@ args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=b
 
 ## 2. Train with OK-VQA (fine-tuning)
 Then we use OK-VQA dataset and the trained model from step 1 to train a model. Use the following job template: vilbert-job-train-model3_okvqa_MZ.tpl
-* Start the training with:
+### Start the training with:
     ```
     ./deploy.sh deployment/vilbert-job-train-model3_okvqa_MZ.tpl  
     ```
@@ -76,7 +76,7 @@ The parameters are the same as above, but theses values change:
 
 ## 3. Validation with OK-VQA
 To validate on held out validation split, we use the model trained in step 2 using following job template: vilbert-job-eval-model3_okvqa_MZ.tpl
-* Start the training with:
+### Start the training with:
     ```
     ./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl  
     ```
