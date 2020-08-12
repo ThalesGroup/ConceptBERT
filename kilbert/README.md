@@ -6,7 +6,7 @@ For an overview of the pipleline, please refere [here](https://sc01-trt.thales-s
 
 This repository is based on and inspired by [Facebook research](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes.
 
-## Data
+# :electric_plug: Data
 
 Our implementation uses the pretrained features from bottom-up-attention, 100 fixed features per image and the GloVe vectors. The data has been saved in NAS folder: human-ai-dialog/vilbert/data2. The data folder and pretrained_models folder are organized as shown below:
 
@@ -28,10 +28,10 @@ The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outpu
 
 
 
-## Training and Validation
+# :rocket: Training and Validation
 Note: models and json used in the following examples are the actual best results
 
-### 1. Train with VQA
+## 1. Train with VQA
 First we use VQA dataset to train a baseline model. Use the following job template: `vilbert-job-train-model3_vqa_MZ.tpl`
 * Start the training with:
     ```console
@@ -39,7 +39,7 @@ First we use VQA dataset to train a baseline model. Use the following job templa
     ```
 
 
-#### Command description
+### Command description
 ```
 args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0"]
 ```
@@ -54,14 +54,14 @@ args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=b
 | task  |  task = 0, we use VQA dataset |
 
 
-### 2. Train with OK-VQA (fine-tuning)
+## 2. Train with OK-VQA (fine-tuning)
 Then we use OK-VQA dataset and the trained model from step 1 to train a model. Use the following job template: vilbert-job-train-model3_okvqa_MZ.tpl
 * Start the training with:
     ```
     ./deploy.sh deployment/vilbert-job-train-model3_okvqa_MZ.tpl  
     ```
     
-#### Command description   
+### Command description   
 In the template the command is :
 ```
 args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin --from_pretrained_kilbert /nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200807135547/VQA_bert_base_6layer_6conect/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42"]
@@ -74,7 +74,7 @@ The parameters are the same as above, but theses values change:
 | from_pretrained  | pre-trained Bert model (OK-VQA) |
 | task  |  task = 42 OKVQA dataset is used |
 
-### 3. Validation with OK-VQA
+## 3. Validation with OK-VQA
 To validate on held out validation split, we use the model trained in step 2 using following job template: vilbert-job-eval-model3_okvqa_MZ.tpl
 * Start the training with:
     ```
@@ -85,7 +85,7 @@ Two files will be generated:
 * `Val_other` give a 8top answers for each questions
 * `val_result` used in the evaluation
 
-#### Command description
+### Command description
 ```
 args: ["cd kilbert && python3 -u eval_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin  --from_pretrained_kilbert=/nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200810140504/OK-VQA_bert_base_6layer_6conect/pytorch_model_99.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42 --split val"]
 ```
@@ -99,7 +99,7 @@ The parameters are the same as above, but theses values change:
 
 
 
-## Evaluation
+# :rocket: Evaluation
 
 Use the `vilbert-job-evaluation.tpl` to run the evaluation :
 * Start the training with:
@@ -107,7 +107,7 @@ Use the `vilbert-job-evaluation.tpl` to run the evaluation :
     ./deploy.sh deployment/vilbert-job-evaluation.tpl
     ```
 
-### Command description
+## Command description
 ```
 args: ["ls && python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/ --output_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/"]
 ```
@@ -116,7 +116,7 @@ args: ["ls && python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_
 * `/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/`: is the final json. *You must change this by the path of the json you want to evaluate*.
 
 
-## Knowing issues
+# :bug: Knowing issues
 Sometimes the `deploy.sh` command don't display the correct name of the job and the link given doesn't work (but the job is still active on kubernetes).
 You can empty the `JOB_NAME` variable to fix the problem.
 
@@ -128,14 +128,14 @@ export JOB_NAME= && ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
 
 
 
-## Compare the results
-### Step 1: Training with VQA
+# :bulb: Compare the results
+## Step 1: Training with VQA
 * 19 checkpoints must have been created
 * the loss is around ~2.32 and the score is around ~0.77
 
-### Step 2: Training with OK-VQA
+## Step 2: Training with OK-VQA
 todo
-### Step 3: Validation with OK-VQA
+## Step 3: Validation with OK-VQA
 * The validation generates two json file. `val_result.json` will be used in the evaluation.
 * Open the logs in the kubernetes pod to check the result of the `eval_score`:
 
@@ -145,7 +145,7 @@ todo
 
 If you want to optimize your model the `loss` and `score` must be at least be the same as above.
 
-### Evaluation
+## Evaluation
 Compare the result of the `accuracy.json` generated with the json of the last best model (`/nas-data/kr-gat/saved_models/kr-gat-job-0.1.dev308-g5614c95.d20200803174427/regat_semantic/cti_semantic_vqa_1682/results/accuracy.json`). \
 The results must be at least as good as the previous ones.
 
