@@ -150,19 +150,3 @@ Compare the result of the `accuracy.json` generated with the json of the last be
 The results must be at least as good as the previous ones.
 
 
-Logs from the pod:
-```console
-Overall Accuracy is: 33.04
-Per Question Type Accuracy is the following:
-one : 30.82
-eight : 33.60
-other : 32.57
-seven : 30.61
-four : 36.79
-five : 33.66
-three : 31.73
-nine : 31.43
-ten : 45.58
-two : 30.23
-
-```
