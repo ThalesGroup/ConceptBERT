@@ -146,9 +146,11 @@ todo
 If you want to optimize your model the `loss` and `score` must be at least be the same as above.
 
 ## Evaluation
-Compare the result of the `accuracy.json` generated with the json of the last best model (`/nas-data/kr-gat/saved_models/kr-gat-job-0.1.dev308-g5614c95.d20200803174427/regat_semantic/cti_semantic_vqa_1682/results/accuracy.json`). \
+Compare the result of the `accuracy.json` generated with the json of the last best model (`/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/accuracy.json`). \
 The results must be at least as good as the previous ones.
 
+
+Logs from the pod:
 ```console
 Overall Accuracy is: 33.04
 Per Question Type Accuracy is the following:
