@@ -29,6 +29,7 @@ The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outpu
 
 
 ## Training and Validation
+Note: models and json used in the following examples are the actual best results
 
 ### 1. Train with VQA
 First we use VQA dataset to train a baseline model. Use the following job template: `vilbert-job-train-model3_vqa_MZ.tpl`
@@ -129,7 +130,9 @@ export JOB_NAME= && ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
 
 ## Compare the results
 ### Step 1: Training with VQA
-todo
+* 19 checkpoints must have been created
+* the loss is around ~2.32 and the score is around ~0.77
+
 ### Step 2: Training with OK-VQA
 todo
 ### Step 3: Validation with OK-VQA
