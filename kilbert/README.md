@@ -102,10 +102,10 @@ The parameters are the same as above, but theses values change:
 # :rocket: Evaluation
 
 Use the `vilbert-job-evaluation.tpl` to run the evaluation :
-* Start the training with:
-    ```console
-    ./deploy.sh deployment/vilbert-job-evaluation.tpl
-    ```
+## Start the training with:
+```console
+./deploy.sh deployment/vilbert-job-evaluation.tpl
+```
 
 ## Command description
 ```
