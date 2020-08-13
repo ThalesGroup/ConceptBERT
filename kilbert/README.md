@@ -130,10 +130,11 @@ export JOB_NAME= && ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
 
 # :bulb: Compare the results
 ## Step 1: Training with VQA
-* 19 checkpoints must have been created
+* 20 checkpoints must have been created (`last file name must be pytorch_model_19.bin`)
 
 ## Step 2: Training with OK-VQA
-todo
+* 100 checkpoints must have been created (`last file name must be pytorch_model_99.bin`)
+
 ## Step 3: Validation with OK-VQA
 * The validation generates two json file. `val_result.json` will be used in the evaluation.
 * Open the logs in the kubernetes pod to check the result of the `eval_score`:
