@@ -29,7 +29,7 @@ The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outpu
 
 
 # :rocket: Training and Validation
-Note: models and json used in the following examples are the actual best results
+Note: models and json used in the following examples are the current best results
 
 ## 1. Train with VQA
 First we use VQA dataset to train a baseline model. Use the following job template: `vilbert-job-train-model3_vqa_MZ.tpl`
@@ -82,7 +82,7 @@ To validate on held out validation split, we use the model trained in step 2 usi
 ```
     
 Two files will be generated:
-* `Val_other` give a 8top answers for each questions
+* `Val_other` give 8 top answers for each questions
 * `val_result` used in the evaluation
 
 ### Command description
