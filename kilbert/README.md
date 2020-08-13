@@ -131,7 +131,6 @@ export JOB_NAME= && ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
 # :bulb: Compare the results
 ## Step 1: Training with VQA
 * 19 checkpoints must have been created
-* the loss is around ~2.32 and the score is around ~0.77
 
 ## Step 2: Training with OK-VQA
 todo
