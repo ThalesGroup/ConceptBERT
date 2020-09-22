@@ -6,7 +6,7 @@ metadata:
   namespace: vilbert
 spec:
   volumes:
-  # Mount SAMBA volume from common-nas-server.common.local
+  # Mount SAMBA volume from isilon.storage.vlan
   - name: nas-data-volume
     flexVolume:
       driver: "fstab/cifs"
@@ -14,7 +14,7 @@ spec:
       secretRef:
         name: "vilbert-cifs-service-user-secret"
       options:
-        networkPath: "//common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED"
+        networkPath: "//isilon.storage.vlan/HUMAN_AI_DIALOG_SHARED"
         mountOptions: "dir_mode=0755,file_mode=0644,noperm,vers=3.0,iocharset=utf8"
   containers:
   - name: ubuntu

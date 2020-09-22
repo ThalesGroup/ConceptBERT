@@ -43,7 +43,7 @@ spec:
       - name: dshm
         emptyDir: 
           medium: Memory 
-      # Mount SAMBA volume from common-nas-server.common.local
+      # Mount SAMBA volume from isilon.storage.vlan
       - name: nas-data-volume
         flexVolume:
           driver: "fstab/cifs"
@@ -51,7 +51,7 @@ spec:
           secretRef:
             name: "NAMESPACE_PLACEHOLDER-cifs-service-user-secret"
           options:
-            networkPath: "//common-nas-server.common.local/NAS_SHARED_FOLDER_PLACEHOLDER"
+            networkPath: "//isilon.storage.vlan/NAS_SHARED_FOLDER_PLACEHOLDER"
             mountOptions: "dir_mode=0755,file_mode=0644,noperm,vers=3.0,iocharset=utf8"
       affinity:
         # Schedule this job on a GPU worker node

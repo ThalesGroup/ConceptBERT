@@ -91,11 +91,11 @@ kubectl delete -f ./jobs/<JOB_NAME>.yml
 
 ## Outputs
 
-This project is configured to redirect print output to //common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED/vilbert/outputs/.
+This project is configured to redirect print output to //isilon.storage.vlan/HUMAN_AI_DIALOG_SHARED/vilbert/outputs/.
 
 ## Inputs
 
-This project is configured to read inputs from //common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED/vilbert/data2/
+This project is configured to read inputs from //isilon.storage.vlan/HUMAN_AI_DIALOG_SHARED/vilbert/data2/
 
 
 ## Import / Organize Dataset(s)
@@ -135,5 +135,5 @@ kubectl delete -f ./deployment/ubuntu-host.yaml
 
 ### From your workstation
 
-Mount the //common-nas-server.common.local/HUMAN_AI_DIALOG_SHARED SAMBDA folder on your host and simply copy or reorganize the files.
+Mount the //isilon.storage.vlan/HUMAN_AI_DIALOG_SHARED SAMBDA folder on your host and simply copy or reorganize the files.
 
