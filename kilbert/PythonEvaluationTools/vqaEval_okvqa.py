@@ -10,9 +10,15 @@ taskType = 'OpenEnded'
 dataType = 'mscoco'
 dataSubType = 'val2014'
 data_dir = '/nas-data/vilbert/data2/OK-VQA/'
-#json_dir = '/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/'
 annFile = "%s/%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
 quesFile = "%s/%s_%s_%s_questions.json" % (data_dir, taskType, dataType, dataSubType)
+
+# Use these parameters to run the evaluation on VQA dataset only
+#data_dir = '/nas-data/vilbert/data2/VQA' #VQA version
+#annFile = "%s/v2_%s_%s_annotations.json" % (data_dir, dataType, dataSubType)
+#quesFile = "%s/v2_%s_%s_%s_questions.json" % (data_dir, taskType, dataType, dataSubType)
+
+#json_dir = '/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/'
 #output_dir = '/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/'
 res_name = 'val_result'
 fileTypes = ['accuracy', 'evalQA', 'evalQuesType', 'evalAnsType']

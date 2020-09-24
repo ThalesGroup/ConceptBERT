@@ -1,0 +1,1 @@
+Validation [VQA]: loss 2.170 score 80.985 

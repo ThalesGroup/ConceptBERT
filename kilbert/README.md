@@ -150,3 +150,7 @@ Compare the result of the `accuracy.json` generated with the json of the last be
 The results must be at least as good as the previous ones.
 
 
+# VQA Training
+* [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_vqa.md)
+# OK-VQA Training
+* [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_okvqa.md)
