@@ -1,6 +1,5 @@
 # OK-VQA
 * Training 1 : 
-* Training 2 : 
 * Validation/Evaluation from Training:
 
 
