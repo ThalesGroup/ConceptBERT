@@ -18,19 +18,6 @@ Command:
 ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
 ```
 
-## Training 2: fine tuning
-
-Update the template file `vilbert-job-train-model3_okvqa_MZ.tpl`:
-
-```console
-args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin --from_pretrained_kilbert=/nas-data/vilbert/outputs/vilbert-job-0.1.dev491-ga8ed80a.d20200922182615/VQA_bert_base_6layer_6conect/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0"]     
-```
-* from_pretrained_kilbert: change the value with the result of the training path
-* tasks 0: run on the VQA dataset
-
-```console
-./deploy.sh deployment/vilbert-job-train-model3_okvqa_MZ.tpl 
-```
 
 ## Validation
 Validation is based on the first training results (using "pytorch_model_19.bin").
