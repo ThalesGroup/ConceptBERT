@@ -33,7 +33,7 @@ args: ["cd kilbert && python3 -u eval_tasks.py --model_version 3 --bert_model=be
 
 Command:
 ```console
-./deploy.sh deployment/vilbert-job-eval-model3_vqa_MZ.tpl
+./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl
 ```
 
 

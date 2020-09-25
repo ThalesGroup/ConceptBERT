@@ -24,7 +24,7 @@ Validation is based on the first training results (using "pytorch_model_19.bin")
 
 Update the template file `vilbert-job-eval-model3_okvqa_MZ.tpl`:
 ```
-args: ["cd kilbert && python3 -u eval_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin  --from_pretrained_kilbert=/nas-data/vilbert/outputs/vilbert-job-0.1.dev491-ga8ed80a.d20200922182615/VQA_bert_base_6layer_6conect/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42 --split val"]
+args: ["cd kilbert && python3 -u eval_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin  --from_pretrained_kilbert=/nas-data/vilbert/outputs/vilbert-job-0.1.dev493-g91a003c.d20200924224610/OK-VQA_bert_base_6layer_6conect/pytorch_model_99.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42 --split val"]
 ```
 * from_pretrained_kilbert: change the value with the result of the previous training path
 * tasks 42: run on the VQA dataset
@@ -32,7 +32,7 @@ args: ["cd kilbert && python3 -u eval_tasks.py --model_version 3 --bert_model=be
 
 Command:
 ```console
-./deploy.sh deployment/vilbert-job-eval-model3_vqa_MZ.tpl
+./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl
 ```
 
 
@@ -40,7 +40,7 @@ Command:
 
 Update the template file `vilbert-job-evaluation_vqa.tpl`:
 ```console
-args: ["ls && python kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev492-g62dfbf2/ --output_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev492-g62dfbf2"]
+args: ["ls && python kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev495-g98896ae.d20200925142533/ --output_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev495-g98896ae.d20200925142533/"]
 ```
 * json_dir: change the value with the result of the validation path
 * output_dir: change the value with the result of the validation path (same path as json_dir)

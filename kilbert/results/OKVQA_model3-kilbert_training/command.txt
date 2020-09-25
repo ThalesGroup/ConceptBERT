@@ -1,0 +1,58 @@
+Namespace(bert_model='bert-base-uncased', config_file='config/bert_base_6layer_6conect.json', do_lower_case=True, evaluation_interval=1, fp16=False, freeze=-1, from_pretrained='/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin', from_pretrained_kilbert='None', gradient_accumulation_steps=1, in_memory=False, learning_rate=2e-05, local_rank=-1, loss_scale=0, lr_scheduler='mannul', model_version=3, no_cuda=False, num_train_epochs=20, num_workers=16, optimizer='Adam', output_dir='/nas-data/vilbert/outputs/vilbert-job-0.1.dev493-g91a003c.d20200924224610', save_name='', seed=0, tasks='42', use_chunk=0, vision_scratch=False, warmup_proportion=0.1)
+
+
+{
+  "attention_probs_dropout_prob": 0.1,
+  "bi_attention_type": 1,
+  "bi_hidden_size": 1024,
+  "bi_intermediate_size": 1024,
+  "bi_num_attention_heads": 8,
+  "fast_mode": false,
+  "fixed_t_layer": 0,
+  "fixed_v_layer": 0,
+  "fusion_method": "mul",
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.1,
+  "hidden_size": 768,
+  "in_batch_pairs": false,
+  "initializer_range": 0.02,
+  "intermediate_size": 3072,
+  "intra_gate": false,
+  "max_position_embeddings": 512,
+  "model_version": 1,
+  "num_attention_heads": 12,
+  "num_hidden_layers": 12,
+  "pooling_method": "mul",
+  "predict_feature": false,
+  "t_biattention_id": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "type_vocab_size": 2,
+  "v_attention_probs_dropout_prob": 0.1,
+  "v_biattention_id": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "v_feature_size": 2048,
+  "v_hidden_act": "gelu",
+  "v_hidden_dropout_prob": 0.1,
+  "v_hidden_size": 1024,
+  "v_initializer_range": 0.02,
+  "v_intermediate_size": 1024,
+  "v_num_attention_heads": 8,
+  "v_num_hidden_layers": 6,
+  "v_target_size": 1601,
+  "vocab_size": 30522,
+  "with_coattention": true,
+  "wl_embedding_size": 300
+}
+
