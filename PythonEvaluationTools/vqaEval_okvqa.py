@@ -2,8 +2,8 @@
 import argparse
 import json
 
-from vqaEval import VQAEval
-from vqa_helper import VQA
+from PythonEvaluationTools.vqaEval import VQAEval
+from PythonEvaluationTools.vqa_helper import VQA
 
 # set up file names and paths
 taskType = 'OpenEnded'
