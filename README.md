@@ -6,6 +6,24 @@ For an overview of the pipleline, please refere [here](https://sc01-trt.thales-s
 
 This repository is based on and inspired by [Facebook research](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes.
 
+## Pre-requisite
+* python 3.6.X
+
+If `python-prctl` return `"python-prctl" Command "python setup.py egg_info" failed with error` error, use this command : 
+```
+sudo apt-get install libcap-dev
+```
+
+## Conda
+### Create environment
+```
+conda env create -f environment.yml
+```
+### Activate environment
+```
+conda activate kilbert
+```
+
 # :electric_plug: Data
 
 Our implementation uses the pretrained features from bottom-up-attention, 100 fixed features per image and the GloVe vectors. The data has been saved in NAS folder: human-ai-dialog/vilbert/data2. The data folder and pretrained_models folder are organized as shown below:
@@ -23,49 +41,45 @@ Our implementation uses the pretrained features from bottom-up-attention, 100 fi
 │   ├── VQA_bert_base_6layer_6conect-pretrained (pre-trained weights for initial vilbert model trained on vqa)
 ```
 
-
+---------------------
+TODO TODO TODO TODO TODO UPDATE ME TODO TODO TODO TODO TODO TODO TODO TODO TODO
 The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER/
-
+---------------------
 
 
 # :rocket: Training and Validation
 Note: models and json used in the following examples are the current best results
 
 ## 1. Train with VQA
-First we use VQA dataset to train a baseline model. Use the following job template: `vilbert-job-train-model3_vqa_MZ.tpl`
+First we use VQA dataset to train a baseline model. Use the following command:
 
 ```console
-./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
+python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0
 ```
-
 
 ### Command description
-```
-args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0"]
-```
 | Parameter | Description |
 |-----------|-------------|
+| u | -u is used to force stdin, stdout and stderr to be totally unbuffered, which otherwise is line buffered on the terminal |
 | model_version |  Which version of the model you want to use |
 | bert_model | Bert pre-trained model selected in the list: bert-base-uncased, bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese. |
 | from_pretrained_kilbert | folder of the previous trained model. In this case, it's the first train, so the value is`None`  |
 | from_pretrained  | pre-trained Bert model (VQA) |
 | config_file  | 3 config files are available in `kilbert/config/` |
 | output_dir  | folder where the results are saved  |
+| num_worker | Tells the data loader instance how many sub-processes to use for data loading |
 | task  |  task = 0, we use VQA dataset |
 
 
 ## 2. Train with OK-VQA (fine-tuning)
-Then we use OK-VQA dataset and the trained model from step 1 to train a model. Use the following job template: vilbert-job-train-model3_okvqa_MZ.tpl
+Then we use OK-VQA dataset and the trained model from step 1 to train a model. Use the following command:
 
-```
-./deploy.sh deployment/vilbert-job-train-model3_okvqa_MZ.tpl  
+```console
+python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin --from_pretrained_kilbert /nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200807135547/VQA_bert_base_6layer_6conect/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42
 ```
     
 ### Command description   
-In the template the command is :
-```
-args: ["cd kilbert && python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin --from_pretrained_kilbert /nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200807135547/VQA_bert_base_6layer_6conect/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42"]
-```
+
 The parameters are the same as above, but theses values change:
 
 | Parameter | Description |
@@ -75,10 +89,10 @@ The parameters are the same as above, but theses values change:
 | task  |  task = 42 OKVQA dataset is used |
 
 ## 3. Validation with OK-VQA
-To validate on held out validation split, we use the model trained in step 2 using following job template: vilbert-job-eval-model3_okvqa_MZ.tpl
+To validate on held out validation split, we use the model trained in step 2 using following command:
 
 ```
-./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl  
+python3 -u eval_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin  --from_pretrained_kilbert=/nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200810140504/OK-VQA_bert_base_6layer_6conect/pytorch_model_99.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42 --split val
 ```
     
 Two files will be generated:
@@ -86,9 +100,6 @@ Two files will be generated:
 * `val_result` used in the evaluation
 
 ### Command description
-```
-args: ["cd kilbert && python3 -u eval_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin  --from_pretrained_kilbert=/nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200810140504/OK-VQA_bert_base_6layer_6conect/pytorch_model_99.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42 --split val"]
-```
 The parameters are the same as above, but theses values change:
 
 | Parameter | Description |
@@ -101,32 +112,20 @@ The parameters are the same as above, but theses values change:
 
 # :rocket: Evaluation
 
-Use the `vilbert-job-evaluation.tpl` to run the evaluation :
+Run the evaluation :
 ## Start the training with:
 ```console
-./deploy.sh deployment/vilbert-job-evaluation.tpl
+python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/ --output_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/
 ```
 
 ## Command description
-```
-args: ["ls && python /app/kilbert/PythonEvaluationTools/vqaEval_okvqa.py --json_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/ --output_dir /nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/"]
-```
 * `json_dir`: path where is located the `val_result.json`
 * `output_path`: folder where the accuracy will be saved
 * `/nas-data/vilbert/outputs/vilbert-job-0.1.dev460-g22e5d72.d20200810225318/`: is the final json. *You must change this by the path of the json you want to evaluate*.
 
 
 # :bug: Known issues
-Sometimes the `deploy.sh` command don't display the correct name of the job and the link given doesn't work (but the job is still active on kubernetes).
-You can empty the `JOB_NAME` variable to fix the problem.
-
-Ex.
-```console
-export JOB_NAME= && ./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
-```
-
-
-
+TODO TODO TODO TODO
 
 # :bulb: Compare the results
 ## Step 1: Training with VQA

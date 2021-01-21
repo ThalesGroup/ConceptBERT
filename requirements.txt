@@ -1,7 +1,6 @@
 click
 pytorch-pretrained-bert==0.6.2
-numpy==1.16.4
-lmdb==0.94
+#lmdb==0.94
 tensorboardX==1.2
 tensorflow==1.13.1
 tensorpack==0.9.4
@@ -16,6 +15,9 @@ python-prctl
 msgpack
 msgpack-numpy
 gensim
+torch==1.3.1
+torchvision==0.4.2
+numpy==1.16.5
 
 # For Conceptual Caption download
 pandas
