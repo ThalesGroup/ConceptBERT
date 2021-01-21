@@ -46,6 +46,33 @@ TODO TODO TODO TODO TODO UPDATE ME TODO TODO TODO TODO TODO TODO TODO TODO TODO
 The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER/
 ---------------------
 
+# :computer: Only for local
+
+Install pipenv:
+```bash
+  pip3 install pipenv
+```
+
+Activate:
+```bash
+  pipenv shell
+```
+## Pre-requisite
+You need to install these libraries before the requirements:
+
+```bash
+  sudo apt-get install libcap-dev python3-dev
+```
+
+## Install libraries
+```bash
+  pipenv install -r requirements.txt
+  pipenv shell
+```
+```bash
+python3-dev
+```
+
 
 # :rocket: Training and Validation
 Note: models and json used in the following examples are the current best results
