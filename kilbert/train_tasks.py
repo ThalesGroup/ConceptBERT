@@ -1,26 +1,19 @@
 ### LIBRARIES ###
 # Global libraries
 import os
-import sys
 import argparse
-import pdb
 import logging
 from tqdm import tqdm
 from io import open
-from bisect import bisect
 from easydict import EasyDict as edict
 
 import json
 import yaml
 
-import random
 
 import numpy as np
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from pytorch_pretrained_bert.optimization import WarmupLinearSchedule
 from torch.optim.lr_scheduler import LambdaLR, ReduceLROnPlateau
 import torch.distributed as dist
 
@@ -37,20 +30,16 @@ from task_utils import (
 )
 from optimization import BertAdam, Adam, Adamax
 
-import utils as utils
+import utils_kilbert as utils
 from load_kilbert import load_kilbert
 
-### LOGGER CONFIGURATION ###
-# logging.basicConfig(
-#     format="%(asctime)s - %(levelname)s - %(name)s -    %(message)s",
-#     datefmt="%d/%m/%Y %H:%M:%S",
-#     level=logging.INFO,
-# )
-# logger = logging.getLogger(__name__)
-log_config_path = os.path.join(os.path.join(os.getcwd(), "assets/config/"), "logging.yaml")
-LoggingUtilityService.setup_logging(log_config_path)
-
-
+# LOGGER CONFIGURATION ###
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(name)s -    %(message)s",
+    datefmt="%d/%m/%Y %H:%M:%S",
+    level=logging.INFO,
+)
+logger = logging.getLogger(__name__)
 
 ### MAIN FUNCTION ###
 def main():
@@ -215,7 +204,7 @@ def main():
     # Load the main module
     # from bert_config import BertConfig
     from bert_pretrained_model import BertConfig
-    from kilbert import Kilbert
+    from kilbert import kilbert as Kilbert
 
     task_names = []
     task_lr = []
