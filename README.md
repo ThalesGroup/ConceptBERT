@@ -15,7 +15,7 @@ Our implementation uses the pretrained features from bottom-up-attention, 100 fi
 │   ├── coco (visual features)
 │   ├── conceptnet (conceptnet facts)
 │   ├── conceptual_captions (captions for each image, extracted from (https://github.com/google-research-datasets/conceptual-captions))
-│   ├── kilbert_base_model (pre-trained weights for initial kilbert model)
+│   ├── kilbert_base_model (pre-trained weights for initial kilbert_project model)
 │   ├── OK-VQA (OK-VQA dataset)
 │   ├── save_final (final saved models and outputs)
 │   ├── tensorboards (location to save tensorboard files)
@@ -31,11 +31,11 @@ The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outpu
 # :whale2: Docker
 ## Build
 ```bash
-  docker build -t kilbert .
+  docker build -t kilbert_project .
 ```
 ## Start the container
 ```bash
-  docker run -it -v /path/to/you/nas/:/nas-data/ kilbert:latest bash
+  docker run -it -v /path/to/you/nas/:/nas-data/ kilbert_project:latest bash
 ```
 When you container is up, go to the section [1. Train with VQA]{#1.TrainwithVQA}
 
@@ -53,7 +53,7 @@ If `python-prctl` return `"python-prctl" Command "python setup.py egg_info" fail
 ```bash
   sudo apt-get install libcap-dev python3-dev
   # generate utils files
-  cd kilbert/tools/refer && make
+  cd kilbert_project/tools/refer && make
 ```
 
 ## Installation
@@ -80,7 +80,7 @@ Note: models and json used in the following examples are the current best result
 First we use VQA dataset to train a baseline model. Use the following command:
 
 ```bash
-  python3 -u kilbert/train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0
+  python3 -u kilbert_project/train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0
 ```
 
 ### Command description

@@ -27,7 +27,7 @@ setup(
     name='Kilbert',
     license="MIT license",
     long_description=readme + '\n\n' + history,
-    keywords="kilbert",
+    keywords="kilbert_project",
     packages=find_packages(),
     install_requires=requirements,
     url='https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/',
