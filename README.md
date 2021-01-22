@@ -7,7 +7,8 @@ For an overview of the pipleline, please refere [here](https://sc01-trt.thales-s
 This repository is based on and inspired by [Facebook research](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes.
 
 ## Pre-requisite
-* python 3.6.X
+* python 3.6.12
+* pipenv 2020.08.13
 
 If `python-prctl` return `"python-prctl" Command "python setup.py egg_info" failed with error` error, use this command : 
 ```
@@ -48,15 +49,9 @@ The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outpu
 
 # :computer: Only for local
 
-Install pipenv:
-```bash
-  pip3 install pipenv
-```
+## Pipenv 
+We use pipenv to create a virtual environment to run the scripts.
 
-Activate:
-```bash
-  pipenv shell
-```
 ## Pre-requisite
 You need to install these libraries before the requirements:
 
@@ -64,10 +59,20 @@ You need to install these libraries before the requirements:
   sudo apt-get install libcap-dev python3-dev
 ```
 
+## Installation
+**WARNING : Please check twice that your python version for the environment is python 6.3.12 dev, and you use the recommended version of pipenv.**
+
+```bash
+  pip3 install pipenv==2020.8.13
+  # Initialize the environment
+  pipenv --python 3.6
+  # activate the environment
+  pipenv shell
+```
+
 ## Install libraries
 ```bash
   pipenv install -r requirements.txt
-  pipenv shell
 ```
 ```bash
 python3-dev
