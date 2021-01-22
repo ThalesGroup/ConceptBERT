@@ -6,25 +6,6 @@ For an overview of the pipleline, please refere [here](https://sc01-trt.thales-s
 
 This repository is based on and inspired by [Facebook research](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes.
 
-## Pre-requisite
-* python 3.6.12
-* pipenv 2020.08.13
-
-If `python-prctl` return `"python-prctl" Command "python setup.py egg_info" failed with error` error, use this command : 
-```
-sudo apt-get install libcap-dev
-```
-
-## Conda
-### Create environment
-```
-conda env create -f environment.yml
-```
-### Activate environment
-```
-conda activate kilbert
-```
-
 # :electric_plug: Data
 
 Our implementation uses the pretrained features from bottom-up-attention, 100 fixed features per image and the GloVe vectors. The data has been saved in NAS folder: human-ai-dialog/vilbert/data2. The data folder and pretrained_models folder are organized as shown below:
@@ -47,13 +28,27 @@ TODO TODO TODO TODO TODO UPDATE ME TODO TODO TODO TODO TODO TODO TODO TODO TODO
 The model checkpoints will be saved in NAS folder: human-ai-dialog/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER/
 ---------------------
 
+# :whale2: Docker
+## Build
+```bash
+  docker build -t kilbert .
+```
+## Start the container
+```bash
+  docker run -it -v /path/to/you/nas/:/nas-data/ kilbert:latest bash
+```
+When you container is up, go to the section [1. Train with VQA]{#1.TrainwithVQA}
+
 # :computer: Only for local
 
 ## Pipenv 
-We use pipenv to create a virtual environment to run the scripts.
+We recommend pipenv to create a virtual environment to run the scripts.
 
-## Pre-requisite
-You need to install these libraries before the requirements:
+### Pre-requisite
+* python 3.6.12
+* pipenv 2020.08.13
+
+If `python-prctl` return `"python-prctl" Command "python setup.py egg_info" failed with error` error, use this command : 
 
 ```bash
   sudo apt-get install libcap-dev python3-dev
@@ -74,9 +69,6 @@ You need to install these libraries before the requirements:
 ```bash
   pipenv install -r requirements.txt
 ```
-```bash
-python3-dev
-```
 
 
 # :rocket: Training and Validation
@@ -85,8 +77,8 @@ Note: models and json used in the following examples are the current best result
 ## 1. Train with VQA
 First we use VQA dataset to train a baseline model. Use the following command:
 
-```console
-python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0
+```bash
+  python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0
 ```
 
 ### Command description
