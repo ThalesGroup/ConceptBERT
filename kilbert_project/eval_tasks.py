@@ -170,7 +170,9 @@ def main():
 
     # timeStamp = '-'.join(task_names) + '_' + args.config_file.split('/')[1].split('.')[0]
     timeStamp = args.from_pretrained.split("/")[1] + "-" + args.save_name
-    savePath = os.path.join(args.output_dir, timeStamp)
+    
+    output_dir = args.output_dir
+    savePath = os.path.join(output_dir, timeStamp)
 
     config = BertConfig.from_json_file(args.config_file)
     bert_weight_name = json.load(
@@ -315,8 +317,8 @@ def main():
             json_path = os.path.join(savePath, task_cfg[task_id]["val_split"])
 
         path_brut='/nas-data/'
-        json.dump(results, open(args.output_dir + "/val_result.json", "w"))
-        json.dump(others, open(args.output_dir + "/val_others.json", "w"))
+        json.dump(results, open(output_dir + "/val_result.json", "w"))
+        json.dump(others, open(output_dir + "/val_others.json", "w"))
         print("************DONE writing")
 
 if __name__ == "__main__":

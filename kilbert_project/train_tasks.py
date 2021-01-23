@@ -241,7 +241,9 @@ def main():
         + args.config_file.split("/")[1].split(".")[0]
         + prefix
     )
-    savePath = os.path.join(args.output_dir, timeStamp)
+
+    output_dir = args.output_dir
+    savePath = os.path.join(output_dir, timeStamp)
 
     bert_weight_name = json.load(
         open("config/" + args.bert_model + "_weight_name.json", "r")
@@ -307,8 +309,12 @@ def main():
     # if n_gpu > 0:
     # torch.cuda.manual_seed_all(args.seed)
 
-    if not os.path.exists(args.output_dir):
-        os.makedirs(args.output_dir)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    else:
+        from datetime import date
+        output_dir = output_dir + f"{now.strftime('d%m%Y%H%M%S')}"
+        os.makedirs(output_dir)
 
     num_train_optimization_steps = (
         max(task_num_iters.values())
