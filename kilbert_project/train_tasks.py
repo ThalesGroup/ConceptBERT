@@ -47,11 +47,15 @@ def main():
     today = str(date.today())
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
-    writer = SummaryWriter(
-        os.path.join("/nas-data/vilbert/data2/tensorboards/", today, str(current_time))
-    )
 
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--summary_writer",
+        default=3,
+        type=int,
+        help="Setup the folder for tensorboards",
+    )
 
     parser.add_argument(
         "--model_version",
@@ -198,6 +202,13 @@ def main():
         help="whether use learning rate scheduler.",
     )
     args = parser.parse_args()
+
+
+    writer = SummaryWriter(
+        os.path.join(args.summary_writer, today, str(current_time))
+    )
+
+
     with open("vlbert_tasks.yml", "r") as f:
         task_cfg = edict(yaml.safe_load(f))
 

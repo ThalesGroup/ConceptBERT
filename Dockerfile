@@ -11,6 +11,8 @@ RUN pip3 install -r requirements.txt
 
 ENV LANG C.UTF-8
 
-ADD kilbert kilbert
-RUN cd kilbert/tools/refer && make
+ADD kilbert_project kilbert_project
+RUN cd kilbert_project/tools/refer && make
+
+ENV PYTHONPATH /workspace/
 
