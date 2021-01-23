@@ -7,6 +7,7 @@ from tqdm import tqdm
 from io import open
 from easydict import EasyDict as edict
 
+from datetime import date
 import json
 import yaml
 
@@ -312,7 +313,6 @@ def main():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     else:
-        from datetime import date
         output_dir = output_dir + f"{now.strftime('d%m%Y%H%M%S')}"
         os.makedirs(output_dir)
 

@@ -77,7 +77,7 @@ Note: models and json used in the following examples are the current best result
 First we use VQA dataset to train a baseline model. Use the following command:
 
 ```bash
-  python3 -u kilbert_project/train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 0
+  python3 -u kilbert_project/train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --summary_writer /outputs/tensorboards/ --num_workers 16 --tasks 0
 ```
 
 ### Command description
@@ -92,13 +92,14 @@ First we use VQA dataset to train a baseline model. Use the following command:
 | output_dir  | folder where the results are saved  |
 | num_worker | Tells the data loader instance how many sub-processes to use for data loading |
 | task  |  task = 0, we use VQA dataset |
+| summary_writer  |  folder used to save tensorboard items. A sub-folder will be created with the date of the day |
 
 
 ## 2. Train with OK-VQA (fine-tuning)
 Then we use OK-VQA dataset and the trained model from step 1 to train a model. Use the following command:
 
 ```bash
-  python3 -u kilbert_project/train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin --from_pretrained_kilbert /nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200807135547/VQA_bert_base_6layer_6conect/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --num_workers 16 --tasks 42
+  python3 -u kilbert_project/train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin --from_pretrained_kilbert /nas-data/vilbert/outputs/vilbert-job-0.1.dev752-g896be56.d20200807135547/VQA_bert_base_6layer_6conect/pytorch_model_19.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --summary_writer /outputs/tensorboards/  --num_workers 16 --tasks 42
 ```
     
 ### Command description   
