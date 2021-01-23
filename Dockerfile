@@ -14,5 +14,7 @@ ENV LANG C.UTF-8
 ADD kilbert_project kilbert_project
 RUN cd kilbert_project/tools/refer && make
 
+WORKDIR kilbert_project
+
 ENV PYTHONPATH /workspace/
 

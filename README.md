@@ -25,7 +25,7 @@ Our implementation uses the pretrained features from bottom-up-attention, 100 fi
 
 The model checkpoints will be saved in the ouput : ./outputs/
 
-# :whale2: Docker
+# :whale2: Docker (recommended)
 You can choose to run Kilbert with Docker or from your environment
 ## Build
 ```bash
