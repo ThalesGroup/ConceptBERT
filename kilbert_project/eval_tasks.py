@@ -170,7 +170,7 @@ def main():
 
     # timeStamp = '-'.join(task_names) + '_' + args.config_file.split('/')[1].split('.')[0]
     timeStamp = args.from_pretrained.split("/")[1] + "-" + args.save_name
-    
+
     output_dir = args.output_dir
     savePath = os.path.join(output_dir, timeStamp)
 

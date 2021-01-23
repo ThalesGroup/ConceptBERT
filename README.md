@@ -26,6 +26,7 @@ Our implementation uses the pretrained features from bottom-up-attention, 100 fi
 The model checkpoints will be saved in the ouput : ./outputs/
 
 # :whale2: Docker
+You can choose to run Kilbert with Docker or from your environment
 ## Build
 ```bash
   docker build -t kilbert_project .
@@ -38,14 +39,13 @@ When you container is up, go to the section [1. Train with VQA]{#1.TrainwithVQA}
 
 # :computer: Only for local
 
-## Pipenv 
-We recommend pipenv to create a virtual environment to run the scripts.
+## Pipenv
+You can choose to run Kilbert with Docker or from your environment.
+We recommend pipenv to create a virtual environment to run the scripts, but you can also use conda (check that the python version used in your project is 3.6.12).
 
 ### Pre-requisite
 * python 3.6.12
-* pipenv 2020.08.13
-
-If `python-prctl` return `"python-prctl" Command "python setup.py egg_info" failed with error` error, use this command : 
+* pipenv 2020.08.13 (recommended) or Anaconda/Miniconda with python 3.6.12
 
 ```bash
   sudo apt-get install libcap-dev python3-dev
@@ -148,7 +148,12 @@ Run the evaluation :
 
 
 # :bug: Known issues
-TODO TODO TODO TODO
+
+* If `python-prctl` return `"python-prctl" Command "python setup.py egg_info" failed with error` error, use this command : 
+```bash
+  sudo apt-get install libcap-dev python3-dev
+```
+
 
 # :bulb: Compare the results
 ## Step 1: Training with VQA
