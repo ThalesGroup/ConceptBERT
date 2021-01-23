@@ -4,9 +4,9 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
-from kilbert_project.kilbert import FCNet
-from kilbert_project.kilbert import TCNet
-from kilbert_project.kilbert import TriAttention
+from kilbert_project.fusion_modules.cti_model.fcnet import FCNet
+from kilbert_project.fusion_modules.cti_model.tcnet import TCNet
+from kilbert_project.fusion_modules.cti_model.triattention import TriAttention
 
 ### CLASS DEFINITION ###
 class CTIModel(nn.Module):

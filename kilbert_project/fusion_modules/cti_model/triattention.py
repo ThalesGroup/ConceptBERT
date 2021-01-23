@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
-from kilbert_project.kilbert import TCNet
+from kilbert_project.fusion_modules.cti_model.tcnet import TCNet
 
 ### CLASS DEFINITION ###
 class TriAttention(nn.Module):

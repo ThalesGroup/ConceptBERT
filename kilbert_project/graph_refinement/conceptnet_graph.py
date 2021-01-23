@@ -4,11 +4,9 @@ import os
 import json
 
 # Custom libraries
-from kilbert_project.kilbert import (
+from kilbert_project.graph_refinement.utils import (
     extract_nodes,
-    write_node_dictionary,
-    write_neighbors_list,
-    write_weight_edges,
+    write_node_dictionary
 )
 
 ### CLASS DEFINITION ###

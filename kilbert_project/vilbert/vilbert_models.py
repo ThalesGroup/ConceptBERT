@@ -32,7 +32,7 @@ from torch.nn import CrossEntropyLoss
 import torch.nn.functional as F
 from torch.nn.utils.weight_norm import weight_norm
 
-from kilbert_project.utils_kilbert import cached_path
+from kilbert_project.utils import cached_path
 
 logger = logging.getLogger(__name__)
 

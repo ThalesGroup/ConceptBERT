@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
-from kilbert_project.kilbert import FCNet
+from kilbert_project.fusion_modules.cti_model.fcnet import FCNet
 
 ### UTILS FUNCTION DEFINITION ###
 def mode_product(tensor, matrix_1, matrix_2, matrix_3, matrix_4, n_way=3):
