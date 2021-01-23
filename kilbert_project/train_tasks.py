@@ -215,7 +215,7 @@ def main():
     # Load the main module
     # from bert_config import BertConfig
     from bert_pretrained_model import BertConfig
-    from kilbert_project import kilbert as Kilbert
+    from kilbert_project.kilbert import Kilbert
 
     task_names = []
     task_lr = []
