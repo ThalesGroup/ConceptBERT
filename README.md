@@ -41,11 +41,11 @@ When you container is up, go to the section [1. Train with VQA]{#1.TrainwithVQA}
 
 ## Pipenv
 You can choose to run Kilbert with Docker or from your environment.
-We recommend pipenv to create a virtual environment to run the scripts, but you can also use conda (check that the python version used in your project is 3.6.12).
+We recommend pipenv to create a virtual environment to run the scripts.
 
 ### Pre-requisite
 * python 3.6.12
-* pipenv 2020.08.13 (recommended) or Anaconda/Miniconda with python 3.6.12
+* pipenv 2020.08.13 (recommended)
 
 ```bash
   sudo apt-get install libcap-dev python3-dev
