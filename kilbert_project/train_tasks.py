@@ -53,8 +53,7 @@ def main():
 
     parser.add_argument(
         "--summary_writer",
-        default=3,
-        type=int,
+        type=str,
         help="Setup the folder for tensorboards",
     )
 
