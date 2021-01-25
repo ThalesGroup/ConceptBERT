@@ -1252,7 +1252,6 @@ class BertPreTrainedModel(nn.Module):
                     self.__class__.__name__, self.__class__.__name__
                 )
             )
-
         self.config = config
 
     def init_bert_weights(self, module):
