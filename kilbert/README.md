@@ -156,7 +156,7 @@ The results must be at least as good as the previous ones.
 * [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_okvqa.md)
 
 # Improvements
-Currently the project requires a lot of resources to be able to run correctly. It is necessary to count at least 6 days of training with a `GTX 1080 ti`(11Go RAM), and 17h in an environment with 7GPU (7 `Titan-v`(32Go)).
+Currently the project requires a lot of resources to be able to run correctly. It is necessary to count at least 6 days of training for the first training with a `GTX 1080 ti`(11Go RAM), and 17h in an environment with 7GPU (7 `Titan-v`(32Go)).
 
 There are several areas for improvement:
 * Search and replace the `to.device()` parameter in the code to be executed in the better position
