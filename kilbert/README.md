@@ -153,4 +153,14 @@ The results must be at least as good as the previous ones.
 # VQA Training
 * [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_vqa.md)
 # OK-VQA Training
+
+
+# Improvements
+Currently the project requires a lot of resources to be able to run correctly. It is necessary to count at least 6 days of training with a `GTX 1080 ti`(11Go RAM), and 17h in an environment with 7GPU (7 `Titan-v`(32Go)).
+
+There are several areas for improvement:
+* Search and replace the `to.device()` parameter in the code to be executed in the better position
+* Load a part of the dataset (create a method to load a batch of the dataset)
+* Train your own BERT (or find a lighter Bert)
+
 * [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_okvqa.md)
