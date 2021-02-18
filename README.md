@@ -27,6 +27,7 @@ The model checkpoints will be saved in the ouput : ./outputs/
 
 # :whale2: Docker (recommended)
 You can choose to run Kilbert with Docker or from your environment
+
 ## Build
 ```bash
   docker build -t kilbert_project .
@@ -77,7 +78,6 @@ Note: models and json used in the following examples are the current best result
 First we use VQA dataset to train a baseline model. Use the following command:
 
 ```bash
-  cd kilbert_project/
   python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin --config_file config/bert_base_6layer_6conect.json --output_dir=/nas-data/vilbert/outputs/JOB_NAME_PLACEHOLDER-JOB_ID_PLACEHOLDER --summary_writer /outputs/tensorboards/ --num_workers 16 --tasks 0
 ```
 
@@ -186,3 +186,13 @@ The results must be at least as good as the previous ones.
 * [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_vqa.md)
 # OK-VQA Training
 * [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_okvqa.md)
+
+
+# Improvements
+Currently, the project requires a lot of resources to be able to run correctly. It is necessary to count at least 6 days of training for the first training with a `GTX 1080 ti`(11Go RAM), and 17h in an environment with 7GPU (7 `Titan-v`(32Go)).
+
+There are several areas for improvement:
+* Search and replace the `to.device()` parameter in the code to be executed in the better position
+* Load a part of the dataset (create a method to load a batch of the dataset)
+* Train your own BERT (or find a lighter Bert)
+
