@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 
 # Custom libraries
 
-from vilbert.vilbert import BertPreTrainedModel, BertConfig
+from kilbert_project.vilbert.vilbert import BertPreTrainedModel, BertConfig
 
 
-from vilbert.vilbert import VILBertForVLTasks
-from q_kg_transformer.transformer import QuestionGraphTransformer
+from kilbert_project.vilbert.vilbert import VILBertForVLTasks
+from kilbert_project.q_kg_transformer.transformer import QuestionGraphTransformer
 
 from kilbert_project.fusion_modules.question_fusion import (
     SimpleQuestionAddition,
@@ -60,7 +60,7 @@ class Kilbert(nn.Module):
         # Main modules
         config = BertConfig("config/bert_base_6layer_6conect.json")
         self.vilbert = VILBertForVLTasks.from_pretrained(
-            from_pretrained, config, num_labels, split, default_gpu=default_gpu,
+            pretrained_model_name_or_path=from_pretrained, config=config, num_labels=num_labels, split=split, default_gpu=default_gpu,
         )
         config.model_version = model_version
 
