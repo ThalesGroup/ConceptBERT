@@ -1,3 +1,8 @@
+# 0.2.1 (2021-02-18)
+## Updated
+* Documentation (README.md) to specify the minimum requirement to run the project
+
+
 # 0.2.0 (2021-01-22)
 ## Added
 * change multiple import path from multiple files (FCnet, TCnet, etc..)
