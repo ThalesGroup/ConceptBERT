@@ -1,7 +1,7 @@
 # 0.2.1 (2021-02-18)
 ## Updated
 * Documentation (README.md) to specify the minimum requirement to run the project
-
+* Add Trace
 
 # 0.2.0 (2021-01-22)
 ## Added
