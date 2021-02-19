@@ -6,6 +6,20 @@ For an overview of the pipleline, please refere [here](https://sc01-trt.thales-s
 
 This repository is based on and inspired by [Facebook research](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes.
 
+### Pre-requisite
+* python 3.6.12
+
+### Recommended
+* [VSCode](https://code.visualstudio.com/) work with [containers](https://code.visualstudio.com/docs/containers/overview)
+
+
+### Disclaimer
+Currently, the project requires a lot of resources to be able to run correctly. 
+
+It is necessary to count at least 6 days of training for the first training with a `GTX 1080 Ti`(11Go RAM), and 17hours in an Kubernetes environment with 7GPU (7 `Titan-v`(32Go)).
+All the pipeline was tester on GPU server with four `GeForce RTX 2080 Ti` (12Go)
+
+
 # :electric_plug: Data
 
 Our implementation uses the pretrained features from bottom-up-attention, 100 fixed features per image and the GloVe vectors. The data has been saved in NAS folder: human-ai-dialog/vilbert/data2. The data folder and pretrained_models folder are organized as shown below:
@@ -36,39 +50,15 @@ You can choose to run Kilbert with Docker or from your environment
 ```bash
   docker run -it -v /path/to/you/nas/:/nas-data/ kilbert_project:latest bash
 ```
-When you container is up, go to the section [1. Train with VQA]{#1.TrainwithVQA}
 
-# :computer: Only for local
-
-## Pipenv
-You can choose to run Kilbert with Docker or from your environment.
-We recommend pipenv to create a virtual environment to run the scripts.
-
-### Pre-requisite
-* python 3.6.12
-* pipenv 2020.08.13 (recommended)
-
+### Additional parameters
 ```bash
-  sudo apt-get install libcap-dev python3-dev
-  # generate utils files
-  cd kilbert_project/tools/refer && make
+  docker run -it -v --shm-size=10g -e CUDA_VISIBLE_DEVICES=0,1,2,3 /path/to/you/nas/:/nas-data/ kilbert_project:latest bash
 ```
+* `--shm-size` is used to prevent Shared Memory error. Here the value is 10Go ([refer docker documentation](https://docs.docker.com/engine/reference/run/))
+* `-e CUDA_VISIBLE_DEVICES` is used to use specific GPU available. Here we want to use 4 GPU.
 
-## Installation
-**WARNING : Please check twice that your python version for the environment is python 6.3.12 dev, and you use the recommended version of pipenv.**
-
-```bash
-  pip3 install pipenv==2020.8.13
-  # Initialize the environment
-  pipenv --python 3.6
-  # activate the environment
-  pipenv shell
-```
-
-## Install libraries
-```bash
-  pipenv install -r requirements.txt
-```
+When the container is up, go to the section [1. Train with VQA]{#1.TrainwithVQA}
 
 
 # :rocket: Training and Validation
@@ -91,9 +81,9 @@ First we use VQA dataset to train a baseline model. Use the following command:
 | from_pretrained  | pre-trained Bert model (VQA) |
 | config_file  | 3 config files are available in `kilbert/config/` |
 | output_dir  | folder where the results are saved  |
-| num_worker | Tells the data loader instance how many sub-processes to use for data loading |
-| task  |  task = 0, we use VQA dataset |
 | summary_writer  |  folder used to save tensorboard items. A sub-folder will be created with the date of the day |
+| num_worker | Tells the data loader instance how many sub-processes to use for data loading. **Use your own value in regard of your environment** |
+| task  |  task = 0, we use VQA dataset |
 
 
 ## 2. Train with OK-VQA (fine-tuning)
@@ -187,12 +177,21 @@ The results must be at least as good as the previous ones.
 # OK-VQA Training
 * [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_okvqa.md)
 
+# Troubleshooting
+## CUDA out of memory
+Try the following recommendation to resolve the problem:
+* Change the value of `num_workers` in your training command (ex. `--num_workers 1`)
+* Reduce the batch_size in `vlbert_tasks.yml`
+* Try one of the [improvements]{#Improvements} proposition bellow
+
+
 
 # Improvements
-Currently, the project requires a lot of resources to be able to run correctly. It is necessary to count at least 6 days of training for the first training with a `GTX 1080 ti`(11Go RAM), and 17h in an environment with 7GPU (7 `Titan-v`(32Go)).
 
 There are several areas for improvement:
 * Search and replace the `to.device()` parameter in the code to be executed in the better position
-* Load a part of the dataset (create a method to load a batch of the dataset)
+* Load a part of the dataset (create a method to load a batch of the dataset). Dataset management is in `vqa_dataset.py`, 
+  method `_load_dataset`, variables `questions = questions_train + questions_val[:-3000]` and `answers = answers_train + answers_val[:-3000]`
 * Train your own BERT (or find a lighter Bert)
+* Initialise Bert once and load it after
 
