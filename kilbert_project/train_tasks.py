@@ -488,6 +488,8 @@ def main():
         print("  Batch size: ", task_batch_size)
         print("  Num steps: %d" % num_train_optimization_steps)
 
+    logger.info("Num GPU used : {}".format(torch.cuda.device_count()))
+    logger.info("CUDA_VISIBLE_DEVICES value : {}".format(os.environ['CUDA_VISIBLE_DEVICES']))
     logger.info("Starting training")
     startIterID = 0
     # initialize the data iteration.
