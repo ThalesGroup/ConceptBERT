@@ -1,7 +1,12 @@
 # 0.2.1 (2021-02-18)
 ## Updated
-* Documentation (README.md) to specify the minimum requirement to run the project
-* Add Trace
+* Documentation (README.md):
+    * specify the minimum requirement to run the project
+    * update the training commands
+    * add information about training parameters
+    * update Docker documentation
+* Update `vlbert_tasks.yml` to run the project on the GPU Server (4x `GeForce RTX 2080 Ti`)
+* Add trace to debug the GPU usage
 
 # 0.2.0 (2021-01-22)
 ## Added
