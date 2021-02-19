@@ -177,12 +177,17 @@ The results must be at least as good as the previous ones.
 # OK-VQA Training
 * [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_okvqa.md)
 
+
 # Troubleshooting
+
 ## CUDA out of memory
 Try the following recommendation to resolve the problem:
 * Change the value of `num_workers` in your training command (ex. `--num_workers 1`)
-* Reduce the batch_size in `vlbert_tasks.yml`
 * Try one of the [improvements]{#Improvements} proposition bellow
+* Reduce parameters in `vlbert_tasks.yml`:
+  * max_seq_length
+  * batch_size
+  * eval_batch_size
 
 
 
