@@ -8,10 +8,10 @@ TASK0:
   features_h5path2: ""
   train_annotations_jsonpath: ""
   val_annotations_jsonpath: ""
-  max_seq_length: 4 #16
-  max_region_num: 10 #100
-  batch_size: 1 # 1024
-  eval_batch_size: 1 # 1024
+  max_seq_length: 16
+  max_region_num: 100
+  batch_size: 1024
+  eval_batch_size: 1024
   train_split: trainval
   val_split: minval
   lr: 0.00004
