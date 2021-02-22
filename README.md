@@ -6,7 +6,7 @@ For an overview of the pipleline, please refere [here](https://sc01-trt.thales-s
 
 ## License
 
-This work is dual-licensed under `Thales Digital Solutions Canada` license and `MIT License`.
+This work is dual-licensed under the `Thales Digital Solutions Canada` license and `MIT License`.
 
 * **The main license is the `Thales Digital Solutions Canada` one**. You can find the [license](LICENSE) file here.
 * This repository is based on and inspired by [Facebook research (vilbert-multi-task)](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes. 
