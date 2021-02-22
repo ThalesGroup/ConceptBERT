@@ -4,7 +4,14 @@ This repository is the implementation of ConceptBert: Concept-Aware Representati
 
 For an overview of the pipleline, please refere [here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/pipeline.png)
 
-This repository is based on and inspired by [Facebook research](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes.
+## License
+
+This work is dual-licensed under `Thales Digital Solutions Canada` license and `MIT License`.
+
+* The main license is the `Thales Digital Solutions Canada` one: [LICENSE](LICENSE) file.
+
+* This repository is based on and inspired by [Facebook research (vilbert-multi-task)](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes. 
+**The code related to `vilbert-multi-task` is licensed by the [MIT License (LICENSE-VILBERT-MULTI-TASK file)](LICENSE-VILBERT-MULTI-TASK).**
 
 ### Pre-requisite
 * python 3.6.12
