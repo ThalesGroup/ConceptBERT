@@ -8,9 +8,9 @@ For an overview of the pipleline, please refere [here](https://sc01-trt.thales-s
 
 This work is dual-licensed under `Thales Digital Solutions Canada` license and `MIT License`.
 
-* **The main license is the `Thales Digital Solutions Canada` one: [LICENSE](LICENSE) file**.
+* **The main license is the `Thales Digital Solutions Canada` one**. You can find the [license](LICENSE) file here.
 * This repository is based on and inspired by [Facebook research (vilbert-multi-task)](https://github.com/facebookresearch/vilbert-multi-task). We sincerely thank for their sharing of the codes. 
-**The code related to `vilbert-multi-task` is licensed by the [MIT License (LICENSE-VILBERT-MULTI-TASK file)](LICENSE-VILBERT-MULTI-TASK).**
+**The code related to `vilbert-multi-task` is licensed by the MIT License, please for more information refer [to the file](LICENSE-VILBERT-MULTI-TASK).**
 
 ### Pre-requisite
 * python 3.6.12
