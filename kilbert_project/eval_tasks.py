@@ -159,8 +159,8 @@ def main():
     torch.manual_seed(args.seed)
 
     # Load main module
-    from bert_pretrained_model import BertConfig
-    from kilbert_project import Kilbert
+    from kilbert_project.bert_pretrained_model import BertConfig
+    from kilbert_project.kilbert import Kilbert
 
     task_names = []
     for i, task_id in enumerate(args.tasks.split("-")):
