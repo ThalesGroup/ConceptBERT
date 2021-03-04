@@ -3,7 +3,8 @@ kilbert/venv
 # Removes jobs folder
 jobs
 
-.idea/*
+../.idea/vcs.xml
+.idea/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
