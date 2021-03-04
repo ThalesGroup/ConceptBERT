@@ -64,7 +64,7 @@ You can choose to run Kilbert with Docker or from your environment
 * `--shm-size` is used to prevent Shared Memory error. Here the value is 10Go ([refer docker documentation](https://docs.docker.com/engine/reference/run/))
 * `-e CUDA_VISIBLE_DEVICES` is used to use specific GPU available. Here we want to use 4 GPU.
 
-When the container is up, go to the section [1. Train with VQA]{#TrainwithVQA}
+When the container is up, go to the section [1. Train with VQA]{#Train-with-VQA}
 
 
 # :rocket: Training and Validation
