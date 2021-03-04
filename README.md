@@ -162,7 +162,7 @@ Run the evaluation :
 
 ## Step 3: Validation with OK-VQA
 * The validation generates two json file. `val_result.json` will be used in the evaluation.
-* Open the logs in the kubernetes pod to check the result of the `eval_score`:
+* Open the logs in the output folder (`nas-data-`) to check the result of the `eval_score`:
 
 ```bash
 08/12/2020 13:09:46 - INFO - utils -   Validation [OK-VQA]: loss 3.681 score 33.040
