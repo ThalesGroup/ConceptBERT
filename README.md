@@ -64,7 +64,7 @@ You can choose to run Kilbert with Docker or from your environment
 * `--shm-size` is used to prevent Shared Memory error. Here the value is 10Go ([refer docker documentation](https://docs.docker.com/engine/reference/run/))
 * `-e CUDA_VISIBLE_DEVICES` is used to use specific GPU available. Here we want to use 4 GPU.
 
-When the container is up, go to the section [1. Train with VQA]{#1.-train-with-vqa}
+When the container is up, go to the section [1. Train with VQA](#1.-train-with-vqa)
 
 
 # :rocket: Training and Validation
@@ -186,7 +186,7 @@ The results must be at least as good as the previous ones.
 ## CUDA out of memory
 Try the following recommendation to resolve the problem:
 * Change the value of `num_workers` in your training command (ex. `--num_workers 1`)
-* Try one of the [improvements]{#Improvements} proposition bellow
+* Try one of the [improvements](#improvements) proposition bellow
 * Reduce parameters in `vlbert_tasks.yml`:
   * max_seq_length
   * batch_size
