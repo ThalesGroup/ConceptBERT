@@ -13,6 +13,14 @@ with open('requirements.txt') as requirements_file:
 with open('CHANGELOG.md') as history_file:
     history = history_file.read()
 
+def _version():
+    """ Get the local package version."""
+    path = join("kilbert_project", "__version__.py")
+    namespace = {}
+    with open(path) as stream:
+        exec(stream.read(), namespace)
+    return namespace["__version__"]
+
 
 setup(
     author="Thales",
@@ -25,11 +33,13 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     name='Kilbert',
-    license="MIT license",
     long_description=readme + '\n\n' + history,
+    package_data={'': ['*.md', '*.txt']},
     keywords="kilbert_project",
     packages=find_packages(),
     install_requires=requirements,
     url='https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/',
+    version=_version(),
+    zip_safe=False,
     description=readme
 )

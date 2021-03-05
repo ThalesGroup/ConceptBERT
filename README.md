@@ -45,7 +45,7 @@ Our implementation uses the pretrained features from bottom-up-attention, 100 fi
 
 The model checkpoints will be saved in the ouput : ./outputs/
 
-# :whale2: Docker (recommended)
+# :whale2: Docker installation (recommended)
 You can choose to run Kilbert with Docker or from your environment
 
 ## Build
@@ -66,6 +66,14 @@ You can choose to run Kilbert with Docker or from your environment
 
 When the container is up, go to the section [1. Train with VQA](#1.-train-with-vqa)
 
+# Other installation
+You can use the `requirements.txt` file to install the dependencies of the project.
+
+Pre-requisite:
+* Compile the tools `cd kilbert_project/tools/refer && make`
+* python 3.6.x
+
+**If you have difficulties to create your environment, look at the contents of the Dockerfile for the necessary dependencies that you might miss.**
 
 # :rocket: Training and Validation
 Note: models and json used in the following examples are the current best results
@@ -192,7 +200,12 @@ Try the following recommendation to resolve the problem:
   * batch_size
   * eval_batch_size
 
-
+Example:
+```bash
+  max_seq_length: 4 # DGX value : 16
+  batch_size: 256 # DGX value : 1024
+  eval_batch_size: 256 # DGX value : 1024
+```
 
 # Improvements
 

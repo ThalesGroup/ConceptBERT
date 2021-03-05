@@ -1,3 +1,15 @@
+# 1.0.0 (2021-03-07)
+## Updated
+* Documentation (README.md):
+* Update `vlbert_tasks.yml` to reset the value to the Kubernetes one. An example of modifications is added on the README.md
+* Update Validation and Evaluation code (missing import)
+* Update the setup.py
+* Update the project for the packaging
+
+## Added
+* MANIFEST.in to add missing files in the packaging (some of them have specific extensions).
+* missing `__init__.py` everywhere in the project
+
 # 0.2.1 (2021-02-18)
 ## Updated
 * Documentation (README.md):
