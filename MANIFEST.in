@@ -19,3 +19,5 @@ global-include *.png
 global-include *.jpg
 global-include *.json
 global-include *.yaml
+global-include *.gz
+global-include *.jar
