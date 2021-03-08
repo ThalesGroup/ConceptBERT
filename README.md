@@ -14,8 +14,10 @@ This work is dual-licensed under the `Thales Digital Solutions Canada` license a
 
 ### Pre-requisite
 * python 3.6.12
+* docker environment
 
 ### Recommended
+If you want to be able to develop on docker, we recommend you to use VSCODE with the container plugin.
 * [VSCode](https://code.visualstudio.com/) work with [containers](https://code.visualstudio.com/docs/containers/overview)
 
 
@@ -23,7 +25,7 @@ This work is dual-licensed under the `Thales Digital Solutions Canada` license a
 Currently, the project requires a lot of resources to be able to run correctly. 
 
 It is necessary to count at least 6 days of training for the first training with a `GTX 1080 Ti`(11Go RAM), and 17hours in an Kubernetes environment with 7GPU (7 `Titan-v`(32Go)).
-All the pipeline was tester on GPU server with four `GeForce RTX 2080 Ti` (12Go)
+All the pipelines were tested on GPU server with four `GeForce RTX 2080 Ti` (12Go)
 
 
 # :electric_plug: Data
