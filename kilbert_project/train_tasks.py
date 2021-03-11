@@ -7,7 +7,6 @@ from tqdm import tqdm
 from io import open
 from easydict import EasyDict as edict
 
-from datetime import date
 import json
 import yaml
 
@@ -27,7 +26,6 @@ from task_utils import (
     LoadDatasets,
     LoadLosses,
     ForwardModelsTrain,
-    ForwardModelsVal,
 )
 from optimization import BertAdam, Adam, Adamax
 

@@ -4,10 +4,7 @@ import os
 import sys
 import argparse
 import logging
-from tqdm import tqdm
 from easydict import EasyDict as edict
-import pdb
-from bisect import bisect
 
 from io import open
 import json
@@ -16,25 +13,17 @@ import random
 
 import numpy as np
 
-from tensorboardX import SummaryWriter
-
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.distributed as dist
 
 # Custom libraries
-from pytorch_pretrained_bert.optimization import BertAdam, WarmupLinearSchedule
 from task_utils import (
     LoadDatasetEval,
     LoadLosses,
-    ForwardModelsTrain,
-    ForwardModelsVal,
     EvaluatingModel,
 )
 import utils as utils
-from vqa_helper import VQA
-from vqaEval import VQAEval
 from load_kilbert import load_kilbert
 
 ### LOGGER CONFIGURATION ###
