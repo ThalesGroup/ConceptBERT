@@ -89,7 +89,7 @@ First we use VQA dataset to train a baseline model. Use the following command:
 
 ### Kubernetes Command
 ```console
-./deploy.sh deployment/vilbert-job-train-model3_vqa_MZ.tpl
+./deploy.sh deployment/train-model3-vqa-mz.tpl
 ```
 
 #### Template command
@@ -123,7 +123,7 @@ Then we use OK-VQA dataset and the trained model from step 1 to train a model. U
 ### Kubernetes Command
 
 ```
-./deploy.sh deployment/vilbert-job-train-model3_okvqa_MZ.tpl  
+./deploy.sh deployment/train-model3-okvqa-mz.tpl  
 ```
     
 #### Template command   
@@ -153,7 +153,7 @@ To validate on held out validation split, we use the model trained in step 2 usi
 ### Kubernetes Command
 
 ```
-./deploy.sh deployment/vilbert-job-eval-model3_okvqa_MZ.tpl  
+./deploy.sh deployment/eval-model3-okvqa-mz.tpl
 ```
 
 #### Template command
@@ -187,7 +187,7 @@ Run the evaluation :
 
 ### Kubernetes Command
 ```console
-./deploy.sh deployment/vilbert-job-evaluation.tpl
+./deploy.sh deployment/evaluation.tpl
 ```
 
 #### Template command
