@@ -1,0 +1,30 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-host
+  namespace: vilbert
+spec:
+  volumes:
+  # Mount SAMBA volume from isilon.storage.vlan
+  - name: nas-data-volume
+    flexVolume:
+      driver: "fstab/cifs"
+      fsType: "cifs"
+      secretRef:
+        name: "vilbert-cifs-service-user-secret"
+      options:
+        networkPath: "//isilon.storage.vlan/HUMAN_AI_DIALOG_SHARED"
+        mountOptions: "dir_mode=0755,file_mode=0644,noperm,vers=3.0,iocharset=utf8"
+  containers:
+  - name: ubuntu
+    image: ubuntu:latest
+    # Will stay up 48h
+    command:
+      - sleep
+      - "172800"
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - name: nas-data-volume
+        mountPath: /nas-data
+  restartPolicy: Never

@@ -1,0 +1,80 @@
+stages:
+- package
+- build
+- deploy
+- outputs
+
+before_script:
+  - source ./environment.sh
+
+package:
+  stage: package
+  image: python:3.6
+  script:
+  - ./ci/package.sh
+  artifacts:
+    expire_in: 10 day
+    paths:
+      - dist/*
+
+build-docker:
+  stage: build
+  dependencies:
+    - package
+# Note: Activating may cause problem during docker build. 
+#  cache:
+#    key: "$CI_PROJECT_NAME"
+#    paths:
+#      - cache/
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker/
+    - export DOCKER_REGISTRY_AUTH=$(echo -n "$DOCKER_REGISTRY_USER:$DOCKER_REGISTRY_PASSWORD" | base64)
+    - echo "{\"auths\":{\"$DOCKER_REGISTRY\":{\"auth\":\"$DOCKER_REGISTRY_AUTH\"}}}" > /kaniko/.docker/config.json
+    - ./ci/build-docker.sh
+ 
+deploy-kubernetes:
+  stage: deploy
+  dependencies:
+    - build-docker
+    - package
+  image:
+    name: registry.gitlab.com/gitlab-org/cluster-integration/helm-install-image/releases/2.16.1-kube-1.13.12:latest
+  script:
+    - ./ci/deploy.sh
+  artifacts:
+    when: always
+    expire_in: 10 day
+    paths:
+      - jobs/*
+ 
+outputs:
+  stage: outputs
+  image:
+    name: registry.gitlab.com/gitlab-org/cluster-integration/helm-install-image/releases/2.16.1-kube-1.13.12:latest
+  dependencies:
+    - build-docker
+    - package
+    - deploy-kubernetes
+  script:
+    - ./ci/download-outputs.sh
+  artifacts:
+    when: always
+    expire_in: 10 day
+    paths:
+      - outputs/*
+      
+kill-job:
+  stage: deploy
+  dependencies:
+    - build-docker
+    - package
+  image:
+    name: registry.gitlab.com/gitlab-org/cluster-integration/helm-install-image/releases/2.16.1-kube-1.13.12:latest
+  script:
+    - TAG_VERSION=$(cat dist/__version__)
+    - kubectl delete jobs/${JOB_NAME}-${TAG_VERSION}
+  when: manual
+
