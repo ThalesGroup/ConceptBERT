@@ -5,6 +5,8 @@ BASE_PATH=$(dirname "$0")/..
 
 TAG_VERSION=$(cat $BASE_PATH/dist/__version__)
 FULL_IMAGE_NAME=$IMAGE_NAME:${TAG_VERSION}
+# Try to use local collaborative address to deploy the docker image in kubernetes
+COLLABORATIVE_REGISTRY="collaborative-docker-registry.collaborative.vlan:5100/"
 
 if [ -z "$CI" ]
 then
@@ -18,8 +20,8 @@ then
                  .
                  
     echo "Pushing to collaborative docker registry"
-    docker tag $FULL_IMAGE_NAME ${collaborative_docker_registry}$FULL_IMAGE_NAME
-    docker push ${collaborative_docker_registry}$FULL_IMAGE_NAME
+    docker tag $FULL_IMAGE_NAME $COLLABORATIVE_REGISTRY$FULL_IMAGE_NAME
+    docker push $COLLABORATIVE_REGISTRY$FULL_IMAGE_NAME
 else
     # Build from Gitlab-CI
     echo "Building and pushing to collaborative docker registry from CI using kaniko (since no priviledged mode)"
