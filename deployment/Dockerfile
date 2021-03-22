@@ -1,5 +1,4 @@
-ARG docker_registry
-FROM ${docker_registry}pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime
+FROM pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime
 
 USER root
 RUN mkdir -p ~/.pip
