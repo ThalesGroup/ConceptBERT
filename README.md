@@ -2,7 +2,9 @@
 
 This repository is the implementation of ConceptBert: Concept-Aware Representation for Visual Question Answering
 
-For an overview of the pipleline, please refere [here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/pipeline.png)
+For an overview of the pipleline, please refere to the following picture:
+
+![Pipeline](/kilbert_project/misc/pipeline.png)
 
 ## License
 
@@ -186,9 +188,9 @@ The results must be at least as good as the previous ones.
 
 
 # VQA Training
-* [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_vqa.md)
+* [Documentation here](/kilbert_project/misc/training_vqa.md)
 # OK-VQA Training
-* [Documentation here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/training_okvqa.md)
+* [Documentation here](/kilbert_project/misc/training_okvqa.md)
 
 
 # Troubleshooting
