@@ -1,6 +1,10 @@
 # ConceptBert
 
-This repository is the implementation of ConceptBert: Concept-Aware Representation for Visual Question Answering
+This repository is the implementation of ConceptBert: Concept-Aware Representation for Visual Question Answering.
+
+Original paper:
+*François Gardères, Maryam Ziaeefard, Baptiste Abeloos, Freddy Lécué: ConceptBert: Concept-Aware Representation for Visual Question Answering. EMNLP (Findings) 2020: 489-498
+https://aclanthology.org/2020.findings-emnlp.44.pdf*
 
 For an overview of the pipleline, please refere to the following picture:
 
