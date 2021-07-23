@@ -1,6 +1,6 @@
 # ConceptBert
 
-This repository is the implementation of ConceptBert: Concept-Aware Representation for Visual QuestionAnswering
+This repository is the implementation of ConceptBert: Concept-Aware Representation for Visual Question Answering
 
 For an overview of the pipleline, please refere [here](https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/blob/master/kilbert/misc/pipeline.png)
 
