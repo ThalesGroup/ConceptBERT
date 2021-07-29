@@ -38,7 +38,7 @@ setup(
     keywords="kilbert_project",
     packages=find_packages(),
     install_requires=requirements,
-    url='https://sc01-trt.thales-systems.ca/gitlab/human-ai-dialog/kilbert/',
+    url='https://github.com/ThalesGroup/ConceptBERT',
     version=_version(),
     zip_safe=False,
     description=readme
