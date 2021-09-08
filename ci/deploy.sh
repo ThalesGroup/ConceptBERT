@@ -5,7 +5,7 @@ BASE_PATH=$(dirname "$0")/..
 source $BASE_PATH/ci/generate-yml-from-template.sh
 
 deploy_locally () {
-  local job_url="https://dashboard.k8s.collaborative.local/#!/job/${NAMESPACE}/${MY_JOB_NAME}?namespace=${NAMESPACE}"
+  local job_url="https://dashboard.prod.kubernetes.collaborative.vlan/#!/job/${NAMESPACE}/${MY_JOB_NAME}?namespace=${NAMESPACE}"
 
   printf "\n\n\e[1;35mTo run job, use command:\e[0m\n\n"
   printf "\n\e[1;35m    kubectl create -f $JOB_FOLDER/${JOB_FILE_NAME}\e[0m\n\n"

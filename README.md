@@ -28,7 +28,7 @@ Make sure project values are exported as environment variable in **environment.s
 To build and deploy, simply run:
 ```
 # Renew kubectl token (expire every 7 days)
-1. Login to https://kubectl.k8s.collaborative.local/login
+1. Login to https://kubectl.prod.kubernetes.collaborative.vlan/login
 2. Copy the text from second black box into a terminal
 3. Try with ```kubectl get nodes```
 
@@ -78,10 +78,10 @@ You will then be able to download outputs for pipeline by selecting **Artifacts-
 
 You can monitor your job using different tools
 
-1. [Dashboard](https://dashboard.k8s.collaborative.local/#!/job?namespace=cad-xray)
+1. [Dashboard](https://dashboard.prod.kubernetes.collaborative.vlan/#!/job?namespace=cad-xray)
 2. [kubectl commands](https://wiki-trt.thales-systems.ca/bin/view/Trt%20Quebec/Engineering/Infrastructure/VLANs/Collaborative_VLAN/Kubernetes/Usage/#HJob27slogs)
 3. [#k8s-collaborative](https://thales-quebec.slack.com/messages/CLALVMM6U) Slack channel
-3. [Grafana](https://grafana.k8s.collaborative.local/) Dashboards (guest/guest)
+3. [Grafana](https://grafana.prod.kubernetes.collaborative.vlan/) Dashboards (guest/guest)
 
 ## Stop/delete job
 
@@ -119,7 +119,7 @@ kubectl create -f ./deployment/ubuntu-host.yaml -n <NAMESPACE>
 
 *Important*: This will start a container that last 48 hours. Modify the ubuntu-host.yaml to increase the sleep time if needed.
 
-Once properly started (verify Pod state in [dashboard](https://dashboard.k8s.collaborative.local/#!/pod?namespace=human-ai-dialog), you can then connect to its terminal:
+Once properly started (verify Pod state in [dashboard](https://dashboard.prod.kubernetes.collaborative.vlan/#!/pod?namespace=human-ai-dialog), you can then connect to its terminal:
 
 ```
 kubectl exec -ti ubuntu-host -n human-ai-dialog -- bash
