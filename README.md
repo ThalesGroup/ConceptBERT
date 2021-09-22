@@ -9,7 +9,7 @@ https://aclanthology.org/2020.findings-emnlp.44.pdf*
 
 For an overview of the pipleline, please refere to the following picture:
 
-![Pipeline](/conceptBert/misc/pipeline.png)
+![Pipeline](/kilbert_project/misc/pipeline.png)
 
 ## License
 
