@@ -11,10 +11,10 @@ RUN pip3 install -r requirements.txt
 
 ENV LANG C.UTF-8
 
-ADD kilbert_project kilbert_project
-RUN cd kilbert_project/tools/refer && make
+ADD conceptBert conceptBert
+RUN cd conceptBert/tools/refer && make
 
-WORKDIR kilbert_project
+WORKDIR conceptBert
 
 ENV PYTHONPATH /workspace/
 

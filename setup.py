@@ -15,7 +15,7 @@ with open('CHANGELOG.md') as history_file:
 
 def _version():
     """ Get the local package version."""
-    path = join("kilbert_project", "__version__.py")
+    path = join("conceptBert", "__version__.py")
     namespace = {}
     with open(path) as stream:
         exec(stream.read(), namespace)
@@ -32,10 +32,10 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.7',
     ],
-    name='Kilbert',
+    name='ConceptBert',
     long_description=readme + '\n\n' + history,
     package_data={'': ['*.md', '*.txt']},
-    keywords="kilbert_project",
+    keywords="conceptBert",
     packages=find_packages(),
     install_requires=requirements,
     url='https://github.com/ThalesGroup/ConceptBERT',

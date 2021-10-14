@@ -1,3 +1,7 @@
+# 1.1.0 (2021-10-14)
+## Updated
+* Change project name
+
 # 1.0.0 (2021-03-07)
 ## Updated
 * Documentation (README.md):
