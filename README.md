@@ -84,7 +84,7 @@ You can choose to run ConceptBert with Docker or from your environment
 ### Additional parameters
 
 ```bash
-  docker run -it -v --shm-size=10g -e CUDA_VISIBLE_DEVICES=0,1,2,3 /path/to/you/nas/:/nas-data/ conceptbert:latest bash
+  docker run -it -v --shm-size=10g -e CUDA_VISIBLE_DEVICES=0,1,2,3 -v /path/to/you/nas/:/nas-data/ conceptbert:latest bash
 ```
 
 * `--shm-size` is used to prevent Shared Memory error. Here the value is
