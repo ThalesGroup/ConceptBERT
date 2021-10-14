@@ -1,8 +1,6 @@
 FROM pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime
 
 USER root
-RUN mkdir -p ~/.pip
-ADD deployment/pip.conf ~/.pip/pip.conf
 
 RUN pip install --upgrade pip
 RUN apt-get update && apt-get upgrade -y
@@ -13,9 +11,10 @@ RUN pip3 install -r requirements.txt
 
 ENV LANG C.UTF-8
 
-ADD conceptBert conceptBert
+ADD . conceptBert
 RUN cd conceptBert/tools/refer && make
 
 WORKDIR conceptBert
 
 ENV PYTHONPATH /workspace/
+

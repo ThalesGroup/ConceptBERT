@@ -5,7 +5,7 @@ BASE_PATH=$(dirname "$0")/..
 
 TAG_VERSION=$(cat $BASE_PATH/dist/__version__)
 FULL_IMAGE_NAME=$IMAGE_NAME:${TAG_VERSION}
-# Try to use local collaborative address to deploy the docker image in kubernetes
+# Use local collaborative address to deploy the docker image in kubernetes
 COLLABORATIVE_REGISTRY="collaborative-docker-registry.collaborative.vlan:5100/"
 
 if [ -z "$CI" ]
@@ -35,9 +35,6 @@ else
              --insecure \
              --skip-tls-verify \
              --insecure-registry=${DOCKER_REGISTRY}
-# Note: Activating may cause problem during docker build. 
-#             --cache=true \
-#             --cache-dir=$BASE_PATH/cache/
-fi             
+fi
 
 printf "\n\e[1;32mBuilded ${FULL_IMAGE_NAME} docker image successfully.\e[0m\n\n"
