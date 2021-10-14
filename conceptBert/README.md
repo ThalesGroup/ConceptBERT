@@ -2,7 +2,9 @@
 
 This repository is the implementation of ConceptBert: Concept-Aware Representation for Visual QuestionAnswering
 
-For an overview of the pipeline, please refere [here](misc/pipeline.png)
+Overview of the pipeline
+
+![Pipeline](/conceptBert/misc/pipeline.png)
 
 ## License
 
