@@ -114,7 +114,7 @@ Note: models and json used in the following examples are the current best result
 First we use VQA dataset to train a baseline model. Use the following command:
 
 ```bash
-  python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_kilbert None \
+  python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --from_pretrained_conceptBert None \
       --from_pretrained=/nas-data/vilbert/data2/kilbert_base_model/pytorch_model_9.bin \
       --config_file config/bert_base_6layer_6conect.json \
       --output_dir=/nas-data/outputs/train1_vqa_trained_model/ \
@@ -130,7 +130,7 @@ First we use VQA dataset to train a baseline model. Use the following command:
 | u | -u is used to force stdin, stdout and stderr to be totally unbuffered, which otherwise is line buffered on the terminal |
 | model_version |  Which version of the model you want to use |
 | bert_model | Bert pre-trained model selected in the list: bert-base-uncased, bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese. |
-| from_pretrained_kilbert | folder of the previous trained model. In this case, it's the first train, so the value is`None`  |
+| from_pretrained_conceptBert | folder of the previous trained model. In this case, it's the first train, so the value is`None`  |
 | from_pretrained  | pre-trained Bert model (VQA) |
 | config_file  | 3 config files are available in `conceptBert/config/` |
 | output_dir  | folder where the results are saved  |
@@ -146,7 +146,7 @@ Then we use OK-VQA dataset and the trained model from step 1 to train a model. U
 ```bash
   python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased \
       --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin \
-      --from_pretrained_kilbert /nas-data/outputs/train1_vqa_trained_model/VQA_bert_base_6layer_6conect/pytorch_model_19.bin \
+      --from_pretrained_conceptBert /nas-data/outputs/train1_vqa_trained_model/VQA_bert_base_6layer_6conect/pytorch_model_19.bin \
       --config_file config/bert_base_6layer_6conect.json \
       --output_dir=/nas-data/outputs/train2_okvqa_trained_model/ \
       --summary_writer /outputs/tensorboards/  \
@@ -160,7 +160,7 @@ The parameters are the same as above, but these values change:
 
 | Parameter | Description |
 |-----------|-------------|
-| from_pretrained_kilbert | The path of the model trained previously (step1 VQA). Corresponding of the last `pytorch_model_**.bin` file generated |
+| from_pretrained_conceptBert | The path of the model trained previously (step1 VQA). Corresponding of the last `pytorch_model_**.bin` file generated |
 | from_pretrained  | pre-trained Bert model (OK-VQA) |
 | task  |  task = 42 OKVQA dataset is used |
 
@@ -172,7 +172,7 @@ VQA_bert_base_6layer_6conect
 ```bash
   python3 -u eval_tasks.py --model_version 3 --bert_model=bert-base-uncased \
       --from_pretrained=/nas-data/vilbert/data2/save_final/VQA_bert_base_6layer_6conect-beta_vilbert_vqa/pytorch_model_11.bin  \
-      --from_pretrained_kilbert=/nas-data/outputs/train2_okvqa_trained_model/OK-VQA_bert_base_6layer_6conect/pytorch_model_99.bin \
+      --from_pretrained_conceptBert=/nas-data/outputs/train2_okvqa_trained_model/OK-VQA_bert_base_6layer_6conect/pytorch_model_99.bin \
       --config_file config/bert_base_6layer_6conect.json \
       --output_dir=/nas-data/outputs/validation_okvqa_trained_model/ \
       --num_workers 16 \
@@ -191,7 +191,7 @@ The parameters are the same as above, but theses values change:
 
 | Parameter | Description |
 |-----------|-------------|
-| from_pretrained_kilbert | The path of the model trained previously (step2 OKVQA). Corresponding of the last `pytorch_model_**.bin` file generated |
+| from_pretrained_conceptBert | The path of the model trained previously (step2 OKVQA). Corresponding of the last `pytorch_model_**.bin` file generated |
 | from_pretrained  | same pre-trained Bert model (OK-VQA) as step2 |
 | task  |  task = 42 OKVQA is used |
 

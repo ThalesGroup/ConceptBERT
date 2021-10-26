@@ -64,7 +64,7 @@ def main():
         "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
     )
     parser.add_argument(
-        "--from_pretrained_kilbert",
+        "--from_pretrained_conceptBert",
         default="bert-base-uncased",
         type=str,
         help="Bert pre-trained model selected in the list: bert-base-uncased, "
@@ -248,7 +248,7 @@ def main():
         default_gpu=default_gpu,
     )
     # model.load_state_dict(torch.load(args.kilbert_path))
-    model = load_kilbert(model, args.from_pretrained_kilbert)
+    model = load_kilbert(model, args.from_pretrained_conceptBert)
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)

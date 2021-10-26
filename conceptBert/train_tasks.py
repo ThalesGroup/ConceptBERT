@@ -70,7 +70,7 @@ def main():
         "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
     )
     parser.add_argument(
-        "--from_pretrained_kilbert",
+        "--from_pretrained_conceptBert",
         default="bert-base-uncased",
         type=str,
     )
@@ -351,13 +351,13 @@ def main():
         split="train",
         default_gpu=default_gpu,
     )
-    if args.from_pretrained_kilbert != "bert-base-uncased":
-        model = torch.load(args.from_pretrained_kilbert)
+    if args.from_pretrained_conceptBert != "bert-base-uncased":
+        model = torch.load(args.from_pretrained_conceptBert)
     """
     """
     model = Kilbert.from_pretrained(
         args.from_pretrained,
-        args.from_pretrained_kilbert,
+        args.from_pretrained_conceptBert,
         args.model_version,
         config,
         num_labels,
@@ -375,8 +375,8 @@ def main():
         split="train",
         default_gpu=default_gpu,
     )
-    if args.from_pretrained_kilbert!="None":
-      model = load_kilbert(model, args.from_pretrained_kilbert)
+    if args.from_pretrained_conceptBert!="None":
+      model = load_kilbert(model, args.from_pretrained_conceptBert)
     
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)
