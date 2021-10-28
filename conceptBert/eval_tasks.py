@@ -24,7 +24,7 @@ from task_utils import (
     EvaluatingModel,
 )
 import utils as utils
-from load_kilbert import load_kilbert
+from load_conceptBert import load_conceptBert
 
 ### LOGGER CONFIGURATION ###
 
@@ -71,7 +71,7 @@ def main():
         "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
     )
     parser.add_argument(
-        "--kilbert_path", type=str, help="Path to the pretrained Kilbert model",
+        "--kilbert_path", type=str, help="Path to the pretrained ConceptBert model",
     )
     parser.add_argument(
         "--output_dir",
@@ -149,7 +149,7 @@ def main():
 
     # Load main module
     from conceptBert.bert_pretrained_model import BertConfig
-    from conceptBert.kilbert import Kilbert
+    from conceptBert.conceptbert import ConceptBert
 
     task_names = []
     for i, task_id in enumerate(args.tasks.split("-")):
@@ -219,7 +219,7 @@ def main():
     num_labels = max([dataset.num_labels for dataset in task_datasets_val.values()])
 
     """
-    model = Kilbert.from_pretrained(
+    model = ConceptBert.from_pretrained(
         args.from_pretrained,
         config,
         split="val",
@@ -228,7 +228,7 @@ def main():
     )
     """
     """
-    model = Kilbert(
+    model = ConceptBert(
         args.from_pretrained,
         args.model_version,
         config,
@@ -238,7 +238,7 @@ def main():
         default_gpu=default_gpu,
     )
     """
-    model = Kilbert(
+    model = ConceptBert(
         args.from_pretrained,
         args.model_version,
         config,
@@ -248,7 +248,7 @@ def main():
         default_gpu=default_gpu,
     )
     # model.load_state_dict(torch.load(args.kilbert_path))
-    model = load_kilbert(model, args.from_pretrained_conceptBert)
+    model = load_conceptBert(model, args.from_pretrained_conceptBert)
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)

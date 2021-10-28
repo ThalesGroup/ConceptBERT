@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 ### FUNCTION DEFINITION ###
-def load_kilbert(model, path_pretrained):
+def load_conceptBert(model, path_pretrained):
     serialization_dir = "/".join(path_pretrained.split("/")[:-1])
     WEIGHTS_NAME = path_pretrained.split("/")[-1]    
         
@@ -61,8 +61,8 @@ def load_kilbert(model, path_pretrained):
                 load(child, prefix + name + ".")
                 
     start_prefix = ""
-    if not hasattr(model, "Kilbert") and any(s.startswith("Kilbert.") for s in state_dict.keys()):
-        start_prefix = "Kilbert."
+    if not hasattr(model, "ConceptBert") and any(s.startswith("ConceptBert.") for s in state_dict.keys()):
+        start_prefix = "ConceptBert."
     load(model, prefix=start_prefix)
     
     if len(missing_keys) > 0:

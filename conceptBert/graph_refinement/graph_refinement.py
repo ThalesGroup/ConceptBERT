@@ -9,8 +9,8 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
-from conceptBert.kilbert import ImportanceIndex
-from conceptBert.kilbert import (
+from conceptBert.conceptbert import ImportanceIndex
+from conceptBert.conceptbert import (
     extract_nodes,
     write_node_dictionary,
     write_neighbors_list,
