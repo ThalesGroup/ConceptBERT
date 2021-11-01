@@ -142,5 +142,5 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
-kilbert_project/.vscode/settings.json
-kilbert_project/.devcontainer/devcontainer.json
+conceptBert/.vscode/settings.json
+conceptBert/.devcontainer/devcontainer.json
