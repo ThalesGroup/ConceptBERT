@@ -71,7 +71,7 @@ def main():
         "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
     )
     parser.add_argument(
-        "--kilbert_path", type=str, help="Path to the pretrained ConceptBert model",
+        "--conceptBert_path", type=str, help="Path to the pretrained ConceptBert model",
     )
     parser.add_argument(
         "--output_dir",
@@ -247,7 +247,7 @@ def main():
         split="val",
         default_gpu=default_gpu,
     )
-    # model.load_state_dict(torch.load(args.kilbert_path))
+    # model.load_state_dict(torch.load(args.conceptBert_path))
     model = load_conceptBert(model, args.from_pretrained_conceptBert)
 
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
