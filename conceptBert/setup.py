@@ -15,7 +15,7 @@ with open('CHANGELOG.md') as history_file:
 
 def _version():
     """ Get the local package version."""
-    path = join("conceptBert", "__version__.py")
+    path = join("ConceptBert", "__version__.py")
     namespace = {}
     with open(path) as stream:
         exec(stream.read(), namespace)
@@ -35,7 +35,7 @@ setup(
     name='ConceptBert',
     long_description=readme + '\n\n' + history,
     package_data={'': ['*.md', '*.txt']},
-    keywords="conceptBert",
+    keywords="ConceptBert",
     packages=find_packages(),
     install_requires=requirements,
     url='https://github.com/ThalesGroup/ConceptBERT',

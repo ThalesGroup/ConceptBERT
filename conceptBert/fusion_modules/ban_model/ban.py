@@ -4,9 +4,9 @@ import torch
 import torch.nn as nn
 
 # Custom libraries
-from conceptBert.kilbert import BiAttention
-from conceptBert.kilbert import BCNet
-from conceptBert.kilbert import FCNet
+from conceptBert.conceptBert_models import BiAttention
+from conceptBert.conceptBert_models import BCNet
+from conceptBert.conceptBert_models import FCNet
 
 ### CLASS DEFINITION ###
 class BANModel(nn.Module):

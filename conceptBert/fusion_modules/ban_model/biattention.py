@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.nn.utils.weight_norm import weight_norm
 
 # Custom libraries
-from conceptBert.kilbert import BCNet
+from conceptBert.conceptBert_models import BCNet
 
 ### CLASS DEFINITION ###
 class BiAttention(nn.Module):

@@ -30,7 +30,7 @@ k = 10
 use_pooled_output = False
 
 ### CLASS DEFINITION ###
-class Kilbert(nn.Module):
+class ConceptBert(nn.Module):
     """
 
     """
@@ -46,7 +46,7 @@ class Kilbert(nn.Module):
         dropout_prob=0.1,
         default_gpu=True,
     ):
-        super(Kilbert, self).__init__()
+        super(ConceptBert, self).__init__()
         # Variables
         self.num_labels = num_labels
         self.dropout = nn.Dropout(dropout_prob)

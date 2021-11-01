@@ -30,7 +30,7 @@ from task_utils import (
 from optimization import BertAdam, Adam, Adamax
 
 import utils as utils
-from load_kilbert import load_kilbert
+from load_conceptBert import load_conceptBert
 
 # LOGGER CONFIGURATION ###
 logging.basicConfig(
@@ -70,7 +70,7 @@ def main():
         "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.",
     )
     parser.add_argument(
-        "--from_pretrained_kilbert",
+        "--from_pretrained_conceptBert",
         default="bert-base-uncased",
         type=str,
     )
@@ -213,7 +213,7 @@ def main():
     # Load the main module
     # from bert_config import BertConfig
     from conceptBert.bert_pretrained_model import BertConfig
-    from conceptBert.kilbert import Kilbert
+    from conceptBert.conceptBert_models import ConceptBert
 
     task_names = []
     task_lr = []
@@ -333,7 +333,7 @@ def main():
         num_epoch = task_cfg[task]["num_epoch"]
 
     """
-    model = Kilbert.from_pretrained(
+    model = ConceptBert.from_pretrained(
         args.from_pretrained,
         config,
         split="train",
@@ -342,7 +342,7 @@ def main():
     )
     """
     """
-    model = Kilbert(
+    model = ConceptBert(
         args.from_pretrained,
         args.model_version,
         config,
@@ -351,13 +351,13 @@ def main():
         split="train",
         default_gpu=default_gpu,
     )
-    if args.from_pretrained_kilbert != "bert-base-uncased":
-        model = torch.load(args.from_pretrained_kilbert)
+    if args.from_pretrained_conceptBert != "bert-base-uncased":
+        model = torch.load(args.from_pretrained_conceptBert)
     """
     """
-    model = Kilbert.from_pretrained(
+    model = ConceptBert.from_pretrained(
         args.from_pretrained,
-        args.from_pretrained_kilbert,
+        args.from_pretrained_conceptBert,
         args.model_version,
         config,
         num_labels,
@@ -366,7 +366,7 @@ def main():
         default_gpu=default_gpu,    
     )
     """
-    model = Kilbert(
+    model = ConceptBert(
         args.from_pretrained,
         args.model_version,
         config,
@@ -375,8 +375,8 @@ def main():
         split="train",
         default_gpu=default_gpu,
     )
-    if args.from_pretrained_kilbert!="None":
-      model = load_kilbert(model, args.from_pretrained_kilbert)
+    if args.from_pretrained_conceptBert!="None":
+      model = load_conceptBert(model, args.from_pretrained_conceptBert)
     
     task_losses = LoadLosses(args, task_cfg, args.tasks.split("-"))
     model.to(device)

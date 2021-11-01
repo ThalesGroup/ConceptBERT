@@ -34,7 +34,7 @@ Previous commands will result in:
 1. Build a .whl (wheel) file containing the application code and copy it in the dist/ folder;
 2. Build a Docker image containing the application code and all its dependencies (using deployment/Dockerfile);
 3. Push the Docker image to the docker registry
-4. Create a kubernetes job file from the (using deployment/kilbert-job.tpl template) and copy it in the jobs/ folder;
+4. Create a kubernetes job file from the (using the template files in the deployment folder) and copy it in the jobs/ folder;
 5. Deploy the kubernetes job to the collaborative cluster.
 
 ## Stop/delete job

@@ -17,5 +17,5 @@ setup(
     packages=find_packages(),
     url='https://github.com/ThalesGroup/ConceptBERT',
     license='',
-    keywords="conceptBert",
+    keywords="ConceptBert",
 )
