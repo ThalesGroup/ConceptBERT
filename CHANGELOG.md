@@ -1,4 +1,4 @@
-# 1.1.0 (2021-11-01)
+# 1.1.1 (2021-11-01)
 ## Updated
 * Change project name
 * update path with the new name
