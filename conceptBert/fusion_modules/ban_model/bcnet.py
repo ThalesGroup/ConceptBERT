@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.nn.utils.weight_norm import weight_norm
 
 # Custom libraries
-from conceptBert.conceptbert import FCNet
+from conceptBert.conceptbert_models import FCNet
 
 ### CLASS DEFINITION ###
 class BCNet(nn.Module):

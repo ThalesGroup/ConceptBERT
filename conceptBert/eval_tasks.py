@@ -149,7 +149,7 @@ def main():
 
     # Load main module
     from conceptBert.bert_pretrained_model import BertConfig
-    from conceptBert.conceptbert import ConceptBert
+    from conceptBert.conceptbert_models import ConceptBert
 
     task_names = []
     for i, task_id in enumerate(args.tasks.split("-")):

@@ -213,7 +213,7 @@ def main():
     # Load the main module
     # from bert_config import BertConfig
     from conceptBert.bert_pretrained_model import BertConfig
-    from conceptBert.conceptbert import ConceptBert
+    from conceptBert.conceptbert_models import ConceptBert
 
     task_names = []
     task_lr = []
