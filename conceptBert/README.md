@@ -45,7 +45,10 @@ four `GeForce RTX 2080 Ti` (12Go)
 
 # :electric_plug: Data
 
-**All information regarding the datasets or models used is specified in the [original paper](https://aclanthology.org/2020.findings-emnlp.44.pdf).**
+> **ℹ️ Note:** Check that the previously generated files are located in the correct folder(s).
+> 
+> - **All information regarding the datasets or models used is specified in the [original paper](https://aclanthology.org/2020.findings-emnlp.44.pdf).**
+> - The `original validation file` and the `pre-trained model` are available on the kaggle of the project: [https://www.kaggle.com/thalesgroup/conceptbert/](https://www.kaggle.com/thalesgroup/conceptbert/)
 
 Our implementation uses the pretrained features from bottom-up-attention, 100 fixed features per image and the GloVe
 vectors. The data might be saved in a folder along with pretrained_models and organized as shown below:
