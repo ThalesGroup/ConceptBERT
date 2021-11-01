@@ -61,6 +61,10 @@ def load_conceptBert(model, path_pretrained):
                 load(child, prefix + name + ".")
                 
     start_prefix = ""
+    
+    # Use the old name for old model
+    # if not hasattr(model, "Kilbert") and any(s.startswith("Kilbert.") for s in state_dict.keys()):
+    #     start_prefix = "Kilbert."
     if not hasattr(model, "ConceptBert") and any(s.startswith("ConceptBert.") for s in state_dict.keys()):
         start_prefix = "ConceptBert."
     load(model, prefix=start_prefix)
