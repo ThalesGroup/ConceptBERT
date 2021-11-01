@@ -15,7 +15,8 @@ python3 -u train_tasks.py --model_version 3 --bert_model=bert-base-uncased --fro
   --output_dir=/nas-data/outputs/train1_vqa_trained_model/ \
   --summary_writer /nas-data/tensorboards/ \
   --num_workers 16 \
-  --tasks 0```
+  --tasks 0
+```
 * tasks 0: run on the VQA dataset
 
 
@@ -31,8 +32,9 @@ python3 -u eval_tasks.py --model_version 3 --bert_model=bert-base-uncased \
   --config_file config/bert_base_6layer_6conect.json \
   --output_dir=/nas-data/outputs/validation_okvqa_trained_model/ \
   --num_workers 16 \
-  --tasks 42 \
-  --split val```
+  --tasks 0 \
+  --split val
+```
 * from_pretrained_conceptBert: change the value with the result of the previous training path
 * tasks 0: run on the VQA dataset
 
