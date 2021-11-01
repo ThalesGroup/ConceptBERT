@@ -1,7 +1,7 @@
 # 1.1.1 (2021-11-01)
 ## Updated
 * Change project name
-* update path with the new name
+* update paths with the new name
 
 # 1.0.0 (2021-03-07)
 ## Updated
