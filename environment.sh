@@ -1,4 +1,4 @@
-export JOB_NAME=vilbert-job
+export JOB_NAME=conceptbert-job
 export IMAGE_NAME=ca.thalesgroup.trt/human-ai-dialog/vilbert
 export JOB_TEMPLATE_FILE_PATH=deployment/deployment_train-model3-vqa-mz.tpl
 export NAMESPACE=human-ai-dialog
